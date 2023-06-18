@@ -1,22 +1,22 @@
 import inquirer from "inquirer";
 
-export const menuList = [
+export const homeMenuList = [
     'Browse listings',
     'My listings',
     'Exit']
 
-const questions = [
+const home = [
     {
         type: 'list',
         name: 'menu',
         message: 'Take an action :',
-        choices: menuList,
+        choices: homeMenuList,
         default: 'Browse listings'
     }
 ];
 
-export const mainMenu = async () => {
+export const homeMenu = async () => {
     let selectedItem : { menu: string };
-    selectedItem = await inquirer.prompt(questions);
+    selectedItem = await inquirer.prompt(home);
     return selectedItem;
 };
