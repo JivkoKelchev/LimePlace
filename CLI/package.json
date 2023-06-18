@@ -1,0 +1,33 @@
+{
+  "name": "lime-place-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "NFT",
+    "Mrketplace",
+    "cli"
+  ],
+  "author": "Zhivko Kelchev",
+  "license": "MIT",
+  "dependencies": {
+    "@metamask/sdk": "^0.3.2",
+    "@types/clear": "^0.1.2",
+    "@types/clui": "^0.3.1",
+    "@types/figlet": "^1.5.6",
+    "@types/inquirer": "^9.0.3",
+    "chalk": "^4.1.2",
+    "clear": "^0.1.0",
+    "clui": "^0.3.6",
+    "configstore": "^6.0.0",
+    "ethers": "^6.6.0",
+    "figlet": "^1.6.0",
+    "inquirer": "^8.0.0",
+    "minimist": "^1.2.8",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.3"
+  }
+}
