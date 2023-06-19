@@ -1,8 +1,13 @@
 import inquirer from "inquirer";
 
 export const homeMenuList = [
-    'Browse listings',
-    'My listings',
+    'Show active listings',
+    'View listing',
+    'Buy listing',
+    'Edit price',
+    'Cancel listing',
+    'List NFT',
+    'Mint and list NFT',
     'Exit']
 
 const home = [
