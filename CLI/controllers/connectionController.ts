@@ -1,12 +1,17 @@
-import {networkList, networkMenu} from "../views/menu/networks";
-import {LocalNetworkData, localNetworkPrompts} from "../views/menu/localContracts";
+import {networkList, networkMenu} from "../views/menu/connection/networks";
+import {LocalNetworkData, localNetworkPrompts} from "../views/menu/connection/localContracts";
 import {ethers} from "ethers";
 import {Sdk} from "../sdk/sdk";
 
-const limePlaceAbi = require('../sdk/artifacts/LimePlace.json')
-const limePlaceNftAbi = require('../sdk/artifacts/LimePlaceNFT.json')
+let sdkInstance: Sdk | null = null;
+let instanceCreated = false;
 
 export const initConnection = async () : Promise<Sdk> => {
+    if(instanceCreated) {
+        if(sdkInstance) {
+            return sdkInstance;
+        }
+    }
     const network = await selectNetwork();
     return await connect(network);
 }
@@ -40,7 +45,7 @@ const selectNetwork = async () : Promise<string> => {
 const initSdkForLocalNetwork = async  (data: LocalNetworkData) : Promise<Sdk> => {
     const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545/");
     const signer = await provider.getSigner(data.accountAddress);
-    const limePlace = new ethers.Contract(data.limePlaceAddress, limePlaceAbi.abi, signer);
-    const limePlaceNft = new ethers.Contract(data.limePlaceNftAddress, limePlaceNftAbi.abi, signer);
-    return new Sdk(provider, limePlace, limePlaceNft, signer);
+    sdkInstance = new Sdk(provider, data.limePlaceAddress, data.limePlaceNftAddress, signer);
+    instanceCreated = true;
+    return sdkInstance;
 }

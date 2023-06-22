@@ -8,7 +8,7 @@ const run = async () => {
         //init connection
         const sdk = await initConnection();
         //load main menu
-        await loadHomePage();
+        await loadHomePage(sdk);
     }catch (err) {
         console.log(err);
     }

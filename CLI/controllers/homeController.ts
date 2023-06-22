@@ -1,6 +1,8 @@
 import clear from "clear";
 import {printHeader} from "../views/header";
 import {homeMenu, homeMenuList} from "../views/menu/home";
+import {loadMintAndList} from "./listingsController";
+import {Sdk} from "../sdk/sdk";
 
 
 export const loadHeader = () => {
@@ -10,7 +12,7 @@ export const loadHeader = () => {
     //todo add some description
 }
 
-export const loadHomePage = async () => {
+export const loadHomePage = async (sdk: Sdk) => {
     //print main menu
     const selected = await homeMenu();
     switch (selected.menu) {
@@ -47,7 +49,7 @@ export const loadHomePage = async () => {
             break;
         }
         case homeMenuList[6]: {
-            await renderMintAndListView();
+            await renderMintAndListView(sdk);
             break;
         }
         case homeMenuList[7]: {
@@ -85,8 +87,8 @@ const renderListNftView = () => {
     console.log('List NFT prompt')
 }
 
-const renderMintAndListView = () => {
-    console.log('Mint and list NFT prompt')
+const renderMintAndListView = async (sdk: Sdk) => {
+    await loadMintAndList(sdk);
 }
 
 const exit = () => {
