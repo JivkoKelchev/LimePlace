@@ -6,9 +6,9 @@ const run = async () => {
         //load header
         loadHeader();
         //init connection
-        const sdk = await initConnection();
+        await initConnection();
         //load main menu
-        await loadHomePage(sdk);
+        await loadHomePage();
     }catch (err) {
         console.log(err);
     }
