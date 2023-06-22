@@ -1,6 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {Inject, Injectable} from '@nestjs/common';
 import { ethers, BigNumberish } from 'ethers';
 import { getProvider } from '../ethers.provider';
+import {Listing} from "../listings/listing.entity";
+import {ListingsService} from "../listings/listings.service";
+//const limePlaceAbi = require('../artifacts/LimePlace.json')
 
 @Injectable()
 export class IndexerService {
@@ -8,14 +11,15 @@ export class IndexerService {
     private readonly contractAddress: string;
     private readonly contractABI: any;
 
-    constructor() {
+    constructor(@Inject(ListingsService)
+                private readonly listingServise: ListingsService) {
         console.log('Make sure hardhat local node is started!')
         this.provider = getProvider();
         //todo use real contract address
-        this.contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+        this.contractAddress = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
         //todo don't forget to update the abi
         this.contractABI =
-            '[{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"_bookId","type":"bytes32"},{"indexed":false,"internalType":"uint256","name":"_copies","type":"uint256"}],"name":"LogBookAdded","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"_bookId","type":"bytes32"},{"indexed":false,"internalType":"address","name":"_user","type":"address"}],"name":"LogBookBorrowed","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"_bookId","type":"bytes32"},{"indexed":false,"internalType":"address","name":"_user","type":"address"}],"name":"LogBookReturned","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"inputs":[{"internalType":"string","name":"_title","type":"string"},{"internalType":"string","name":"_author","type":"string"},{"internalType":"uint8","name":"_copies","type":"uint8"}],"name":"addBook","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"books","outputs":[{"internalType":"string","name":"title","type":"string"},{"internalType":"string","name":"author","type":"string"},{"internalType":"uint256","name":"copies","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"booksCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_bookId","type":"bytes32"}],"name":"borrowBook","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_bookId","type":"bytes32"}],"name":"returnBook","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"showAvailableBooks","outputs":[{"internalType":"bytes32[]","name":"","type":"bytes32[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_bookId","type":"bytes32"}],"name":"showBookHistory","outputs":[{"internalType":"address[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"showBookHistoryByUser","outputs":[{"internalType":"bytes32[]","name":"","type":"bytes32[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_bookId","type":"bytes32"},{"internalType":"address","name":"_user","type":"address"}],"name":"showBookLog","outputs":[{"components":[{"internalType":"uint256","name":"borrowedTimestamp","type":"uint256"},{"internalType":"uint256","name":"returnedTimestamp","type":"uint256"}],"internalType":"struct Library.HistoryItem[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"showUserCurrentBooks","outputs":[{"internalType":"bytes32[]","name":"","type":"bytes32[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"}]';
+            '[{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"listingId","type":"bytes32"},{"indexed":false,"internalType":"address","name":"tokenContract","type":"address"},{"indexed":false,"internalType":"uint256","name":"tokenId","type":"uint256"},{"indexed":false,"internalType":"address","name":"seller","type":"address"},{"indexed":false,"internalType":"uint256","name":"price","type":"uint256"}],"name":"LogListingAdded","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"listingId","type":"bytes32"},{"indexed":false,"internalType":"bool","name":"active","type":"bool"}],"name":"LogListingCanceled","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"listingId","type":"bytes32"},{"indexed":false,"internalType":"address","name":"buyer","type":"address"},{"indexed":false,"internalType":"uint256","name":"price","type":"uint256"}],"name":"LogListingSold","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"listingId","type":"bytes32"},{"indexed":false,"internalType":"uint256","name":"price","type":"uint256"}],"name":"LogListingUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"inputs":[],"name":"LISTING_FEE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_listingId","type":"bytes32"}],"name":"buy","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_listingId","type":"bytes32"}],"name":"cancelListing","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_listingId","type":"bytes32"},{"internalType":"uint256","name":"_price","type":"uint256"}],"name":"editListing","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_contractAddress","type":"address"},{"internalType":"uint256","name":"_tokenId","type":"uint256"}],"name":"generateListingId","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getFees","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_listingId","type":"bytes32"}],"name":"getListing","outputs":[{"components":[{"internalType":"address","name":"tokenContract","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"address payable","name":"seller","type":"address"},{"internalType":"uint256","name":"price","type":"uint256"},{"internalType":"bool","name":"listed","type":"bool"},{"internalType":"uint256","name":"updatedAt","type":"uint256"}],"internalType":"struct LimePlace.Listing","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getPendingFees","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_tokenContract","type":"address"},{"internalType":"uint256","name":"_tokenId","type":"uint256"},{"internalType":"uint256","name":"_price","type":"uint256"}],"name":"list","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"withdrawFees","outputs":[],"stateMutability":"nonpayable","type":"function"}]';
     }
 
     async listenToEvents() {
@@ -25,24 +29,38 @@ export class IndexerService {
             this.provider,
         );
         //log old events
-        const LogBookAddedFilter = contract.filters.LogBookAdded();
-        const events = await contract.queryFilter(LogBookAddedFilter);
+        const LogListingAddedFilter = contract.filters.LogListingAdded();
+        const events = await contract.queryFilter(LogListingAddedFilter);
         const iface = new ethers.Interface(this.contractABI);
 
         events.map((eventLog) => {
             const decodedArgs = iface.decodeEventLog(
-                'LogBookAdded',
+                'LogListingAdded',
                 eventLog.data,
             );
             console.log(decodedArgs);
         });
 
         contract.on(
-            'LogBookAdded',
-            async (bookId: string, copies: BigNumberish) => {
+            'LogListingAdded',
+            async (listingId: string, tokenContract: string, tokenId: number, seller: string, price: number) => {
                 console.log(
-                    `LogBookAdded emitted \n Book id: ${bookId} \n Copies: ${copies}`,
+                    `LogListingAdded emitted \n 
+                    listingId: ${listingId} \n 
+                    tokenId: ${tokenId} \n
+                    seller: ${seller} \n
+                    price: ${price}`
                 );
+                
+                const listingEntity = new Listing();
+                listingEntity.listingUid = listingId;
+                listingEntity.tokenId = Number(tokenId);
+                listingEntity.owner = seller;
+                listingEntity.price = Number(price);
+                listingEntity.active = true;
+                listingEntity.collection = tokenContract;
+                listingEntity.updated_at = 0;
+                await this.listingServise.addListing(listingEntity);
             },
         );
         

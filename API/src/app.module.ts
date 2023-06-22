@@ -1,11 +1,27 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { IndexerService } from './indexer/indexer.service';
+import { ListingsModule } from './listings/listings.module';
+import { TypeOrmModule } from "@nestjs/typeorm";
+import {IndexerModule} from "./indexer/indexer.module";
+import {Listing} from "./listings/listing.entity";
 
 @Module({
-    imports: [],
-    controllers: [AppController],
-    providers: [AppService, IndexerService],
+    imports: [
+        IndexerModule,
+        ListingsModule,
+        TypeOrmModule.forRoot({
+            type: 'mysql',
+            host: 'localhost',//'lime_place_db',
+            port: 3306,
+            username: 'root',
+            password: 'your_mysql_root_password',
+            database: 'lime_place',
+            entities: [Listing],
+            synchronize: true,
+        }),
+    ],
+    controllers: [],
+    providers: [IndexerService],
+    
 })
 export class AppModule {}
