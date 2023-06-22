@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import figlet from "figlet";
 import logo from "./logo";
-import {combineArt, padArt} from "../utils/art-utils";
+import {combineArt, padArt} from "../utils/view-utils";
 
 export function printHeader(showLogo: boolean) {
     const limePlaceTxt = figlet.textSync('LimePlace', { horizontalLayout: 'full' })

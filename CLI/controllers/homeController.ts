@@ -1,6 +1,6 @@
 import clear from "clear";
 import {printHeader} from "../views/header";
-import {homeMenu, homeMenuList} from "../views/menu/home";
+import {mainMenu, homeMenuList} from "../views/menu/mainPrompt";
 import {loadMintAndList} from "./listingsController";
 
 
@@ -13,7 +13,7 @@ export const loadHeader = () => {
 
 export const loadHomePage = async () => {
     //print main menu
-    const selected = await homeMenu();
+    const selected = await mainMenu();
     switch (selected.menu) {
         //0 - 'Show active listings',
         //1 - 'View listing',

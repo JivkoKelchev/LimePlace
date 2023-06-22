@@ -1,5 +1,4 @@
-import {Sdk} from "../sdk/sdk";
-import {imagePropmt} from "../views/menu/listings/mintAndList";
+import {imagePropmt} from "../views/menu/listings/mintAndListPrompt";
 import {loadHomePage} from "./homeController";
 import {initConnection} from "./connectionController";
 import chalk from "chalk";

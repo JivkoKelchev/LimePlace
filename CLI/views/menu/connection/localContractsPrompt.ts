@@ -1,5 +1,6 @@
 import {ethers} from "ethers";
 import inquirer from "inquirer";
+import {clearScreen} from "../../../utils/view-utils";
 
 const questions = [
     {
@@ -43,5 +44,6 @@ const questions = [
 export interface LocalNetworkData { limePlaceAddress: string,  limePlaceNftAddress: string, accountAddress: string};
 
 export const localNetworkPrompts = async () : Promise<LocalNetworkData> => {
-    return await inquirer.prompt(questions);
+    await clearScreen();
+    return inquirer.prompt(questions);
 };

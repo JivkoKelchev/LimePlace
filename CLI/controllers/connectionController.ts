@@ -1,5 +1,5 @@
-import {networkList, networkMenu} from "../views/menu/connection/networks";
-import {LocalNetworkData, localNetworkPrompts} from "../views/menu/connection/localContracts";
+import {networkList, networkMenu} from "../views/menu/connection/networksPrompt";
+import {LocalNetworkData, localNetworkPrompts} from "../views/menu/connection/localContractsPrompt";
 import {ethers} from "ethers";
 import {Sdk} from "../sdk/sdk";
 

@@ -1,4 +1,5 @@
 import inquirer from "inquirer";
+import {clearScreen} from "../../utils/view-utils";
 
 export const homeMenuList = [
     'Show active listings',
@@ -10,18 +11,20 @@ export const homeMenuList = [
     'Mint and list NFT',
     'Exit']
 
-const home = [
+const mainPrompt = [
     {
         type: 'list',
         name: 'menu',
         message: 'Take an action :',
         choices: homeMenuList,
-        default: 'Browse listings'
+        default: 'Browse listings',
+        clearPromptOnDone: true 
     }
 ];
 
-export const homeMenu = async () => {
+export const mainMenu = async () => {
+    await clearScreen();
     let selectedItem : { menu: string };
-    selectedItem = await inquirer.prompt(home);
+    selectedItem = await inquirer.prompt(mainPrompt);
     return selectedItem;
 };

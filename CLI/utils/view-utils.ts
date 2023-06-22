@@ -1,3 +1,5 @@
+import {loadHeader} from "../controllers/homeController";
+
 export const combineArt = (art1: string, art2: string) => {
     const lines1 = art1.split('\n');
     const lines2 = art2.split('\n');
@@ -20,4 +22,9 @@ export const padArt = (art: string, lines: number) => {
 
     return artLines.join('\n');
 };
+
+export const clearScreen = async () => {
+    console.clear();
+    loadHeader();
+}
 
