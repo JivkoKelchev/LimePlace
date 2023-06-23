@@ -4,8 +4,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-#    links:
-#      - "dema_fe:dema_fe"
     ports:
       - "3000:3000"
     volumes:

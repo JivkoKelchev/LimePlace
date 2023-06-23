@@ -15,7 +15,7 @@ import {ConfigModule} from "@nestjs/config";
         }),
     TypeOrmModule.forRoot({
             type: 'mysql',
-            host: 'localhost',//'lime_place_db',
+            host: 'lime_place_db',//'localhost',
             port: 3306,
             username: 'root',
             password: 'your_mysql_root_password',
