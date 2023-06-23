@@ -1,4 +1,5 @@
 import {loadHeader} from "../controllers/homeController";
+import asciifyImage from 'asciify-image'
 
 export const combineArt = (art1: string, art2: string) => {
     const lines1 = art1.split('\n');
@@ -26,5 +27,30 @@ export const padArt = (art: string, lines: number) => {
 export const clearScreen = async () => {
     console.clear();
     loadHeader();
+}
+
+export const printImage = async (imagePath: string) => {
+    let fit: 'box' | 'width' | 'height' | 'original' | 'none';
+    fit = 'box';
+    const options = {
+        color: true,
+        fit:    fit,
+        width:  20,
+    }
+
+    const asciified = await asciifyImage(imagePath, options);
+    
+    console.log('');
+    // Print asciified image to console
+    console.log(asciified);
+        // .then(function (asciified) {
+        //     console.log('');
+        //     // Print asciified image to console
+        //     console.log(asciified);
+        // })
+        // .catch(function (err) {
+        //     // Print error to console
+        //     console.error(err);
+        // });
 }
 

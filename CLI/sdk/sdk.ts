@@ -27,13 +27,10 @@ export class Sdk{
         const rc = await tx.wait(); // 0ms, as tx is already confirmed
         const tokenId = rc?.logs[0].args[2];
         
-        //todo get isApprovedForAll from the api
         //check for approvel
         const signerAddress = await this.signer.getAddress();
         const isApprovedForAll = await this.limePlaceNFT.isApprovedForAll(signerAddress, this.limePlaceAddress);
-        console.log('Debug: Limeplace is approved: ', isApprovedForAll)
         if(!isApprovedForAll) {
-            console.log('Debug: start approval')
             await this.limePlaceNFT.setApprovalForAll(this.limePlaceAddress, true)
         }
         return tokenId ?? 0;

@@ -19,6 +19,7 @@
     "@types/clui": "^0.3.1",
     "@types/figlet": "^1.5.6",
     "@types/inquirer": "^9.0.3",
+    "asciify-image": "^0.1.10",
     "chalk": "^4.1.2",
     "clear": "^0.1.0",
     "clui": "^0.3.6",
