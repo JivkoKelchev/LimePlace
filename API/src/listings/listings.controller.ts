@@ -1,9 +1,13 @@
-import {Controller, Get} from '@nestjs/common';
+import {Controller, Get, Inject} from '@nestjs/common';
+import {ListingsService} from "./listings.service";
 
 @Controller('listings')
 export class ListingsController {
+
+    constructor(@Inject(ListingsService) private readonly listingServise: ListingsService) {}
+
     @Get()
     getListings() {
-        return 'the listings from docker'
+        return this.listingServise.findAll();
     }
 }

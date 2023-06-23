@@ -4,12 +4,16 @@ import { ListingsModule } from './listings/listings.module';
 import { TypeOrmModule } from "@nestjs/typeorm";
 import {IndexerModule} from "./indexer/indexer.module";
 import {Listing} from "./listings/listing.entity";
+import {ConfigModule} from "@nestjs/config";
 
 @Module({
     imports: [
         IndexerModule,
         ListingsModule,
-        TypeOrmModule.forRoot({
+        ConfigModule.forRoot({
+            isGlobal: true,
+        }),
+    TypeOrmModule.forRoot({
             type: 'mysql',
             host: 'localhost',//'lime_place_db',
             port: 3306,
