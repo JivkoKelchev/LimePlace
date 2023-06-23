@@ -3,12 +3,8 @@ import {clearScreen} from "../../utils/view-utils";
 
 export const homeMenuList = [
     'Show active listings',
-    'View listing',
-    'Buy listing',
-    'Edit price',
-    'Cancel listing',
-    'List NFT',
     'Mint and list NFT',
+    'List external NFT',
     'Exit']
 
 const mainPrompt = [

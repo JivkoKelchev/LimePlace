@@ -16,42 +16,22 @@ export const loadHomePage = async () => {
     const selected = await mainMenu();
     switch (selected.menu) {
         //0 - 'Show active listings',
-        //1 - 'View listing',
-        //2 - 'Buy listing',
-        //3 - 'Edit price',
-        //4 - 'Cancel listing',
-        //5 - 'List NFT',
-        //6 - 'Mint and list NFT',
-        //7 - 'Exit'
+        //1 - 'Mint and list NFT',
+        //2 - 'List NFT',
+        //3 - 'Exit'
         case homeMenuList[0]: {
             await renderActiveListingView();
             break;
         }
         case homeMenuList[1]: {
-            await renderViewListingView();
-            break;
-        }
-        case homeMenuList[2]: {
-            await renderBuyListingView();
-            break;
-        }
-        case homeMenuList[3]: {
-            await renderEditPriceView();
-            break;
-        }
-        case homeMenuList[4]: {
-            await renderCancelListingView();
-            break;
-        }
-        case homeMenuList[5]: {
-            await renderListNftView();
-            break;
-        }
-        case homeMenuList[6]: {
             await renderMintAndListView();
             break;
         }
-        case homeMenuList[7]: {
+        case homeMenuList[2]: {
+            await renderListNftView();
+            break;
+        }
+        case homeMenuList[3]: {
             exit();
             break;
         }
