@@ -1,4 +1,4 @@
-import {Inject, Injectable} from '@nestjs/common';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {ethers, BigNumberish, Contract} from 'ethers';
 import { getProvider } from '../ethers.provider';
 import {Listing} from "../listings/listing.entity";
@@ -33,6 +33,8 @@ export class IndexerService {
         const events = await contract.queryFilter(LogListingAddedFilter);
         const iface = new ethers.Interface(this.contractABI);
 
+        console.log('--------------------------------------')
+        console.log('Old events: ')
         //index old events
         events.map((eventLog) => {
             const decodedArgs = iface.decodeEventLog(
@@ -41,9 +43,12 @@ export class IndexerService {
             );
             console.log(decodedArgs);
         });
+        console.log('--------------------------------------')
         
         //listen for new events
+        await this.listenForLogListingAdded(contract);
         
+        await this.listenForLogListingSold(contract);
 
         
         
@@ -53,17 +58,23 @@ export class IndexerService {
     private listenForLogListingAdded = async (contract: Contract) => {
         await contract.on(
             'LogListingAdded',
-            async (...args) => {
+            //async (...args) => {
+                async(listingId: string, tokenContract: string, tokenId: number, seller: string, price: number) => {
                 // event LogListingAdded(bytes32 listingId, address tokenContract, uint256 tokenId, address seller, uint256 price);
                 const blockNumber = await this.provider.getBlockNumber();
-                const event = args[args.length - 1];
+                //const event = args[args.length - 1];
                 console.log('event LogListingAdded')
                 console.log('current block : ' + blockNumber)
-                console.log("event block :"+event.blockNumber) //undefined
+                //console.log("event block :"+event.blockNumber) //undefined
                 //todo use database to check last block number
-                if(event.blockNumber <= blockNumber) return;
+                //if(event.blockNumber <= blockNumber) return;
                 console.log(
-                    ...args
+                    `LogListingAdded emitted
+                    listingId: ${listingId}
+                    tokenContract: ${tokenContract}
+                    tokenId: ${tokenId}
+                    seller: ${seller}
+                    price: ${price}`
                 );
 
                 //todo add listing in db
