@@ -20,21 +20,7 @@ const selectImageQuestion = [
 
 ];
 
-const confirmImageQuestion = [
-    {
-        type: 'input',
-        name: 'confirm',
-        message: 'Do you want to proceed? [y/n]',
-        validate: function( confirmation: string ) {
-            if (confirmation.toUpperCase() === 'Y' || confirmation.toUpperCase() === 'N') {
-                return true;
-            } else {
-                return "Use 'y' or 'n' to confirm!";
-            }
-        }
-    }
 
-];
 
 export const selectImagePrompt = async () => {
     let filePath : { filePath: string };
@@ -42,8 +28,3 @@ export const selectImagePrompt = async () => {
     return filePath;
 };
 
-export const confirmImagePrompt = async () => {
-    let confirm : { confirm: string };
-    confirm = await inquirer.prompt(confirmImageQuestion);
-    return confirm;
-};
