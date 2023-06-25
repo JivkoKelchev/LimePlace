@@ -7,7 +7,7 @@ import {loadActiveListings, loadMintAndList} from "./listingsController";
 export const loadHeader = () => {
     //show header
     clear();
-    printHeader(true);
+    printHeader();
     //todo add some description
 }
 

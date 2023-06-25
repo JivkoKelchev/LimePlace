@@ -3,7 +3,7 @@ import figlet from "figlet";
 import logo from "./logo";
 import {combineArt, padArt} from "../utils/view-utils";
 
-export function printHeader(showLogo: boolean) {
+export function printHeader() {
     const limePlaceTxt = figlet.textSync('LimePlace', { horizontalLayout: 'full' })
     let result = limePlaceTxt;
     const logoText = chalk.greenBright(logo());
