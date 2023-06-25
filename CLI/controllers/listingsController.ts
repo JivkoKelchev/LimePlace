@@ -10,42 +10,59 @@ import Spiner from "../views/genericUI/spiner";
 import {infoMsg} from "../views/genericUI/infoMsg";
 import {getListings} from "../services/api";
 import {renderActiveListingsTable} from "../views/listingsTable";
-import {activeListingsMenu, activeListingsMenuList} from "../views/menu/listings/listingsTablePrompt";
+import {
+    activeListingsMenu,
+    FILTER_BY_USR, MAIN_MENU,
+    NEXT_PAGE,
+    PREV_PAGE, SORT_BY_PRICE, VIEW_LISTING
+} from "../views/menu/listings/listingsTablePrompt";
 
 
 export const loadActiveListings = async (page?: number, user?: string, sort?: boolean) => {
     await clearScreen();
     let currentPage = page??1;
     const data = await getListings(currentPage, user, sort);
-    //render last page if currentPage is bigger then page count
+    
+    //set pagination controls
+    let hasPrev = true;
+    let hasNext = true;
     const pageCount = Math.ceil(data.count / 5);
-    if(currentPage > pageCount) {
-        currentPage = pageCount;
+    if(currentPage === pageCount) {
+        hasNext = false;
+    }
+    if(currentPage === 1) {
+        hasPrev = false;
     }
     renderActiveListingsTable(data.data, currentPage, data.count)
-    const actionInput = await activeListingsMenu();
+    const actionInput = await activeListingsMenu(hasNext, hasPrev);
     switch (actionInput.menu) {
-        // 0 - 'Next page',
-        // 1 - 'View listing',
-        // 2 - 'Sort by price',
-        // 3 - 'Filter by user address',
-        // 4 - 'Back to main'
-        case activeListingsMenuList[0]: {
-            await loadActiveListings(currentPage + 1);
+        // NEXT_PAGE
+        // PREV_PAGE
+        // VIEW_LISTING
+        // SORT_BY_PRICE
+        // FILTER_BY_USR
+        // MAIN_MENU
+        case NEXT_PAGE: {
+            await loadActiveListings(currentPage + 1, user, sort);
             break;
         }
-        case activeListingsMenuList[1]: {
+        case PREV_PAGE: {
+            await loadActiveListings(currentPage - 1, user, sort);
+            break;
+        }
+        case VIEW_LISTING: {
             console.log('Not implemented')
             break;
         }
-        case activeListingsMenuList[2]: {
-            await loadActiveListings(currentPage, undefined, true)
+        case SORT_BY_PRICE: {
+            await loadActiveListings(1, undefined, true)
             break;
         }
-        case activeListingsMenuList[3]: {
+        case FILTER_BY_USR: {
+            console.log('Not implemented')
             break;
         }
-        case activeListingsMenuList[4]: 
+        case MAIN_MENU: 
         default:
         {
             await loadHomePage();

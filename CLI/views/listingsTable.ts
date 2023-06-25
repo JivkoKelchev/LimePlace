@@ -8,4 +8,5 @@ export const renderActiveListingsTable = (data: ListingModel[],page: number, cou
     console.log('--------------------------------------------------------------------------------------------------------------------')
     const totalPages = Math.ceil(count/5);
     console.log(`Page ${page}/${totalPages}`)
+    console.log('\n');
 } 
