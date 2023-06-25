@@ -1,9 +1,7 @@
 import clear from "clear";
 import {printHeader} from "../views/header";
 import {mainMenu, homeMenuList} from "../views/menu/mainPrompt";
-import {loadMintAndList} from "./listingsController";
-import {getListings} from "../services/api";
-import {renderActiveListingsTable} from "../views/listings/activeListings";
+import {loadActiveListings, loadMintAndList} from "./listingsController";
 
 
 export const loadHeader = () => {
@@ -33,11 +31,9 @@ export const loadHomePage = async () => {
             await renderListNftView();
             break;
         }
-        case homeMenuList[3]: {
-            exit();
-            break;
-        }
-        default: {
+        case homeMenuList[3]:
+        default: 
+        {
             exit();
             break;
         }
@@ -45,9 +41,7 @@ export const loadHomePage = async () => {
 }
 
 const renderActiveListingView = async () => {
-    const data = await getListings();
-    //render table with firs listings page
-    renderActiveListingsTable(data.data, 1, data.count)
+    await loadActiveListings()
 }
 
 const renderViewListingView = () => {

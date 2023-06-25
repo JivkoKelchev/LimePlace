@@ -1,12 +1,23 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
 import ListingModel from "../models/Listing";
 
-export const getListings = async (page? : number): Promise<{ data: ListingModel[], count: number }> => {
-    const apiUrl = process.env.BACKEND_HOST+'/listings';
-    const pagination = {page: page};
-    pagination.page = page ?? 1;
+interface QueryParams {
+    page: number;
+    user?: string,
+    sort?: boolean
+}
 
-    return axios.get(apiUrl, {params: pagination})
+export const getListings = async (page : number, user?: string, sort?: boolean):  Promise<{ data: ListingModel[], count: number }> => {
+    const apiUrl = process.env.BACKEND_HOST+'/listings';
+    let queryParams: QueryParams = { page: page };
+    if(user) {
+        queryParams.user = user;
+    }
+    if(sort !== undefined){
+        queryParams.sort = sort;
+    } 
+
+    return axios.get(apiUrl, {params: queryParams})
         .then((response: AxiosResponse) => {
             return response.data;
         })

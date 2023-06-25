@@ -1,7 +1,6 @@
 import {loadHeader, loadHomePage} from "./controllers/homeController";
 import {getSdk} from "./controllers/connectionController";
 import {config} from "dotenv";
-import {getListings} from "./services/api";
 
 const run = async () => {
     try {
