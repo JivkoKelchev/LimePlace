@@ -2,6 +2,8 @@ import clear from "clear";
 import {printHeader} from "../views/header";
 import {mainMenu, homeMenuList} from "../views/menu/mainPrompt";
 import {loadMintAndList} from "./listingsController";
+import {getListings} from "../services/api";
+import {renderActiveListingsTable} from "../views/listings/activeListings";
 
 
 export const loadHeader = () => {
@@ -42,8 +44,10 @@ export const loadHomePage = async () => {
     }
 }
 
-const renderActiveListingView = () => {
-    console.log('Show active listing table');
+const renderActiveListingView = async () => {
+    const data = await getListings();
+    //render table with firs listings page
+    renderActiveListingsTable(data.data, 1, data.count)
 }
 
 const renderViewListingView = () => {

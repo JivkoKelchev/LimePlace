@@ -1,6 +1,7 @@
 import {loadHeader, loadHomePage} from "./controllers/homeController";
 import {getSdk} from "./controllers/connectionController";
 import {config} from "dotenv";
+import {getListings} from "./services/api";
 
 const run = async () => {
     try {
@@ -12,6 +13,7 @@ const run = async () => {
         //load main menu
         await loadHomePage();
     }catch (err) {
+        //todo: implement uncached errors
         console.log(err);
     }
 };

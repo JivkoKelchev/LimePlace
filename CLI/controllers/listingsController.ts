@@ -9,6 +9,11 @@ import {convertUrlToHttp, uploadToIpfs} from "../services/ipfs";
 import Spiner from "../views/genericUI/spiner";
 import {infoMsg} from "../views/genericUI/infoMsg";
 
+
+export const loadActiveListings = async () => {
+    
+}
+
 export const loadMintAndList = async () => {
     const sdk = await getSdk();
     //prompt for a image 

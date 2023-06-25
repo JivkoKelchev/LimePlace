@@ -1,4 +1,4 @@
-import {Controller, Get, Inject} from '@nestjs/common';
+import {Controller, Get, Inject, Query} from '@nestjs/common';
 import {ListingsService} from "./listings.service";
 
 @Controller('listings')
@@ -7,7 +7,7 @@ export class ListingsController {
     constructor(@Inject(ListingsService) private readonly listingServise: ListingsService) {}
 
     @Get()
-    getListings() {
-        return this.listingServise.findAll();
+    getListings(@Query() query) {
+        return this.listingServise.findAllActive(query);
     }
 }
