@@ -7,5 +7,5 @@ export default function logo() : string {
             " '//   // ||\n" +
             " ||   //  ||\n" +
             "  \\\\_// _// \n" +
-            "    //V/    \n";
+            "    //V/    ";
 }

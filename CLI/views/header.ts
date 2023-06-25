@@ -4,12 +4,13 @@ import logo from "./logo";
 import {combineArt, padArt} from "../utils/view-utils";
 
 export function printHeader() {
-    const limePlaceTxt = figlet.textSync('LimePlace', { horizontalLayout: 'full' })
-    let result = limePlaceTxt;
+    const subtitle = chalk.grey('LimeAcademy S6 project. Created by Zhivko Kelchev. License MIT')
+    const limePlaceTxt = figlet.textSync('LimePlace', { horizontalLayout: 'full' }) + '\n ' + subtitle;
+    
     const logoText = chalk.greenBright(logo());
-    const paddedTxt = padArt(limePlaceTxt, 10);
-    const paddedLogo = padArt(logoText, 10);
-    result = combineArt(paddedLogo, paddedTxt);
+    const paddedTxt = padArt(limePlaceTxt, 9);
+    const paddedLogo = padArt(logoText, 9);
+    const result = combineArt(paddedLogo, paddedTxt);
     console.log(result);
-    console.log(chalk.grey('LimeAcademy S6 project. Created by Zhivko Kelchev. License MIT \n \n'));
+    console.log();
 }

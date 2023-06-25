@@ -7,7 +7,10 @@ export const combineArt = (art1: string, art2: string) => {
     let combinedArt = '';
 
     for (let i = 0; i < lines1.length; i++) {
-        combinedArt += lines1[i] + '  ' + lines2[i] + '\n';
+        combinedArt += lines1[i] + '  ' + lines2[i];
+        if(i < lines1.length - 1){
+            combinedArt += '\n';
+        }
     }
 
     return combinedArt;
