@@ -1,5 +1,3 @@
-import fs from "fs";
-import {getExtension} from "../../../utils/fs-utils";
 import inquirer from "inquirer";
 
 const questions = [

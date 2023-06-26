@@ -2,6 +2,10 @@ import { Contract, ethers, Provider, Signer} from "ethers";
 const limePlaceAbi = require('./artifacts/LimePlace.json')
 const limePlaceNftAbi = require('./artifacts/LimePlaceNFT.json')
 
+export interface ListingDetails {
+    
+}
+
 export class Sdk{
     provider : Provider;
     limePlace: Contract;
@@ -35,7 +39,15 @@ export class Sdk{
         }
         return tokenId ?? 0;
     }
+    
+    async getListing(listingId: string): Promise<any> {
+        return await this.limePlace.getListing(listingId)
+    } 
 
+    async getLimePlaceNFTTokenUri(tokenId: BigInt): Promise<string> {
+        return this.limePlaceNFT.tokenURI(tokenId);
+    }
+    
     async list(tokenAddress: string, tokenId: number, price: number) {
         const options = {value: ethers.parseEther(this.LISTING_FEE.toString())}
         await this.limePlace.list(tokenAddress, tokenId, price, options);

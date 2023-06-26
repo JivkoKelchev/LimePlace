@@ -90,6 +90,8 @@ export const loadViewListingPage = async (listingId: string) => {
     const imagePath = await getFileFromIpfs(metadata.image);
     await printImage(imagePath);
     console.log(metadata)
+    await infoMsg('Press enter to return...', true);
+    await loadHomePage();
 }
 
 export const loadMintAndList = async () => {
