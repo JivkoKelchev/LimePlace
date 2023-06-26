@@ -28,7 +28,7 @@ export class IndexerService {
             this.contractABI,
             this.provider,
         );
-        //log old events
+        //parse any missed old events (from last processed block - to current block)
         const LogListingAddedFilter = contract.filters.LogListingAdded();
         const events = await contract.queryFilter(LogListingAddedFilter);
         const iface = new ethers.Interface(this.contractABI);
@@ -45,7 +45,7 @@ export class IndexerService {
         });
         console.log('--------------------------------------')
         
-        //listen for new events
+        //add listeners for all new events
         await this.listenForLogListingAdded(contract);
         
         await this.listenForLogListingSold(contract);
@@ -58,9 +58,8 @@ export class IndexerService {
     private listenForLogListingAdded = async (contract: Contract) => {
         await contract.on(
             'LogListingAdded',
-            //async (...args) => {
                 async(listingId: string, tokenContract: string, tokenId: number, seller: string, price: number) => {
-                // event LogListingAdded(bytes32 listingId, address tokenContract, uint256 tokenId, address seller, uint256 price);
+                //lastBlockNumberProcessed
                 const blockNumber = await this.provider.getBlockNumber();
                 const block = await this.provider.getBlock(blockNumber);
                 //const event = args[args.length - 1];
@@ -77,6 +76,7 @@ export class IndexerService {
                     seller: ${seller}
                     price: ${price}`
                 );
+                
                 
                 const listingEntity = new Listing();
                 listingEntity.listingUid = listingId;
