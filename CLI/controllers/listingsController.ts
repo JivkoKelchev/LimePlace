@@ -5,7 +5,7 @@ import chalk from "chalk";
 import {clearScreen, printImage} from "../utils/view-utils";
 import {mintMetadataPrompt} from "../views/menu/listings/mintMetadataPrompt";
 import {confirmPrompt} from "../views/genericUI/confirmationPrompt";
-import {convertUrlToHttp, uploadToIpfs} from "../services/ipfs";
+import {convertUrlToHttp, getFileFromIpfs, getMetaDataFromIpfs, uploadToIpfs} from "../services/ipfs";
 import Spiner from "../views/genericUI/spiner";
 import {infoMsg} from "../views/genericUI/infoMsg";
 import {getListings} from "../services/api";
@@ -16,6 +16,7 @@ import {
     NEXT_PAGE,
     PREV_PAGE, SORT_BY_PRICE, VIEW_LISTING
 } from "../views/menu/listings/listingsTablePrompt";
+import {viewListingPrompt} from "../views/menu/listings/viewListingPrompt";
 
 
 export const loadActiveListings = async (page?: number, user?: string, sort?: boolean) => {
@@ -27,10 +28,13 @@ export const loadActiveListings = async (page?: number, user?: string, sort?: bo
     let hasPrev = true;
     let hasNext = true;
     const pageCount = Math.ceil(data.count / 5);
+    if(pageCount === 0) {
+        currentPage = 0;
+    }
     if(currentPage === pageCount) {
         hasNext = false;
     }
-    if(currentPage === 1) {
+    if(currentPage === 1 || currentPage === 0) {
         hasPrev = false;
     }
     renderActiveListingsTable(data.data, currentPage, data.count)
@@ -51,7 +55,7 @@ export const loadActiveListings = async (page?: number, user?: string, sort?: bo
             break;
         }
         case VIEW_LISTING: {
-            console.log('Not implemented')
+            await loadViewListingPropmt();
             break;
         }
         case SORT_BY_PRICE: {
@@ -69,6 +73,23 @@ export const loadActiveListings = async (page?: number, user?: string, sort?: bo
             break;
         }
     }
+}
+
+export const loadViewListingPropmt = async () => {
+    const listingIdInput = await viewListingPrompt();
+    await loadViewListingPage(listingIdInput.id);
+}
+
+export const loadViewListingPage = async (listingId: string) => {
+    await clearScreen();
+    const sdk = await getSdk();
+    const listingInfo = await sdk.getListing(listingId);
+    const tokenUri = await sdk.getLimePlaceNFTTokenUri(listingInfo[1]);
+    //get metadata
+    const metadata = await getMetaDataFromIpfs(tokenUri);
+    const imagePath = await getFileFromIpfs(metadata.image);
+    await printImage(imagePath);
+    console.log(metadata)
 }
 
 export const loadMintAndList = async () => {
