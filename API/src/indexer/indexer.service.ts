@@ -62,6 +62,7 @@ export class IndexerService {
                 async(listingId: string, tokenContract: string, tokenId: number, seller: string, price: number) => {
                 // event LogListingAdded(bytes32 listingId, address tokenContract, uint256 tokenId, address seller, uint256 price);
                 const blockNumber = await this.provider.getBlockNumber();
+                const block = await this.provider.getBlock(blockNumber);
                 //const event = args[args.length - 1];
                 console.log('event LogListingAdded')
                 console.log('current block : ' + blockNumber)
@@ -76,18 +77,16 @@ export class IndexerService {
                     seller: ${seller}
                     price: ${price}`
                 );
-
-                //todo add listing in db
-
-                // const listingEntity = new Listing();
-                // listingEntity.listingUid = listingId;
-                // listingEntity.tokenId = Number(tokenId);
-                // listingEntity.owner = seller;
-                // listingEntity.price = Number(price);
-                // listingEntity.active = true;
-                // listingEntity.collection = tokenContract;
-                // listingEntity.updated_at = 0;
-                // await this.listingServise.addListing(listingEntity);
+                
+                const listingEntity = new Listing();
+                listingEntity.listingUid = listingId;
+                listingEntity.tokenId = Number(tokenId);
+                listingEntity.owner = seller;
+                listingEntity.price = Number(price);
+                listingEntity.active = true;
+                listingEntity.collection = tokenContract;
+                listingEntity.updated_at = block.timestamp;
+                await this.listingServise.addListing(listingEntity);
             },
         );
     }
