@@ -5,11 +5,14 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import {IndexerModule} from "./indexer/indexer.module";
 import {Listing} from "./listings/listing.entity";
 import {ConfigModule, ConfigService} from "@nestjs/config";
+import {ListingsHistoryModule} from "./listingsHistory/listingsHistory.module";
+import {ListingHistory} from "./listingsHistory/listingHistory.entity";
 
 @Module({
     imports: [
         IndexerModule,
         ListingsModule,
+        ListingsHistoryModule,
         ConfigModule.forRoot({
             isGlobal: true,
         }),
@@ -23,7 +26,7 @@ import {ConfigModule, ConfigService} from "@nestjs/config";
                 username: 'root',
                 password: 'your_mysql_root_password',
                 database: 'lime_place',
-                entities: [Listing],
+                entities: [Listing, ListingHistory],
                 synchronize: true,
             }),
             inject: [ConfigService],

@@ -1,7 +1,6 @@
 import {selectImagePrompt } from "../views/menu/listings/selectImagePrompt";
 import {loadHomePage} from "./homeController";
 import {getSdk} from "./connectionController";
-import chalk from "chalk";
 import {clearScreen, printImage} from "../utils/view-utils";
 import {mintMetadataPrompt} from "../views/menu/listings/mintMetadataPrompt";
 import {confirmPrompt} from "../views/genericUI/confirmationPrompt";
@@ -12,15 +11,14 @@ import {getListings} from "../services/api";
 import {renderActiveListingsTable} from "../views/listingsTable";
 import {
     activeListingsMenu,
-    FILTER_BY_USR, MAIN_MENU,
-    NEXT_PAGE,
-    PREV_PAGE, SORT_BY_PRICE, VIEW_LISTING
+    FILTER_BY_USR, MAIN_MENU, NEXT_PAGE, PREV_PAGE, SORT_BY_PRICE, VIEW_LISTING
 } from "../views/menu/listings/listingsTablePrompt";
 import {viewListingPrompt} from "../views/menu/listings/viewListingPrompt";
 import {viewListingActionsMenu, viewListingMenuList} from "../views/menu/listings/viewListingActionsMenu";
 import {filterByUserPrompt} from "../views/menu/listings/filterByUserPrompt";
 import {viewMyListingActionsMenu, viewMyListingMenuList} from "../views/menu/listings/viewMyListingActionsMenu";
 import {renderListingDetails} from "../views/listingDetails";
+import {editListingPrompt} from "../views/menu/listings/editListingPricePrompt";
 
 let paginationState : {
     page: number;
@@ -53,12 +51,6 @@ export const loadActiveListings = async (page?: number, user?: string, sort?: bo
     await renderActiveListingsTable(data.data, currentPage, data.count)
     const actionInput = await activeListingsMenu(hasNext, hasPrev);
     switch (actionInput.menu) {
-        // NEXT_PAGE
-        // PREV_PAGE
-        // VIEW_LISTING
-        // SORT_BY_PRICE
-        // FILTER_BY_USR
-        // MAIN_MENU
         case NEXT_PAGE: {
             await loadActiveListings(currentPage + 1, user, sort);
             break;
@@ -114,6 +106,9 @@ export const loadViewListingPage = async (listingId: string) => {
         const actionInput = await viewMyListingActionsMenu();
         switch (actionInput.menu) {
             case viewMyListingMenuList[0]: {
+                const newPriceInput = await editListingPrompt();
+                await sdk.editListing(listingId, newPriceInput.price)
+                await loadViewListingPage(listingId);
                 break;
             }
             case viewMyListingMenuList[1]: {
