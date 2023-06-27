@@ -69,4 +69,9 @@ export class Sdk{
     async getSignerAddress(): Promise<string> {
         return await this.signer.getAddress();
     }
+    
+    async getBalance(): Promise<BigInt> {
+        const signerAddress = await this.signer.getAddress();
+        return await this.provider.getBalance(signerAddress)
+    }
 } 

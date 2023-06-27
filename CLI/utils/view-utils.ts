@@ -1,5 +1,6 @@
 import {loadHeader} from "../controllers/homeController";
 import asciifyImage from 'asciify-image'
+import {getSdk} from "../controllers/connectionController";
 
 export const combineArt = (art1: string, art2: string) => {
     const lines1 = art1.split('\n');
@@ -29,7 +30,8 @@ export const padArt = (art: string, lines: number) => {
 
 export const clearScreen = async () => {
     console.clear();
-    loadHeader();
+    const sdk = await getSdk();
+    await loadHeader(sdk);
 }
 
 export const printImage = async (imagePath: string) => {

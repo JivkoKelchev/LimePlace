@@ -6,7 +6,7 @@ const run = async () => {
     try {
         config();
         //load header
-        loadHeader();
+        await loadHeader(undefined);
         //init connection
         await getSdk();
         //load main menu

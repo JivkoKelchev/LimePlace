@@ -2,12 +2,13 @@ import clear from "clear";
 import {printHeader} from "../views/header";
 import {mainMenu, homeMenuList} from "../views/menu/mainPrompt";
 import {activeListingsAction, mintAndListAction} from "./listingsController";
+import {Sdk} from "../services/sdk";
 
 
-export const loadHeader = () => {
+export const loadHeader = async (sdk?: Sdk) => {
     //show header
     clear();
-    printHeader();
+    await printHeader(sdk);
     //todo add some description
 }
 
