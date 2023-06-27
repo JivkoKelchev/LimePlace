@@ -1,5 +1,5 @@
 import {selectImagePrompt } from "../views/menu/listings/selectImagePrompt";
-import {loadHomePage} from "./homeController";
+import {homeAction} from "./homeController";
 import {getSdk} from "./connectionController";
 import {clearScreen, printImage} from "../utils/view-utils";
 import {mintMetadataPrompt} from "../views/menu/listings/mintMetadataPrompt";
@@ -19,52 +19,40 @@ import {filterByUserPrompt} from "../views/menu/listings/filterByUserPrompt";
 import {viewMyListingActionsMenu, viewMyListingMenuList} from "../views/menu/listings/viewMyListingActionsMenu";
 import {renderListingDetails} from "../views/listingDetails";
 import {editListingPrompt} from "../views/menu/listings/editListingPricePrompt";
+import {getPaginationData} from "../services/listingService";
 
 let paginationState : {
     page: number;
-    user?: string,
-    sort?: boolean
+    user?: string, //filter by user
+    sort?: boolean //sort by price
 }
 
-export const loadActiveListings = async (page?: number, user?: string, sort?: boolean) => {
-    await clearScreen();
-    let currentPage = page??1;
-    const data = await getListings(currentPage, user, sort);
-    
+export const activeListingsAction = async (page?: number, user?: string, sort?: boolean) => {
+    //get active listings from API
+    const data = await getListings(page??1, user, sort);
     //set pagination controls
-    let hasPrev = true;
-    let hasNext = true;
-    const pageCount = Math.ceil(data.count / 5);
-    if(pageCount === 0) {
-        currentPage = 0;
-    }
-    if(currentPage === pageCount) {
-        hasNext = false;
-    }
-    if(currentPage === 1 || currentPage === 0) {
-        hasPrev = false;
-    }
+    let {currentPage, hasNext, hasPrev} = getPaginationData(data.count, page??1)
     //set pagination state
-    paginationState = {page : currentPage};
-    paginationState.sort = sort;
-    paginationState.user = user;
+    paginationState = {page : currentPage, sort: sort, user: user};
+    //render page
     await renderActiveListingsTable(data.data, currentPage, data.count)
+    //render menu
     const actionInput = await activeListingsMenu(hasNext, hasPrev);
     switch (actionInput.menu) {
         case NEXT_PAGE: {
-            await loadActiveListings(currentPage + 1, user, sort);
+            await activeListingsAction(currentPage + 1, user, sort);
             break;
         }
         case PREV_PAGE: {
-            await loadActiveListings(currentPage - 1, user, sort);
+            await activeListingsAction(currentPage - 1, user, sort);
             break;
         }
         case VIEW_LISTING: {
-            await loadViewListingPropmt();
+            await loadViewListingPrompt();
             break;
         }
         case SORT_BY_PRICE: {
-            await loadActiveListings(1, undefined, true)
+            await activeListingsAction(1, undefined, true)
             break;
         }
         case FILTER_BY_USR: {
@@ -74,32 +62,33 @@ export const loadActiveListings = async (page?: number, user?: string, sort?: bo
         case MAIN_MENU: 
         default:
         {
-            await loadHomePage();
+            await homeAction();
             break;
         }
     }
 }
 
-export const loadViewListingPropmt = async () => {
+export const loadViewListingPrompt = async () => {
     const listingIdInput = await viewListingPrompt();
-    await loadViewListingPage(listingIdInput.id);
+    await viewListingAction(listingIdInput.id);
 }
 
 export const loadFilterByUserPrompt = async () => {
     const userAddress = await filterByUserPrompt();
-    await loadActiveListings(1, userAddress.address)
+    await activeListingsAction(1, userAddress.address)
 }
 
-export const loadViewListingPage = async (listingId: string) => {
-    await clearScreen();
+export const viewListingAction = async (listingId: string) => {
+    
     const sdk = await getSdk();
     const listingInfo = await sdk.getListing(listingId);
     const tokenUri = await sdk.getLimePlaceNFTTokenUri(listingInfo[1]);
     //get metadata
     const metadata = await getMetaDataFromIpfs(tokenUri);
     const imagePath = await getFileFromIpfs(metadata.image);
-    //render details
+    //render page
     await renderListingDetails(imagePath, metadata, listingInfo);
+    //render menu
     //check if listing belong to the owner
     const signerAddress = await sdk.getSignerAddress();
     if(listingInfo[2] === signerAddress) {
@@ -108,7 +97,7 @@ export const loadViewListingPage = async (listingId: string) => {
             case viewMyListingMenuList[0]: {
                 const newPriceInput = await editListingPrompt();
                 await sdk.editListing(listingId, newPriceInput.price)
-                await loadViewListingPage(listingId);
+                await viewListingAction(listingId);
                 break;
             }
             case viewMyListingMenuList[1]: {
@@ -116,11 +105,11 @@ export const loadViewListingPage = async (listingId: string) => {
             }
             case viewMyListingMenuList[2]:
             default: {
-                await loadActiveListings(paginationState.page, paginationState.user, paginationState.sort)
+                await activeListingsAction(paginationState.page, paginationState.user, paginationState.sort)
             }
         }
         await infoMsg('Press enter to return...', true);
-        await loadHomePage();
+        await homeAction();
     } else {
         const actionInput = await viewListingActionsMenu();
         switch (actionInput.menu) {
@@ -129,22 +118,22 @@ export const loadViewListingPage = async (listingId: string) => {
             }
             case viewListingMenuList[1]:
             default: {
-                await loadActiveListings(paginationState.page, paginationState.user, paginationState.sort)
+                await activeListingsAction(paginationState.page, paginationState.user, paginationState.sort)
             }
         }
         await infoMsg('Press enter to return...', true);
-        await loadHomePage();
+        await homeAction();
     }
 }
 
-export const loadMintAndList = async () => {
+export const mintAndListAction = async () => {
     const sdk = await getSdk();
     //prompt for a image 
     const imagePathInput = await selectImagePrompt();
     await printImage(imagePathInput.filePath)
     const confirm = await confirmPrompt('Do you want to proceed?');
     if(!confirm) {
-        await loadHomePage();
+        await homeAction();
     }
     
     const tokenMetadataInput = await mintMetadataPrompt();
@@ -170,5 +159,5 @@ export const loadMintAndList = async () => {
     await infoMsg('Token is listed', true);
     
     //render view listing view --- or home menu
-    await loadHomePage();
+    await homeAction();
 }

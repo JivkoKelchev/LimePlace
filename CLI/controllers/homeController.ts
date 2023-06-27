@@ -1,7 +1,7 @@
 import clear from "clear";
 import {printHeader} from "../views/header";
 import {mainMenu, homeMenuList} from "../views/menu/mainPrompt";
-import {loadActiveListings, loadMintAndList} from "./listingsController";
+import {activeListingsAction, mintAndListAction} from "./listingsController";
 
 
 export const loadHeader = () => {
@@ -11,26 +11,26 @@ export const loadHeader = () => {
     //todo add some description
 }
 
-export const loadHomePage = async () => {
+export const homeAction = async () => {
     //print main menu
     const selected = await mainMenu();
     switch (selected.menu) {
         //0 - 'Show active listings',
-        //1 - 'Mint and list NFT',
-        //2 - 'List NFT',
-        //3 - 'Exit'
         case homeMenuList[0]: {
             await renderActiveListingView();
             break;
         }
+        //1 - 'Mint and list NFT',
         case homeMenuList[1]: {
             await renderMintAndListView();
             break;
         }
+        //2 - 'List NFT',
         case homeMenuList[2]: {
             await renderListNftView();
             break;
         }
+        //3 - 'Exit'
         case homeMenuList[3]:
         default: 
         {
@@ -41,23 +41,7 @@ export const loadHomePage = async () => {
 }
 
 const renderActiveListingView = async () => {
-    await loadActiveListings()
-}
-
-const renderViewListingView = () => {
-    console.log('View listing prompt')
-}
-
-const renderBuyListingView = () => {
-    console.log('Buy listing prompt')
-}
-
-const renderEditPriceView = () => {
-    console.log('Edit price prompt')
-}
-
-const renderCancelListingView = () => {
-    console.log('Cancel listing prompt')
+    await activeListingsAction()
 }
 
 const renderListNftView = () => {
@@ -65,7 +49,7 @@ const renderListNftView = () => {
 }
 
 const renderMintAndListView = async () => {
-    await loadMintAndList();
+    await mintAndListAction();
 }
 
 const exit = () => {

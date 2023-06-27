@@ -1,7 +1,8 @@
-import {combineArt, getImage, padArt, printImage} from "../utils/view-utils";
+import {clearScreen, combineArt, getImage, padArt, printImage} from "../utils/view-utils";
 import {Metadata} from "../services/ipfs";
 
 export const renderListingDetails = async (imagePath: string, metadata: Metadata, listingInfo: any) => {
+    await clearScreen();
     //todo calculate expiration date from updated_at
     const date = new Date(Number(listingInfo[5]) * 1000);
     const image = await getImage(imagePath);
