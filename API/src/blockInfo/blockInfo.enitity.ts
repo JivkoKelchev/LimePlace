@@ -11,6 +11,7 @@ export class BlockInfo {
     blockNumber: number
     
     @ApiProperty()
-    @Column()
+    @Column({type: 'bigint'})
     updated_at: number
+    
 }

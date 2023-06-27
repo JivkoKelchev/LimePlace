@@ -8,12 +8,14 @@ import {ConfigModule, ConfigService} from "@nestjs/config";
 import {ListingsHistoryModule} from "./listingsHistory/listingsHistory.module";
 import {ListingHistory} from "./listingsHistory/listingHistory.entity";
 import {BlockInfo} from "./blockInfo/blockInfo.enitity";
+import {BlockInfoModule} from "./blockInfo/blockInfo.module";
 
 @Module({
     imports: [
         IndexerModule,
         ListingsModule,
         ListingsHistoryModule,
+        BlockInfoModule,
         ConfigModule.forRoot({
             isGlobal: true,
         }),

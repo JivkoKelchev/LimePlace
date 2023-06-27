@@ -5,6 +5,8 @@ import {Listing} from "../listings/listing.entity";
 import {ListingsService} from "../listings/listings.service";
 import * as limePlaceAbi from '../artifacts/LimePlace.json';
 import {ConfigService} from "@nestjs/config";
+import {ListingsHistoryService} from "../listingsHistory/listingsHistory.service";
+import {BlockInfoService} from "../blockInfo/blockInfo.service";
 
 @Injectable()
 export class IndexerService {
@@ -12,7 +14,9 @@ export class IndexerService {
     private readonly contractAddress: string;
     private readonly contractABI: any;
 
-    constructor(@Inject(ListingsService) private readonly listingServise: ListingsService,
+    constructor(@Inject(ListingsService) private readonly listingService: ListingsService,
+                @Inject(ListingsHistoryService) private readonly listingsHistoryService: ListingsHistoryService,
+                @Inject(BlockInfoService) private readonly blockInfoService: BlockInfoService,
                 private configService: ConfigService ) {
         console.log('Make sure hardhat local node is started!')
         this.provider = getProvider(configService);
@@ -48,6 +52,8 @@ export class IndexerService {
         //add listeners for all new events
         await this.listenForLogListingAdded(contract);
         
+        await this.listenForLogListingUpdated(contract);
+        
         await this.listenForLogListingSold(contract);
 
         
@@ -59,8 +65,12 @@ export class IndexerService {
         await contract.on(
             'LogListingAdded',
                 async(listingId: string, tokenContract: string, tokenId: number, seller: string, price: number) => {
-                //lastBlockNumberProcessed
+                const lastBlockNumber = await this.blockInfoService.getLastBlock();;
                 const blockNumber = await this.provider.getBlockNumber();
+                if(blockNumber === lastBlockNumber) {
+                    //todo check if listing exist (we may have multiple listings in same block)
+                    return;
+                }
                 const block = await this.provider.getBlock(blockNumber);
                 //const event = args[args.length - 1];
                 console.log('event LogListingAdded')
@@ -86,7 +96,8 @@ export class IndexerService {
                 listingEntity.active = true;
                 listingEntity.collection = tokenContract;
                 listingEntity.updated_at = block.timestamp;
-                await this.listingServise.addListing(listingEntity);
+                await this.listingService.addListing(listingEntity);
+                await this.blockInfoService.updateBlockInfo(blockNumber);
             },
         );
     }
@@ -99,6 +110,9 @@ export class IndexerService {
                 console.log('event LogListingUpdated');
                 console.log('listingId : ' + listingId);
                 console.log('price : ' + price);
+
+                const blockNumber = await this.provider.getBlockNumber();
+                await this.blockInfoService.updateBlockInfo(blockNumber);
             }
         );
     }
@@ -111,6 +125,9 @@ export class IndexerService {
                 console.log('event LogListingCanceled');
                 console.log('listingId : ' + listingId);
                 console.log('active : ' + active);
+
+                const blockNumber = await this.provider.getBlockNumber();
+                await this.blockInfoService.updateBlockInfo(blockNumber);
             }
         );
     }
@@ -124,6 +141,9 @@ export class IndexerService {
                 console.log('listingId : ' + listingId);
                 console.log('buyer : ' + buyer);
                 console.log('price : ' + price);
+
+                const blockNumber = await this.provider.getBlockNumber();
+                await this.blockInfoService.updateBlockInfo(blockNumber);
             }
         );
     }

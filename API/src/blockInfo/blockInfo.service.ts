@@ -7,11 +7,27 @@ import {FindOptionsOrder, ListDatabasesResult, Repository} from "typeorm";
 export class BlockInfoService {
     constructor(
         @InjectRepository(BlockInfo)
-        private listingRepository: Repository<BlockInfo>,
+        private blockInfoRepository: Repository<BlockInfo>,
     ) {}
     
-    async addListing(listing: BlockInfo): Promise<BlockInfo> {
-        this.listingRepository.create(listing);
-        return this.listingRepository.save(listing);
+    async getLastBlock(): Promise<number> {
+        let blockInfo = await this.blockInfoRepository.findOneBy({id: 1});
+        //init block info on first run
+        if(!blockInfo) {
+            blockInfo = new BlockInfo();
+            blockInfo.blockNumber = 0;
+            blockInfo.updated_at = 0;
+            this.blockInfoRepository.create(blockInfo);
+            await this.blockInfoRepository.save(blockInfo);
+        }
+        return blockInfo.blockNumber;
+    }
+    
+    async updateBlockInfo(newBlockNumber: number) {
+        let blockInfo = await this.blockInfoRepository.findOneBy({id: 1});
+        blockInfo.blockNumber = newBlockNumber;
+        blockInfo.updated_at = Date.now();
+        this.blockInfoRepository.create(blockInfo);
+        await this.blockInfoRepository.save(blockInfo);
     }
 }
