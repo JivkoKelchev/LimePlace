@@ -7,6 +7,7 @@ import {Listing} from "./listings/listing.entity";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {ListingsHistoryModule} from "./listingsHistory/listingsHistory.module";
 import {ListingHistory} from "./listingsHistory/listingHistory.entity";
+import {BlockInfo} from "./blockInfo/blockInfo.enitity";
 
 @Module({
     imports: [
@@ -26,7 +27,7 @@ import {ListingHistory} from "./listingsHistory/listingHistory.entity";
                 username: 'root',
                 password: 'your_mysql_root_password',
                 database: 'lime_place',
-                entities: [Listing, ListingHistory],
+                entities: [Listing, ListingHistory, BlockInfo],
                 synchronize: true,
             }),
             inject: [ConfigService],
