@@ -10,7 +10,7 @@ export const printHeader = async (sdk?: Sdk) => {
     if(sdk) {
       const address = await sdk.getSignerAddress();
       const balance = await sdk.getBalance();
-      const balanceFormatted = ethers.formatEther(balance.toString())
+      const balanceFormatted = Number(ethers.formatEther(balance.toString())).toFixed(5);
       statusBar = chalk.bgGreen(' Connected: ' + address + '         Balance: ' + balanceFormatted + ' ETH ')
     }
 
