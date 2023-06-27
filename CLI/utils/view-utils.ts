@@ -57,3 +57,15 @@ export const printImage = async (imagePath: string) => {
         // });
 }
 
+export const getImage = async (imagePath: string): Promise<string> => {
+    let fit: 'box' | 'width' | 'height' | 'original' | 'none';
+    fit = 'box';
+    const options = {
+        color: true,
+        fit:    fit,
+        width:  20,
+    }
+
+    // @ts-ignore
+    return await asciifyImage(imagePath, options);
+}

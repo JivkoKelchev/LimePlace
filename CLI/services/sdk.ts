@@ -1,4 +1,5 @@
-import { Contract, ethers, Provider, Signer} from "ethers";
+import {Contract, ethers, Provider, Signer} from "ethers";
+
 const limePlaceAbi = require('./artifacts/LimePlace.json')
 const limePlaceNftAbi = require('./artifacts/LimePlaceNFT.json')
 
@@ -63,5 +64,9 @@ export class Sdk{
 
     async buy(listingId: string) {
         await this.limePlace.buy(listingId)
+    }
+    
+    async getSignerAddress(): Promise<string> {
+        return await this.signer.getAddress();
     }
 } 

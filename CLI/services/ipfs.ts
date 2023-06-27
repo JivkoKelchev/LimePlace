@@ -6,7 +6,7 @@ import ConfigurationError from "../Errors/ConfigurationError";
 import axios from "axios";
 import tmp from "tmp";
 
-interface Metadata {
+export interface Metadata {
     name: string,
     description: string
     image: string

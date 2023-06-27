@@ -17,7 +17,16 @@ import {
     PREV_PAGE, SORT_BY_PRICE, VIEW_LISTING
 } from "../views/menu/listings/listingsTablePrompt";
 import {viewListingPrompt} from "../views/menu/listings/viewListingPrompt";
+import {viewListingActionsMenu, viewListingMenuList} from "../views/menu/listings/viewListingActionsMenu";
+import {filterByUserPrompt} from "../views/menu/listings/filterByUserPrompt";
+import {viewMyListingActionsMenu, viewMyListingMenuList} from "../views/menu/listings/viewMyListingActionsMenu";
+import {renderListingDetails} from "../views/listingDetails";
 
+let paginationState : {
+    page: number;
+    user?: string,
+    sort?: boolean
+}
 
 export const loadActiveListings = async (page?: number, user?: string, sort?: boolean) => {
     await clearScreen();
@@ -37,7 +46,11 @@ export const loadActiveListings = async (page?: number, user?: string, sort?: bo
     if(currentPage === 1 || currentPage === 0) {
         hasPrev = false;
     }
-    renderActiveListingsTable(data.data, currentPage, data.count)
+    //set pagination state
+    paginationState = {page : currentPage};
+    paginationState.sort = sort;
+    paginationState.user = user;
+    await renderActiveListingsTable(data.data, currentPage, data.count)
     const actionInput = await activeListingsMenu(hasNext, hasPrev);
     switch (actionInput.menu) {
         // NEXT_PAGE
@@ -63,7 +76,7 @@ export const loadActiveListings = async (page?: number, user?: string, sort?: bo
             break;
         }
         case FILTER_BY_USR: {
-            console.log('Not implemented')
+            await loadFilterByUserPrompt();
             break;
         }
         case MAIN_MENU: 
@@ -80,6 +93,11 @@ export const loadViewListingPropmt = async () => {
     await loadViewListingPage(listingIdInput.id);
 }
 
+export const loadFilterByUserPrompt = async () => {
+    const userAddress = await filterByUserPrompt();
+    await loadActiveListings(1, userAddress.address)
+}
+
 export const loadViewListingPage = async (listingId: string) => {
     await clearScreen();
     const sdk = await getSdk();
@@ -88,10 +106,40 @@ export const loadViewListingPage = async (listingId: string) => {
     //get metadata
     const metadata = await getMetaDataFromIpfs(tokenUri);
     const imagePath = await getFileFromIpfs(metadata.image);
-    await printImage(imagePath);
-    console.log(metadata)
-    await infoMsg('Press enter to return...', true);
-    await loadHomePage();
+    //render details
+    await renderListingDetails(imagePath, metadata, listingInfo);
+    //check if listing belong to the owner
+    const signerAddress = await sdk.getSignerAddress();
+    if(listingInfo[2] === signerAddress) {
+        const actionInput = await viewMyListingActionsMenu();
+        switch (actionInput.menu) {
+            case viewMyListingMenuList[0]: {
+                break;
+            }
+            case viewMyListingMenuList[1]: {
+                break;
+            }
+            case viewMyListingMenuList[2]:
+            default: {
+                await loadActiveListings(paginationState.page, paginationState.user, paginationState.sort)
+            }
+        }
+        await infoMsg('Press enter to return...', true);
+        await loadHomePage();
+    } else {
+        const actionInput = await viewListingActionsMenu();
+        switch (actionInput.menu) {
+            case viewListingMenuList[0]: {
+                break;
+            }
+            case viewListingMenuList[1]:
+            default: {
+                await loadActiveListings(paginationState.page, paginationState.user, paginationState.sort)
+            }
+        }
+        await infoMsg('Press enter to return...', true);
+        await loadHomePage();
+    }
 }
 
 export const loadMintAndList = async () => {
