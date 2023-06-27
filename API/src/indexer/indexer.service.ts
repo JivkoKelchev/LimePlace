@@ -7,6 +7,7 @@ import * as limePlaceAbi from '../artifacts/LimePlace.json';
 import {ConfigService} from "@nestjs/config";
 import {ListingsHistoryService} from "../listingsHistory/listingsHistory.service";
 import {BlockInfoService} from "../blockInfo/blockInfo.service";
+import {ListingHistory} from "../listingsHistory/listingHistory.entity";
 
 @Injectable()
 export class IndexerService {
@@ -97,7 +98,19 @@ export class IndexerService {
                 listingEntity.collection = tokenContract;
                 listingEntity.updated_at = block.timestamp;
                 await this.listingService.addListing(listingEntity);
+                //update block info
                 await this.blockInfoService.updateBlockInfo(blockNumber);
+                //add history
+                const listingHistory = new ListingHistory();
+                listingHistory.listingUid = listingId;
+                listingHistory.tokenId = listingEntity.tokenId;
+                listingHistory.owner = listingEntity.owner;
+                listingHistory.price = Number(price);
+                listingHistory.active = true;
+                listingHistory.historyEvent = 'CREATE'
+                listingHistory.updated_at = block.timestamp;
+
+                await this.listingsHistoryService.addListing(listingHistory)
             },
         );
     }
@@ -112,6 +125,20 @@ export class IndexerService {
                 console.log('price : ' + price);
 
                 const blockNumber = await this.provider.getBlockNumber();
+                const block = await this.provider.getBlock(blockNumber);
+                
+                const listing = await this.listingService.getListing(listingId);
+                const listingHistory = new ListingHistory();
+                listingHistory.listingUid = listingId;
+                listingHistory.tokenId = listing.tokenId;
+                listingHistory.owner = listing.owner;
+                listingHistory.price = Number(price);
+                listingHistory.active = true;
+                listingHistory.historyEvent = 'EDIT'
+                listingHistory.updated_at = block.timestamp;
+                
+                await this.listingsHistoryService.addListing(listingHistory)
+
                 await this.blockInfoService.updateBlockInfo(blockNumber);
             }
         );

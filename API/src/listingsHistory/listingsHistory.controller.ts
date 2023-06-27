@@ -8,6 +8,6 @@ export class ListingsHistoryController {
 
     @Get()
     getListings(@Query() query) {
-        return this.listingServise.findAllActive(query);
+        return history;
     }
 }

@@ -18,6 +18,9 @@ export class ListingsService {
     // async findAll(): Promise<Listing[]> {
     //     return this.listingRepository.find();
     // }
+    async getListing(listingId: string): Promise<Listing> {
+        return await this.listingRepository.findOneBy({listingUid: listingId})
+    }
 
     async findAllActive(query?): Promise<{data:Listing[], count:number}> {
         //BuildQuery
