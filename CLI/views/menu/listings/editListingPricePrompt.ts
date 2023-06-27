@@ -3,7 +3,7 @@ import inquirer from "inquirer";
 const questions = [
     {
         type: 'input',
-        name: 'id',
+        name: 'price',
         message: 'Enter the new price :',
     },
 ]

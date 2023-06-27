@@ -15,6 +15,10 @@ export class ListingsService {
         return this.listingRepository.save(listing);
     }
     
+    async saveListing(listing: Listing) {
+        await this.listingRepository.save(listing);
+    }
+    
     // async findAll(): Promise<Listing[]> {
     //     return this.listingRepository.find();
     // }

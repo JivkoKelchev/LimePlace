@@ -128,6 +128,8 @@ export class IndexerService {
                 const block = await this.provider.getBlock(blockNumber);
                 
                 const listing = await this.listingService.getListing(listingId);
+                listing.price = Number(price);
+                await this.listingService.saveListing(listing);
                 const listingHistory = new ListingHistory();
                 listingHistory.listingUid = listingId;
                 listingHistory.tokenId = listing.tokenId;
@@ -136,6 +138,7 @@ export class IndexerService {
                 listingHistory.active = true;
                 listingHistory.historyEvent = 'EDIT'
                 listingHistory.updated_at = block.timestamp;
+                
                 
                 await this.listingsHistoryService.addListing(listingHistory)
 
