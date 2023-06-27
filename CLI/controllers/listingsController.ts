@@ -5,7 +5,7 @@ import {clearScreen, printImage} from "../utils/view-utils";
 import {mintMetadataPrompt} from "../views/menu/listings/mintMetadataPrompt";
 import {confirmPrompt} from "../views/genericUI/confirmationPrompt";
 import {convertUrlToHttp, getFileFromIpfs, getMetaDataFromIpfs, uploadToIpfs} from "../services/ipfs";
-import Spiner from "../views/genericUI/spiner";
+import Spinner from "../views/genericUI/spinner";
 import {infoMsg} from "../views/genericUI/infoMsg";
 import {getListings} from "../services/api";
 import {renderActiveListingsTable} from "../views/listingsTable";
@@ -14,9 +14,14 @@ import {
     FILTER_BY_USR, MAIN_MENU, NEXT_PAGE, PREV_PAGE, SORT_BY_PRICE, VIEW_LISTING
 } from "../views/menu/listings/listingsTablePrompt";
 import {viewListingPrompt} from "../views/menu/listings/viewListingPrompt";
-import {viewListingActionsMenu, viewListingMenuList} from "../views/menu/listings/viewListingActionsMenu";
+import {
+    BACK,
+    BUY_NFT,
+    CANCEL_LISTING,
+    EDIT_PRICE,
+    viewListingActionsMenu
+} from "../views/menu/listings/viewListingActionsMenu";
 import {filterByUserPrompt} from "../views/menu/listings/filterByUserPrompt";
-import {viewMyListingActionsMenu, viewMyListingMenuList} from "../views/menu/listings/viewMyListingActionsMenu";
 import {renderListingDetails} from "../views/listingDetails";
 import {editListingPrompt} from "../views/menu/listings/editListingPricePrompt";
 import {getPaginationData} from "../services/listingService";
@@ -70,11 +75,13 @@ export const activeListingsAction = async (page?: number, user?: string, sort?: 
 
 export const loadViewListingPrompt = async () => {
     const listingIdInput = await viewListingPrompt();
+    //todo validate prompt
     await viewListingAction(listingIdInput.id);
 }
 
 export const loadFilterByUserPrompt = async () => {
     const userAddress = await filterByUserPrompt();
+    //todo validate prompt
     await activeListingsAction(1, userAddress.address)
 }
 
@@ -89,40 +96,39 @@ export const viewListingAction = async (listingId: string) => {
     //render page
     await renderListingDetails(imagePath, metadata, listingInfo);
     //render menu
-    //check if listing belong to the owner
     const signerAddress = await sdk.getSignerAddress();
-    if(listingInfo[2] === signerAddress) {
-        const actionInput = await viewMyListingActionsMenu();
-        switch (actionInput.menu) {
-            case viewMyListingMenuList[0]: {
-                const newPriceInput = await editListingPrompt();
-                await sdk.editListing(listingId, newPriceInput.price)
+    const actionInput = await viewListingActionsMenu(listingInfo, signerAddress);
+    switch (actionInput.menu) {
+        case EDIT_PRICE: {
+            const newPriceInput = await editListingPrompt();
+            await sdk.editListing(listingId, newPriceInput.price)
+            await viewListingAction(listingId);
+            break;
+        }
+        case CANCEL_LISTING: {
+            const confirm = await confirmPrompt('Do you want to cancel listing?');
+            if(confirm) {
+                const spinner = new Spinner('Cancel listing...')
+                await sdk.cancelListing(listingId);
+                spinner.stopSpinner();
                 await viewListingAction(listingId);
-                break;
             }
-            case viewMyListingMenuList[1]: {
-                break;
-            }
-            case viewMyListingMenuList[2]:
-            default: {
-                await activeListingsAction(paginationState.page, paginationState.user, paginationState.sort)
-            }
+            break;
         }
-        await infoMsg('Press enter to return...', true);
-        await homeAction();
-    } else {
-        const actionInput = await viewListingActionsMenu();
-        switch (actionInput.menu) {
-            case viewListingMenuList[0]: {
-                break;
+        case BUY_NFT: {
+            const confirm = await confirmPrompt('Do you want to buy?');
+            if(confirm) {
+                const spinner = new Spinner('Transfer NFT...')
+                await sdk.buy(listingId);
+                spinner.stopSpinner();
+                await viewListingAction(listingId);
             }
-            case viewListingMenuList[1]:
-            default: {
-                await activeListingsAction(paginationState.page, paginationState.user, paginationState.sort)
-            }
+            break;
         }
-        await infoMsg('Press enter to return...', true);
-        await homeAction();
+        case BACK:
+        default: {
+            await activeListingsAction(paginationState.page, paginationState.user, paginationState.sort)
+        }
     }
 }
 
@@ -139,7 +145,7 @@ export const mintAndListAction = async () => {
     const tokenMetadataInput = await mintMetadataPrompt();
     
     //upload image to ipfs
-    let spinner = new Spiner('Image is uploading...');
+    let spinner = new Spinner('Image is uploading...');
     //todo: uncomment and remove test url
     // const url = await uploadToIpfs(imagePathInput.filePath, tokenMetadataInput.name, tokenMetadataInput.description);
     const url = 'ipfs://bafyreied7myfsa667o5lykhoe77pdzzhtd36g36dbe645xdmueg3hj7by4/metadata.json'
@@ -147,13 +153,13 @@ export const mintAndListAction = async () => {
     await infoMsg(`Metadata url: ${convertUrlToHttp(url)}`);
     
     //mint
-    spinner = new Spiner('Minting...');
+    spinner = new Spinner('Minting...');
     const tokenId = await sdk.mintNftAndApprove(url);
     const tokenAddress = await sdk.limePlaceNFT.getAddress();
     spinner.stopSpinner();
     
     //list
-    spinner = new Spiner('Listing..')
+    spinner = new Spinner('Listing..')
     await sdk.list(tokenAddress, tokenId, tokenMetadataInput.price )
     spinner.stopSpinner();
     await infoMsg('Token is listed', true);

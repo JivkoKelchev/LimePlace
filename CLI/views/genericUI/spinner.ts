@@ -1,4 +1,4 @@
-export default class Spiner {
+export default class Spinner {
     constructor(private msg: string) {
         this.startSpinner();
     }
