@@ -9,6 +9,8 @@ import {ListingsHistoryModule} from "./listingsHistory/listingsHistory.module";
 import {ListingHistory} from "./listingsHistory/listingHistory.entity";
 import {BlockInfo} from "./blockInfo/blockInfo.enitity";
 import {BlockInfoModule} from "./blockInfo/blockInfo.module";
+import {Collection} from "./collections/collections.enitity";
+import {CollectionsModule} from "./collections/collections.module";
 
 @Module({
     imports: [
@@ -16,6 +18,7 @@ import {BlockInfoModule} from "./blockInfo/blockInfo.module";
         ListingsModule,
         ListingsHistoryModule,
         BlockInfoModule,
+        CollectionsModule,
         ConfigModule.forRoot({
             isGlobal: true,
         }),
@@ -29,7 +32,7 @@ import {BlockInfoModule} from "./blockInfo/blockInfo.module";
                 username: 'root',
                 password: 'your_mysql_root_password',
                 database: 'lime_place',
-                entities: [Listing, ListingHistory, BlockInfo],
+                entities: [Listing, ListingHistory, BlockInfo, Collection],
                 synchronize: true,
             }),
             inject: [ConfigService],

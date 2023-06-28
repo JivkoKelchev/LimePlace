@@ -8,6 +8,8 @@ import {ConfigService} from "@nestjs/config";
 import {ListingsHistoryService} from "../listingsHistory/listingsHistory.service";
 import {BlockInfoService} from "../blockInfo/blockInfo.service";
 import {ListingHistory} from "../listingsHistory/listingHistory.entity";
+import {CollectionsService} from "../collections/collections.service";
+import {Collection} from "../collections/collections.enitity";
 
 @Injectable()
 export class IndexerService {
@@ -18,6 +20,7 @@ export class IndexerService {
     constructor(@Inject(ListingsService) private readonly listingService: ListingsService,
                 @Inject(ListingsHistoryService) private readonly listingsHistoryService: ListingsHistoryService,
                 @Inject(BlockInfoService) private readonly blockInfoService: BlockInfoService,
+                @Inject(CollectionsService) private readonly collectionService: CollectionsService,
                 private configService: ConfigService ) {
         console.log('Make sure hardhat local node is started!')
         this.provider = getProvider(configService);
@@ -57,7 +60,7 @@ export class IndexerService {
         
         await this.listenForLogListingSold(contract);
 
-        
+        await this.listenForLogCollectionCreated(contract);
         
         
     }
@@ -124,9 +127,13 @@ export class IndexerService {
                 console.log('listingId : ' + listingId);
                 console.log('price : ' + price);
 
+                const lastBlockNumber = await this.blockInfoService.getLastBlock();;
                 const blockNumber = await this.provider.getBlockNumber();
+                if(blockNumber === lastBlockNumber) {
+                    //todo check if listing exist (we may have multiple listings in same block)
+                    return;
+                }
                 const block = await this.provider.getBlock(blockNumber);
-                
                 const listing = await this.listingService.getListing(listingId);
                 listing.price = price.toString();
                 await this.listingService.saveListing(listing);
@@ -141,6 +148,37 @@ export class IndexerService {
                 
                 
                 await this.listingsHistoryService.addListing(listingHistory)
+
+                await this.blockInfoService.updateBlockInfo(blockNumber);
+            }
+        );
+    }
+
+    private listenForLogCollectionCreated = async (contract: Contract) => {
+        //event LogCollectionCreated(address collectionAddress, address collectionOwner, string name, string symbol);
+        await contract.on(
+            'LogCollectionCreated',
+            async (collectionAddress: string, collectionOwner:string, name: string, symbol: string) => {
+                console.log('event LogCollectionCreated');
+                console.log('collectionAddress : ' + collectionAddress);
+                console.log('collectionOwner : ' + collectionOwner);
+
+                const lastBlockNumber = await this.blockInfoService.getLastBlock();;
+                const blockNumber = await this.provider.getBlockNumber();
+                if(blockNumber === lastBlockNumber) {
+                    //todo check if listing exist (we may have multiple listings in same block)
+                    return;
+                }
+                const block = await this.provider.getBlock(blockNumber);
+                const collection = new Collection();
+                collection.address = collectionAddress;
+                collection.owner = collectionOwner;
+                collection.name = name;
+                collection.symbol = symbol;
+                collection.updated_at = block.timestamp;
+
+
+                await this.collectionService.addCollection(collection)
 
                 await this.blockInfoService.updateBlockInfo(blockNumber);
             }
