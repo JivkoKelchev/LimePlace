@@ -2,6 +2,7 @@ import ListingModel from "../models/Listing";
 import {getSdk} from "../controllers/connectionController";
 import {clearScreen} from "../utils/view-utils";
 import chalk from "chalk";
+import {ethers} from "ethers";
 export const renderActiveListingsTable = async (data: ListingModel[],page: number, count: number) => {
     await clearScreen();
     const sdk = await getSdk();
@@ -12,7 +13,7 @@ export const renderActiveListingsTable = async (data: ListingModel[],page: numbe
         console.log(
             listing.listingUid, 
             listing.owner === signerAddress? "my listing                                " : listing.owner, 
-            chalk.red.strikethrough(listing.price)
+            Number(ethers.formatEther(listing.price)).toFixed(5) + 'ETH'
         )
     })
     console.log('--------------------------------------------------------------------------------------------------------------------')

@@ -11,8 +11,6 @@ export class Sdk{
     provider : Provider;
     limePlace: Contract;
     limePlaceAddress: string;
-    limePlaceNFT: Contract;
-    limePlaceNFTAddress: string;
     signer: Signer;
 
     LISTING_FEE = 0.0001; //fee in eth
@@ -20,23 +18,28 @@ export class Sdk{
     constructor(provider : Provider, limePlaceAddress: string, limePlaceNFTAddress: string, signer: Signer) {
         this.provider = provider;
         this.limePlace  = new ethers.Contract(limePlaceAddress, limePlaceAbi.abi, signer);
-        this.limePlaceNFT = new ethers.Contract(limePlaceNFTAddress, limePlaceNftAbi.abi, signer);
         this.limePlaceAddress = limePlaceAddress;
-        this.limePlaceNFTAddress = limePlaceNFTAddress;
         this.signer = signer;
     }
+    
+    async createERC721Collection(name: string, symbol: string): Promise<string> {
+        const tx = await this.limePlace.createERC721Collection(name, symbol);
+        const rc = await tx.wait();
+        return rc?.logs[0].args[0];
+    }
 
-    async mintNftAndApprove(tokenUri: string) : Promise<number> {
+    async mintNftAndApprove(tokenAddress: string, tokenUri: string) : Promise<number> {
+        const tokenContract = new ethers.Contract(tokenAddress, limePlaceNftAbi.abi, this.signer);
         //wait transaction to complete in order to get listingId
-        const tx = await this.limePlaceNFT.mint(tokenUri);
+        const tx = await tokenContract.mint(tokenUri);
         const rc = await tx.wait(); // 0ms, as tx is already confirmed
         const tokenId = rc?.logs[0].args[2];
         
         //check for approvel
         const signerAddress = await this.signer.getAddress();
-        const isApprovedForAll = await this.limePlaceNFT.isApprovedForAll(signerAddress, this.limePlaceAddress);
+        const isApprovedForAll = await tokenContract.isApprovedForAll(signerAddress, this.limePlaceAddress);
         if(!isApprovedForAll) {
-            await this.limePlaceNFT.setApprovalForAll(this.limePlaceAddress, true)
+            await tokenContract.setApprovalForAll(this.limePlaceAddress, true)
         }
         return tokenId ?? 0;
     }
@@ -45,11 +48,12 @@ export class Sdk{
         return await this.limePlace.getListing(listingId)
     } 
 
-    async getLimePlaceNFTTokenUri(tokenId: BigInt): Promise<string> {
-        return this.limePlaceNFT.tokenURI(tokenId);
+    async getLimePlaceNFTTokenUri(tokenAddress: string, tokenId: BigInt): Promise<string> {
+        const tokenContract = new ethers.Contract(tokenAddress, limePlaceNftAbi.abi, this.signer);
+        return tokenContract.tokenURI(tokenId);
     }
     
-    async list(tokenAddress: string, tokenId: number, price: number) {
+    async list(tokenAddress: string, tokenId: number, price: BigInt) {
         const options = {value: ethers.parseEther(this.LISTING_FEE.toString())}
         await this.limePlace.list(tokenAddress, tokenId, price, options);
     }

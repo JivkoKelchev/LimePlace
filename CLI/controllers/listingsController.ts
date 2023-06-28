@@ -25,6 +25,7 @@ import {filterByUserPrompt} from "../views/menu/listings/filterByUserPrompt";
 import {renderListingDetails} from "../views/listingDetails";
 import {editListingPrompt} from "../views/menu/listings/editListingPricePrompt";
 import {getPaginationData} from "../services/listingService";
+import {ethers} from "ethers";
 
 let paginationState : {
     page: number;
@@ -89,7 +90,7 @@ export const viewListingAction = async (listingId: string) => {
     
     const sdk = await getSdk();
     const listingInfo = await sdk.getListing(listingId);
-    const tokenUri = await sdk.getLimePlaceNFTTokenUri(listingInfo[1]);
+    const tokenUri = await sdk.getLimePlaceNFTTokenUri(listingInfo[0],listingInfo[1]);
     //get metadata
     const metadata = await getMetaDataFromIpfs(tokenUri);
     const imagePath = await getFileFromIpfs(metadata.image);
@@ -154,13 +155,14 @@ export const mintAndListAction = async () => {
     
     //mint
     spinner = new Spinner('Minting...');
-    const tokenId = await sdk.mintNftAndApprove(url);
-    const tokenAddress = await sdk.limePlaceNFT.getAddress();
+    //todo implement collection selectioin!!!
+    const tokenAddress = await sdk.createERC721Collection('LimePlaceNFT', 'LPT');
+    const tokenId = await sdk.mintNftAndApprove(tokenAddress, url);
     spinner.stopSpinner();
     
     //list
     spinner = new Spinner('Listing..')
-    await sdk.list(tokenAddress, tokenId, tokenMetadataInput.price )
+    await sdk.list(tokenAddress, tokenId, ethers.parseEther(tokenMetadataInput.price.toString()) )
     spinner.stopSpinner();
     await infoMsg('Token is listed', true);
     

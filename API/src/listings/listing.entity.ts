@@ -28,9 +28,9 @@ export class Listing {
     
     @ApiProperty()
     @Column()
-    price: number
+    price: string
     
     @ApiProperty()
-    @Column()
+    @Column({type: 'bigint'})
     updated_at: number
 }

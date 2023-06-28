@@ -29,10 +29,10 @@ const questions = [
     {
         type: 'input',
         name: 'price',
-        message: 'Enter the price of the token :',
+        message: 'Enter the price of the token ( ETH ):',
         validate: function( price: number ) {
-            if (price <= 0) {
-                return 'Price should be more than 0';
+            if (price < 0.0001) {
+                return 'Price should be more than listing fee';
             } else {
                 return true;
             }

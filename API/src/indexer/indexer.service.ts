@@ -65,7 +65,7 @@ export class IndexerService {
     private listenForLogListingAdded = async (contract: Contract) => {
         await contract.on(
             'LogListingAdded',
-                async(listingId: string, tokenContract: string, tokenId: number, seller: string, price: number) => {
+                async(listingId: string, tokenContract: string, tokenId: number, seller: string, price: BigNumberish) => {
                 const lastBlockNumber = await this.blockInfoService.getLastBlock();;
                 const blockNumber = await this.provider.getBlockNumber();
                 if(blockNumber === lastBlockNumber) {
@@ -93,7 +93,7 @@ export class IndexerService {
                 listingEntity.listingUid = listingId;
                 listingEntity.tokenId = Number(tokenId);
                 listingEntity.owner = seller;
-                listingEntity.price = Number(price);
+                listingEntity.price = price.toString();
                 listingEntity.active = true;
                 listingEntity.collection = tokenContract;
                 listingEntity.updated_at = block.timestamp;
@@ -105,7 +105,7 @@ export class IndexerService {
                 listingHistory.listingUid = listingId;
                 listingHistory.tokenId = listingEntity.tokenId;
                 listingHistory.owner = listingEntity.owner;
-                listingHistory.price = Number(price);
+                listingHistory.price = price.toString();
                 listingHistory.active = true;
                 listingHistory.historyEvent = 'CREATE'
                 listingHistory.updated_at = block.timestamp;
@@ -128,13 +128,13 @@ export class IndexerService {
                 const block = await this.provider.getBlock(blockNumber);
                 
                 const listing = await this.listingService.getListing(listingId);
-                listing.price = Number(price);
+                listing.price = price.toString();
                 await this.listingService.saveListing(listing);
                 const listingHistory = new ListingHistory();
                 listingHistory.listingUid = listingId;
                 listingHistory.tokenId = listing.tokenId;
                 listingHistory.owner = listing.owner;
-                listingHistory.price = Number(price);
+                listingHistory.price = price.toString();
                 listingHistory.active = true;
                 listingHistory.historyEvent = 'EDIT'
                 listingHistory.updated_at = block.timestamp;
