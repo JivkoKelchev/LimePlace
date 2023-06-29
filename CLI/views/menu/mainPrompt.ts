@@ -19,7 +19,6 @@ const mainPrompt = [
 ];
 
 export const mainMenu = async () => {
-    await clearScreen();
     let selectedItem : { menu: string };
     selectedItem = await inquirer.prompt(mainPrompt);
     return selectedItem;

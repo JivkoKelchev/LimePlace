@@ -26,6 +26,7 @@ import {CollectionsModule} from "./collections/collections.module";
         {
             imports: [ConfigModule],
             useFactory: (configService: ConfigService) => ({
+                //todo move config into .env
                 type: 'mysql',
                 host: configService.get('DATABASE_HOST'),
                 port: 3306,

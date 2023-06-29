@@ -3,6 +3,10 @@ import {printHeader} from "../views/header";
 import {mainMenu, homeMenuList} from "../views/menu/mainPrompt";
 import {activeListingsAction, mintAndListAction} from "./listingsController";
 import {Sdk} from "../services/sdk";
+import {clearScreen} from "../utils/view-utils";
+import {renderCollectionsTable} from "../views/collectionsTable";
+import CollectionModel from "../models/Collection";
+import {getCollections} from "../services/api";
 
 
 export const loadHeader = async (sdk?: Sdk) => {
@@ -13,6 +17,11 @@ export const loadHeader = async (sdk?: Sdk) => {
 }
 
 export const homeAction = async () => {
+    //print collections page
+    const testData = await getCollections();
+    await renderCollectionsTable(testData, 1, 1);
+    
+    
     //print main menu
     const selected = await mainMenu();
     switch (selected.menu) {

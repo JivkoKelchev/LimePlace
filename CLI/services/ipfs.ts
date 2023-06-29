@@ -2,7 +2,7 @@ import fs from 'fs'
 import {File, NFTStorage} from "nft.storage";
 import mime from "mime";
 import {getFileNameFromPath} from "../utils/fs-utils";
-import ConfigurationError from "../Errors/ConfigurationError";
+import ConfigurationError from "../errors/ConfigurationError";
 import axios from "axios";
 import tmp from "tmp";
 

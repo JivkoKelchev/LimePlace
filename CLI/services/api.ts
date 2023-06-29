@@ -1,5 +1,6 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
 import ListingModel from "../models/Listing";
+import CollectionStatisticsModel from "../models/CollectionStatistics";
 
 interface QueryParams {
     page: number;
@@ -17,6 +18,18 @@ export const getListings = async (page : number, user?: string, sort?: boolean):
         queryParams.sort = sort;
     } 
 
+    return axios.get(apiUrl, {params: queryParams})
+        .then((response: AxiosResponse) => {
+            return response.data;
+        })
+        .catch((error: AxiosError) => {
+            console.error('Error:', error.message);
+        });
+}
+
+export const getCollections = async (): Promise<CollectionStatisticsModel[]> => {
+    const apiUrl = process.env.BACKEND_HOST+'/collections';
+    let queryParams: QueryParams = { page: 1 };
     return axios.get(apiUrl, {params: queryParams})
         .then((response: AxiosResponse) => {
             return response.data;

@@ -1,7 +1,7 @@
 import {Contract, ethers, Provider, Signer} from "ethers";
 
-const limePlaceAbi = require('./artifacts/LimePlace.json')
-const limePlaceNftAbi = require('./artifacts/LimePlaceNFT.json')
+const limePlaceAbi = require('../artifacts/LimePlace.json')
+const limePlaceNftAbi = require('../artifacts/LimePlaceNFT.json')
 
 export interface ListingDetails {
     

@@ -88,7 +88,7 @@ export class IndexerService {
                     tokenContract: ${tokenContract}
                     tokenId: ${tokenId}
                     seller: ${seller}
-                    price: ${price}`
+                    price: ${ethers.formatEther(price)}`
                 );
                 
                 
@@ -96,7 +96,7 @@ export class IndexerService {
                 listingEntity.listingUid = listingId;
                 listingEntity.tokenId = Number(tokenId);
                 listingEntity.owner = seller;
-                listingEntity.price = price.toString();
+                listingEntity.price = Number(ethers.formatEther(price));
                 listingEntity.active = true;
                 listingEntity.collection = tokenContract;
                 listingEntity.updated_at = block.timestamp;
@@ -108,7 +108,7 @@ export class IndexerService {
                 listingHistory.listingUid = listingId;
                 listingHistory.tokenId = listingEntity.tokenId;
                 listingHistory.owner = listingEntity.owner;
-                listingHistory.price = price.toString();
+                listingHistory.price = Number(ethers.formatEther(price));
                 listingHistory.active = true;
                 listingHistory.historyEvent = 'CREATE'
                 listingHistory.updated_at = block.timestamp;
@@ -125,7 +125,7 @@ export class IndexerService {
             async (listingId: string, price:BigNumberish) => {
                 console.log('event LogListingUpdated');
                 console.log('listingId : ' + listingId);
-                console.log('price : ' + price);
+                console.log('price : ' + ethers.formatEther(price));
 
                 const lastBlockNumber = await this.blockInfoService.getLastBlock();;
                 const blockNumber = await this.provider.getBlockNumber();
@@ -135,13 +135,13 @@ export class IndexerService {
                 }
                 const block = await this.provider.getBlock(blockNumber);
                 const listing = await this.listingService.getListing(listingId);
-                listing.price = price.toString();
+                listing.price = Number(ethers.formatEther(price));
                 await this.listingService.saveListing(listing);
                 const listingHistory = new ListingHistory();
                 listingHistory.listingUid = listingId;
                 listingHistory.tokenId = listing.tokenId;
                 listingHistory.owner = listing.owner;
-                listingHistory.price = price.toString();
+                listingHistory.price = Number(ethers.formatEther(price));
                 listingHistory.active = true;
                 listingHistory.historyEvent = 'EDIT'
                 listingHistory.updated_at = block.timestamp;
@@ -208,7 +208,7 @@ export class IndexerService {
                 console.log('event LogListingSold');
                 console.log('listingId : ' + listingId);
                 console.log('buyer : ' + buyer);
-                console.log('price : ' + price);
+                console.log('price : ' + ethers.formatEther(price));
 
                 const blockNumber = await this.provider.getBlockNumber();
                 await this.blockInfoService.updateBlockInfo(blockNumber);

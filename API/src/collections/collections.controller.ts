@@ -1,13 +1,13 @@
 import {Controller, Get, Inject, Query} from '@nestjs/common';
 import {CollectionsService} from "./collections.service";
 
-@Controller('blockInfo')
+@Controller('collections')
 export class CollectionsController {
 
-    constructor(@Inject(CollectionsService) private readonly blockInfoService: CollectionsService) {}
+    constructor(@Inject(CollectionsService) private readonly collectionsService: CollectionsService) {}
 
     @Get()
-    getListings(@Query() query) {
-        return 5;
+    getCollections(@Query() query) {
+        return this.collectionsService.getCollections();
     }
 }

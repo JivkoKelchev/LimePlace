@@ -27,8 +27,8 @@ export class ListingHistory {
     historyEvent: string
     
     @ApiProperty()
-    @Column()
-    price: string
+    @Column('decimal', { precision: 6, scale: 6 })
+    price: number
     
     @ApiProperty()
     @Column({type: 'bigint'})

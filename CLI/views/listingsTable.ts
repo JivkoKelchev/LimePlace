@@ -8,12 +8,12 @@ export const renderActiveListingsTable = async (data: ListingModel[],page: numbe
     const sdk = await getSdk();
     const signerAddress = await sdk.getSignerAddress();
     console.log('Listing ID                                                         Seller address                             Price')
-    console.log('-------------------------------------------------------------------------------------------------------------------')
+    console.log('--------------------------------------------------------------------------------------------------------------------')
     data.map((listing: ListingModel) => {
         console.log(
             listing.listingUid, 
             listing.owner === signerAddress? "my listing                                " : listing.owner, 
-            Number(ethers.formatEther(listing.price)).toFixed(5) + 'ETH'
+            listing.price + ' ETH'
         )
     })
     console.log('--------------------------------------------------------------------------------------------------------------------')
