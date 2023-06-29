@@ -1,5 +1,5 @@
-import {loadHeader, homeAction} from "./controllers/homeController";
-import {getSdk} from "./controllers/connectionController";
+import {loadHeader, homeAction} from "./src/controllers/homeController";
+import {getSdk} from "./src/controllers/connectionController";
 import {config} from "dotenv";
 
 const run = async () => {
