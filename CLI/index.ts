@@ -1,6 +1,7 @@
-import {loadHeader, homeAction} from "./src/controllers/homeController";
+import {homeAction} from "./src/controllers/homeController";
 import {getSdk} from "./src/controllers/connectionController";
 import {config} from "dotenv";
+import {loadHeader} from "./src/views/header";
 
 const run = async () => {
     try {

@@ -1,6 +1,6 @@
 import CollectionModel from "../models/Collection";
 import {clearScreen} from "../utils/view-utils";
-import {getSdk} from "../controllers/connectionController";
+import {getSdk} from "../controllers/connectionsController";
 import {ethers} from "ethers";
 import CollectionStatisticsModel from "../models/CollectionStatistics";
 

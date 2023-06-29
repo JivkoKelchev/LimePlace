@@ -4,8 +4,16 @@ import logo from "./logo";
 import {combineArt, padArt} from "../utils/view-utils";
 import {Sdk} from "../services/sdk";
 import {ethers} from "ethers";
+import clear from "clear";
 
-export const printHeader = async (sdk?: Sdk) => {
+export const loadHeader = async (sdk?: Sdk) => {
+    //show header
+    clear();
+    await printHeader(sdk);
+    //todo add some description
+}
+
+const printHeader = async (sdk?: Sdk) => {
     let statusBar = chalk.bgRed('                                                            connect your wallet ')
     if(sdk) {
       const address = await sdk.getSignerAddress();

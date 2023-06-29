@@ -8,7 +8,7 @@ const questions = [
     },
 ]
 
-export const viewListingPrompt = async () => {
+export const openListingPrompt = async () => {
     let listingId : { id: string };
     listingId = await inquirer.prompt(questions);
     return listingId;

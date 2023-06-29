@@ -1,67 +1,40 @@
-import clear from "clear";
-import {printHeader} from "../views/header";
-import {mainMenu, homeMenuList} from "../views/menu/mainPrompt";
-import {activeListingsAction, mintAndListAction} from "./listingsController";
-import {Sdk} from "../services/sdk";
-import {clearScreen} from "../utils/view-utils";
-import {renderCollectionsTable} from "../views/collectionsTable";
-import CollectionModel from "../models/Collection";
-import {getCollections} from "../services/api";
+import {loadHeader} from "../views/header";
+import {listingsAction, mintAndListAction} from "./listingsController";
+import {getSdk} from "./connectionController";
+import {mainMenu} from "../views/menu/mainMenu";
+import {
+    COLLECTIONS_MENU_ITEM,
+    CREATE_MENU_ITEM,
+    EXIT_MENU_ITEM,
+    LISTINGS_MENU_ITEM
+} from "../views/menu/menuItemsConstants";
 
-
-export const loadHeader = async (sdk?: Sdk) => {
-    //show header
-    clear();
-    await printHeader(sdk);
-    //todo add some description
-}
 
 export const homeAction = async () => {
-    //print collections page
-    const testData = await getCollections();
-    await renderCollectionsTable(testData, 1, 1);
-    
-    
-    //print main menu
+    //render view
+    const sdk = await getSdk();
+    await loadHeader(sdk);
     const selected = await mainMenu();
+    
+    //redirect ot actions
     switch (selected.menu) {
-        //0 - 'Show active listings',
-        case homeMenuList[0]: {
-            await renderActiveListingView();
+        case COLLECTIONS_MENU_ITEM: {
+            console.log('collections');
             break;
         }
-        //1 - 'Mint and list NFT',
-        case homeMenuList[1]: {
-            await renderMintAndListView();
+        case LISTINGS_MENU_ITEM: {
+            await listingsAction();
             break;
         }
-        //2 - 'List NFT',
-        case homeMenuList[2]: {
-            await renderListNftView();
+        case CREATE_MENU_ITEM: {
+            await mintAndListAction();
             break;
         }
-        //3 - 'Exit'
-        case homeMenuList[3]:
+        case EXIT_MENU_ITEM:
         default: 
         {
-            exit();
+            process.exit(0)
             break;
         }
     }
-}
-
-const renderActiveListingView = async () => {
-    await activeListingsAction()
-}
-
-const renderListNftView = () => {
-    console.log('List NFT prompt')
-}
-
-const renderMintAndListView = async () => {
-    await mintAndListAction();
-}
-
-const exit = () => {
-    process.exit(0)
 }

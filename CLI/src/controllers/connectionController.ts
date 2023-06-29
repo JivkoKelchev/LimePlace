@@ -1,9 +1,9 @@
-import {networkList, networkMenu} from "../views/menu/connection/networksPrompt";
-import {LocalNetworkData, localNetworkPrompts} from "../views/menu/connection/localContractsPrompt";
+import {networkList, networkMenu} from "../views/menu/connection/networksMenu";
 import {ethers} from "ethers";
 import {Sdk} from "../services/sdk";
 // @ts-ignore
 import {MetaMaskSDK} from "@metamask/sdk";
+import {LOCAL_MENU_ITEM, TESTNETS_MENU_ITEM} from "../views/menu/menuItemsConstants";
 
 let sdkInstance: Sdk | null = null;
 let instanceCreated = false;
@@ -20,11 +20,11 @@ export const getSdk = async () : Promise<Sdk> => {
 
 const connect = async (network: string) : Promise<Sdk> => {
     switch (network) {
-        case networkList[0]: {
+        case LOCAL_MENU_ITEM: {
             //const data = await localNetworkPrompts();
             return await initSdkForLocalNetwork();
         }
-        case networkList[1]: 
+        case TESTNETS_MENU_ITEM: 
         default: {
             return await initSdk();
         }
@@ -46,7 +46,7 @@ const initSdkForLocalNetwork = async  () : Promise<Sdk> => {
 }
 
 const initSdk = async () : Promise<Sdk> => {
-    const MMSDK = new MetaMaskSDK({dappMetadata : {name: "My Dapp"}});
+    const MMSDK = new MetaMaskSDK({dappMetadata : {name: "LimePlace"}});
     const ethereum = await MMSDK.getProvider();
     // @ts-ignore
     await ethereum.request({ method: 'eth_requestAccounts', params: [] });

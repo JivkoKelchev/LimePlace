@@ -1,4 +1,4 @@
-import {loadHeader} from "../controllers/homeController";
+import {loadHeader} from "../views/header";
 import asciifyImage from 'asciify-image'
 import {getSdk} from "../controllers/connectionController";
 
