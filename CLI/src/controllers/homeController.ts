@@ -8,6 +8,7 @@ import {
     EXIT_MENU_ITEM,
     LISTINGS_MENU_ITEM
 } from "../views/menu/menuItemsConstants";
+import {collectionsAction} from "./collectionsController";
 
 
 export const homeAction = async () => {
@@ -19,7 +20,7 @@ export const homeAction = async () => {
     //redirect ot actions
     switch (selected.menu) {
         case COLLECTIONS_MENU_ITEM: {
-            console.log('collections');
+            await collectionsAction();
             break;
         }
         case LISTINGS_MENU_ITEM: {

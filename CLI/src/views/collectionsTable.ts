@@ -1,7 +1,5 @@
-import CollectionModel from "../models/Collection";
 import {clearScreen} from "../utils/view-utils";
-import {getSdk} from "../controllers/connectionsController";
-import {ethers} from "ethers";
+import {getSdk} from "../controllers/connectionController";
 import CollectionStatisticsModel from "../models/CollectionStatistics";
 
 export const renderCollectionsTable = async (data: CollectionStatisticsModel[],page: number, count: number) => {
