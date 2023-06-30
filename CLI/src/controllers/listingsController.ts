@@ -29,7 +29,7 @@ import {
     VIEW_LISTING_MENU_ITEM
 } from "../views/menu/menuItemsConstants";
 import {selectCollectionMenu} from "../views/menu/collections/selectCollectionMenu";
-import {createCollectionPrompt} from "../views/menu/collections/createCollectionPrompt";
+import {collectionNamePrompt, collectionSymbolPrompt} from "../views/menu/collections/collectionNamePrompt";
 import {useCollectionPrompt} from "../views/menu/collections/useCollectionPrompt";
 import {mainMenu} from "../views/menu/mainMenu";
 
@@ -143,12 +143,22 @@ export const createNewAction = async () => {
     const collectionSelectionInput = await selectCollectionMenu();
     switch (collectionSelectionInput.menu) {
         case CREATE_NEW_COLLECTION_MENU_ITEM: {
-            const collectionData = await createCollectionPrompt();
-            await mintAndListInNewCollectionAction(collectionData.name, collectionData.symbol);
+            const collectionName = await collectionNamePrompt();
+            if(collectionName.name === '<' ) {
+                await homeAction();
+            }
+            const collectionSymbol = await collectionSymbolPrompt();
+            if(collectionSymbol.symbol === '<') {
+                await homeAction();
+            }
+            await mintAndListInNewCollectionAction(collectionName.name, collectionSymbol.symbol);
             break;
         }
         case USE_EXISTING_COLLECTION_MENU_ITEM: {
             const collectionAddress = await useCollectionPrompt();
+            if(collectionAddress.address === '<') {
+                await homeAction();
+            }
             await mintAndListInExistingCollectionAction(collectionAddress.address);
             break;
         }

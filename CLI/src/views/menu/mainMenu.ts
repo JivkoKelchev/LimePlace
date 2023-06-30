@@ -1,10 +1,10 @@
 import inquirer from "inquirer";
-import {COLLECTIONS_MENU_ITEM, CREATE_MENU_ITEM, EXIT_MENU_ITEM, LISTINGS_MENU_ITEM} from "./menuItemsConstants";
+import {COLLECTIONS_MENU_ITEM, ADD_LISTING_MENU_ITEM, EXIT_MENU_ITEM, LISTINGS_MENU_ITEM} from "./menuItemsConstants";
 
 const homeMenuList = [
     COLLECTIONS_MENU_ITEM,
     LISTINGS_MENU_ITEM,
-    CREATE_MENU_ITEM,
+    ADD_LISTING_MENU_ITEM,
     EXIT_MENU_ITEM
 ]
 

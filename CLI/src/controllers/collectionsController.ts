@@ -4,7 +4,7 @@ import {getCollections} from "../services/api";
 import {renderCollectionsTable} from "../views/collectionsTable";
 import {collectionsTableMenu} from "../views/menu/collections/collectionsTableMenu";
 import {
-    CREATE_MENU_ITEM,
+    ADD_LISTING_MENU_ITEM,
     MAIN_MENU_ITEM,
     MY_COLLECTIONS_MENU_ITEM,
     SEARCH_MENU_ITEM
@@ -33,7 +33,7 @@ export const collectionsAction = async () => {
             console.log('my listings')
             break;
         }
-        case CREATE_MENU_ITEM: {
+        case ADD_LISTING_MENU_ITEM: {
             await createNewAction();
             break;
         }

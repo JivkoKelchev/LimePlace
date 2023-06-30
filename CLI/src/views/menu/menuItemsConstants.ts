@@ -5,7 +5,7 @@ export const TESTNETS_MENU_ITEM = 'Testnets';
 //main menu items
 export const COLLECTIONS_MENU_ITEM = 'Collections';
 export const LISTINGS_MENU_ITEM = 'Listings';
-export const CREATE_MENU_ITEM = 'Create new';
+export const ADD_LISTING_MENU_ITEM = 'Add new listing';
 export const EXIT_MENU_ITEM = 'Exit'
 
 //Collections menu items

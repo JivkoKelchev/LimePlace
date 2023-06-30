@@ -4,7 +4,7 @@ import {getSdk} from "./connectionController";
 import {mainMenu} from "../views/menu/mainMenu";
 import {
     COLLECTIONS_MENU_ITEM,
-    CREATE_MENU_ITEM,
+    ADD_LISTING_MENU_ITEM,
     EXIT_MENU_ITEM,
     LISTINGS_MENU_ITEM
 } from "../views/menu/menuItemsConstants";
@@ -27,7 +27,7 @@ export const homeAction = async () => {
             await listingsAction();
             break;
         }
-        case CREATE_MENU_ITEM: {
+        case ADD_LISTING_MENU_ITEM: {
             await createNewAction();
             break;
         }
