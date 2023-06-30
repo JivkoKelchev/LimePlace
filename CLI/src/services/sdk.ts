@@ -47,6 +47,10 @@ export class Sdk{
     async getListing(listingId: string): Promise<any> {
         return await this.limePlace.getListing(listingId)
     } 
+    
+    async getCollection(collectionAddress: string): Promise<any> {
+        return await this.limePlace.getCollection(collectionAddress);
+    }
 
     async getLimePlaceNFTTokenUri(tokenAddress: string, tokenId: BigInt): Promise<string> {
         const tokenContract = new ethers.Contract(tokenAddress, limePlaceNftAbi.abi, this.signer);

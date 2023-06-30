@@ -10,6 +10,7 @@ import {
     SEARCH_MENU_ITEM
 } from "../views/menu/menuItemsConstants";
 import {homeAction} from "./homeController";
+import {createNewAction} from "./listingsController";
 
 export const collectionsAction = async () => {
     //render view
@@ -23,15 +24,17 @@ export const collectionsAction = async () => {
     const selected = await collectionsTableMenu(false, false);
     switch (selected.menu) {
         case SEARCH_MENU_ITEM: {
+            //TODO
             console.log('search')
             break;
         }
         case MY_COLLECTIONS_MENU_ITEM: {
+            //TODO
             console.log('my listings')
             break;
         }
         case CREATE_MENU_ITEM: {
-            console.log('create')
+            await createNewAction();
             break;
         }
         case MAIN_MENU_ITEM:

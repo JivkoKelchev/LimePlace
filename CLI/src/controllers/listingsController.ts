@@ -30,6 +30,8 @@ import {
 } from "../views/menu/menuItemsConstants";
 import {selectCollectionMenu} from "../views/menu/collections/selectCollectionMenu";
 import {createCollectionPrompt} from "../views/menu/collections/createCollectionPrompt";
+import {useCollectionPrompt} from "../views/menu/collections/useCollectionPrompt";
+import {mainMenu} from "../views/menu/mainMenu";
 
 let paginationState : {
     page: number;
@@ -146,22 +148,21 @@ export const createNewAction = async () => {
             break;
         }
         case USE_EXISTING_COLLECTION_MENU_ITEM: {
-            
+            const collectionAddress = await useCollectionPrompt();
+            await mintAndListInExistingCollectionAction(collectionAddress.address);
+            break;
+        }
+        case BACK_MENU_ITEM: {
+            await homeAction();
             break;
         }
         default: {
-            break;
+            return;
         }
     }
 }
 
-// const mintAndListInExictingCollectionAction = async (collectionName: string) {
-//     const sdk = await getSdk();
-//     const collectionData = await sdk.getCollection()
-// }
-
-
-const mintAndListInNewCollectionAction = async (collectionName: string, collectionsSymbol: string) => {
+const mintAndListInExistingCollectionAction = async (tokenAddress: string) => {
     const sdk = await getSdk();
     //prompt for a image 
     const imagePathInput = await selectImagePrompt();
@@ -170,9 +171,9 @@ const mintAndListInNewCollectionAction = async (collectionName: string, collecti
     if(!confirm) {
         await homeAction();
     }
-    
+
     const tokenMetadataInput = await mintMetadataPrompt();
-    
+
     //upload image to ipfs
     let spinner = new Spinner('Image is uploading...');
     //todo: uncomment and remove test url
@@ -180,20 +181,26 @@ const mintAndListInNewCollectionAction = async (collectionName: string, collecti
     const url = 'ipfs://bafyreied7myfsa667o5lykhoe77pdzzhtd36g36dbe645xdmueg3hj7by4/metadata.json'
     spinner.stopSpinner();
     await infoMsg(`Metadata url: ${convertUrlToHttp(url)}`);
-    
+
     //mint
     spinner = new Spinner('Minting...');
-    //todo implement collection selectioin!!!
-    const tokenAddress = await sdk.createERC721Collection(collectionName, collectionsSymbol);
+
     const tokenId = await sdk.mintNftAndApprove(tokenAddress, url);
     spinner.stopSpinner();
-    
+
     //list
     spinner = new Spinner('Listing..')
     await sdk.list(tokenAddress, tokenId, ethers.parseEther(tokenMetadataInput.price.toString()) )
     spinner.stopSpinner();
     await infoMsg('Token is listed', true);
-    
+
     //render view listing view --- or home menu
     await homeAction();
+}
+
+
+const mintAndListInNewCollectionAction = async (collectionName: string, collectionsSymbol: string) => {
+    const sdk = await getSdk();
+    const tokenAddress = await sdk.createERC721Collection(collectionName, collectionsSymbol);
+    await mintAndListInExistingCollectionAction(tokenAddress);
 }

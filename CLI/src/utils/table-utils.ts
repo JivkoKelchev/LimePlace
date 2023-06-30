@@ -68,7 +68,6 @@ export class Table {
                     text = value.toString();
                     if(col.type === 'ETH') {
                         text = Number.parseFloat(text).toString();
-                        //todo remove 0 at the end
                         text += ' ETH';
                     } 
                 }
