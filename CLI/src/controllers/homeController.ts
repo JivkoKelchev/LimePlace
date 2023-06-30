@@ -1,5 +1,5 @@
 import {loadHeader} from "../views/header";
-import {listingsAction, mintAndListAction} from "./listingsController";
+import {createNewAction, listingsAction} from "./listingsController";
 import {getSdk} from "./connectionController";
 import {mainMenu} from "../views/menu/mainMenu";
 import {
@@ -28,7 +28,7 @@ export const homeAction = async () => {
             break;
         }
         case CREATE_MENU_ITEM: {
-            await mintAndListAction();
+            await createNewAction();
             break;
         }
         case EXIT_MENU_ITEM:

@@ -20,14 +20,16 @@ import {ethers} from "ethers";
 import {
     BACK_MENU_ITEM,
     BUY_NFT_MENU_ITEM,
-    CANCEL_LISTING_MENU_ITEM,
+    CANCEL_LISTING_MENU_ITEM, CREATE_NEW_COLLECTION_MENU_ITEM,
     EDIT_PRICE_MENU_ITEM,
     FILTER_BY_USR_MENU_ITEM, MAIN_MENU_ITEM,
     NEXT_PAGE_MENU_ITEM,
     PREV_PAGE_MENU_ITEM,
-    SORT_BY_PRICE_MENU_ITEM,
+    SORT_BY_PRICE_MENU_ITEM, USE_EXISTING_COLLECTION_MENU_ITEM,
     VIEW_LISTING_MENU_ITEM
 } from "../views/menu/menuItemsConstants";
+import {selectCollectionMenu} from "../views/menu/collections/selectCollectionMenu";
+import {createCollectionPrompt} from "../views/menu/collections/createCollectionPrompt";
 
 let paginationState : {
     page: number;
@@ -135,7 +137,31 @@ export const viewListingAction = async (listingId: string) => {
     }
 }
 
-export const mintAndListAction = async () => {
+export const createNewAction = async () => {
+    const collectionSelectionInput = await selectCollectionMenu();
+    switch (collectionSelectionInput.menu) {
+        case CREATE_NEW_COLLECTION_MENU_ITEM: {
+            const collectionData = await createCollectionPrompt();
+            await mintAndListInNewCollectionAction(collectionData.name, collectionData.symbol);
+            break;
+        }
+        case USE_EXISTING_COLLECTION_MENU_ITEM: {
+            
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+}
+
+// const mintAndListInExictingCollectionAction = async (collectionName: string) {
+//     const sdk = await getSdk();
+//     const collectionData = await sdk.getCollection()
+// }
+
+
+const mintAndListInNewCollectionAction = async (collectionName: string, collectionsSymbol: string) => {
     const sdk = await getSdk();
     //prompt for a image 
     const imagePathInput = await selectImagePrompt();
@@ -158,7 +184,7 @@ export const mintAndListAction = async () => {
     //mint
     spinner = new Spinner('Minting...');
     //todo implement collection selectioin!!!
-    const tokenAddress = await sdk.createERC721Collection('LimePlaceNFT', 'LPT');
+    const tokenAddress = await sdk.createERC721Collection(collectionName, collectionsSymbol);
     const tokenId = await sdk.mintNftAndApprove(tokenAddress, url);
     spinner.stopSpinner();
     

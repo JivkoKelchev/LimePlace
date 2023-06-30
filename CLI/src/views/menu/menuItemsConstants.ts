@@ -10,6 +10,8 @@ export const EXIT_MENU_ITEM = 'Exit'
 
 //Collections menu items
 export const MY_COLLECTIONS_MENU_ITEM = 'My collections';
+export const USE_EXISTING_COLLECTION_MENU_ITEM = 'Use existing collection';
+export const CREATE_NEW_COLLECTION_MENU_ITEM = 'Create new collection'
 
 //Listings menu items
 export const MY_LISTINGS_MENU_ITEM = 'My listings';
