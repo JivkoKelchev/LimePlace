@@ -27,7 +27,7 @@ export class Listing {
     active: boolean
     
     @ApiProperty()
-    @Column('decimal', { precision: 6, scale: 6 })
+    @Column('decimal', { precision: 20, scale: 6 })
     price: number
     
     @ApiProperty()
