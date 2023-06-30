@@ -3,7 +3,12 @@ import {loadHeader} from "../views/header";
 import {getCollections} from "../services/api";
 import {renderCollectionsTable} from "../views/collectionsTable";
 import {collectionsTableMenu} from "../views/menu/collections/collectionsTableMenu";
-import {CREATE_MENU_ITEM, MAIN_MENU_ITEM, MY_LISTINGS, SEARCH_MENU_ITEM} from "../views/menu/menuItemsConstants";
+import {
+    CREATE_MENU_ITEM,
+    MAIN_MENU_ITEM,
+    MY_COLLECTIONS_MENU_ITEM,
+    SEARCH_MENU_ITEM
+} from "../views/menu/menuItemsConstants";
 import {homeAction} from "./homeController";
 
 export const collectionsAction = async () => {
@@ -21,7 +26,7 @@ export const collectionsAction = async () => {
             console.log('search')
             break;
         }
-        case MY_LISTINGS: {
+        case MY_COLLECTIONS_MENU_ITEM: {
             console.log('my listings')
             break;
         }

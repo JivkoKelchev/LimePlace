@@ -12,7 +12,7 @@ export const EXIT_MENU_ITEM = 'Exit'
 export const MY_COLLECTIONS_MENU_ITEM = 'My collections';
 
 //Listings menu items
-export const MY_LISTINGS = 'My listings';
+export const MY_LISTINGS_MENU_ITEM = 'My listings';
 export const VIEW_LISTING_MENU_ITEM = 'View listing';
 export const BUY_NFT_MENU_ITEM = 'Buy NFT';
 export const EDIT_PRICE_MENU_ITEM = 'Edit price';

@@ -1,8 +1,8 @@
 import inquirer from "inquirer";
 import {
-    CREATE_MENU_ITEM, MAIN_MENU_ITEM, 
-    NEXT_PAGE_MENU_ITEM, MY_LISTINGS,
-    PREV_PAGE_MENU_ITEM, SEARCH_MENU_ITEM
+    CREATE_MENU_ITEM, MAIN_MENU_ITEM,
+    NEXT_PAGE_MENU_ITEM,
+    PREV_PAGE_MENU_ITEM, SEARCH_MENU_ITEM, MY_COLLECTIONS_MENU_ITEM
 } from "../menuItemsConstants";
 
 
@@ -17,7 +17,7 @@ const promptObject = {
 export const collectionsTableMenu = async (hasNext: boolean, hasPrev: boolean) => {
     let activeListingsMenuList = [
         SEARCH_MENU_ITEM,
-        MY_LISTINGS,
+        MY_COLLECTIONS_MENU_ITEM,
         CREATE_MENU_ITEM,
         MAIN_MENU_ITEM ];
     if(hasPrev) {
