@@ -12,6 +12,15 @@ export const EXIT_MENU_ITEM = 'Exit'
 export const MY_COLLECTIONS_MENU_ITEM = 'My collections';
 export const USE_EXISTING_COLLECTION_MENU_ITEM = 'Use existing collection';
 export const CREATE_NEW_COLLECTION_MENU_ITEM = 'Create new collection'
+//collections query
+export const SEARCH_BY_COL_NAME_MENU_ITEM = 'Search by NAME'
+export const FILTER_BY_OWNER_MENU_ITEM = 'Filter by OWNER'
+export const FILTER_BY_FLOOR_MENU_ITEM= 'Filter by FLOOR'
+export const FILTER_BY_VOLUME_MENU_ITEM= 'Filter by VOLUME'
+export const SORT_BY_FLOOR_MENU_ITEM = 'Sort by FLOOR'
+export const SORT_BY_VOLUME_MENU_ITEM = 'Sort by VOLUME'
+export const CLEAR_QUERY_MENU_ITEM = 'Clear query'
+
 
 //Listings menu items
 export const MY_LISTINGS_MENU_ITEM = 'My listings';

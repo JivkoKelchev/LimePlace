@@ -1,18 +1,47 @@
-import {text} from "figlet";
+export interface CollectionsQuery {
+    search: string | null;
+    fileter: CollectionsFilter[];
+    sort: CollectionsSort[];
+}
 
+export interface CollectionsFilter {
+    owner?: string;
+    floor?: string;
+    volume?: string;
+}
+
+export interface CollectionsSort {
+    floor?: 'ASC' | 'DESC';
+    volume?: 'ASC' | 'DESC';
+}
+
+
+export interface HeaderIndicator{
+    filterIndicator?: boolean;
+    sortIndicator?: 'ASC' | 'DESC'
+} 
 export class Column {
     name: string;
     type: 'ETH' | string;
     width: number;
     align: 'LEFT' | 'RIGHT'
     dataMapping : string;
+    indicator?: HeaderIndicator;
     
-    constructor(name: string, type: 'ETH' | 'TXT', width: number, align: 'LEFT' | 'RIGHT', dataMapping: string) {
+    constructor(
+        name: string, 
+        type: 'ETH' | 'TXT', 
+        width: number, 
+        align: 'LEFT' | 'RIGHT', 
+        dataMapping: string,
+        indicator?: HeaderIndicator
+    ) {
         this.name = name;
         this.type = type;
         this.width = width;
         this.align = align;
         this.dataMapping = dataMapping;
+        this.indicator = indicator;
     }
 }
 
@@ -46,7 +75,18 @@ export class Table {
         let header = '';
         for (let i = 0; i < this.columns.length; i++) {
             let col = this.columns[i];
-            header +=  Table.textPadding(col.name, col.width, col.align) + this.border;
+            let name = col.name;
+            if(col.indicator?.filterIndicator){
+                name += ' \u2691'
+            }
+            if(col.indicator?.sortIndicator === 'ASC'){
+                name += ' \u2191'
+            }
+            if(col.indicator?.sortIndicator === 'DESC'){
+                name += ' \u2193'
+            }
+                
+            header +=  Table.textPadding(name, col.width, col.align) + this.border;
         }
         console.log(header);
         console.log(Table.fillSpace(header.length, '-'))

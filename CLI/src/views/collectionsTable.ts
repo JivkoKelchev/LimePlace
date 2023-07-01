@@ -1,15 +1,69 @@
 import {clearScreen} from "../utils/view-utils";
-import {getSdk} from "../controllers/connectionController";
 import CollectionStatisticsModel from "../models/CollectionStatistics";
-import {Column, Table} from "../utils/table-utils";
+import {
+    CollectionsFilter,
+    CollectionsQuery,
+    CollectionsSort,
+    Column,
+    HeaderIndicator,
+    Table
+} from "../utils/table-utils";
 
-export const renderCollectionsTable = async (data: CollectionStatisticsModel[],page: number, totalCount: number) => {
+
+export const renderCollectionsTable = async (
+    data: CollectionStatisticsModel[],
+    page: number, 
+    totalCount: number,
+    query?: CollectionsQuery
+) => {
     await clearScreen();
+    
+    let ownerHeaderIndicator: HeaderIndicator = {};
+    let floorHeaderIndicator: HeaderIndicator = {};
+    let volumeHeaderIndicator: HeaderIndicator = {};
+    
+    if(query){
+        //check for search query
+        query.search != null ? console.log('COLLECTIONS: "' + query.search +'"') : console.log('COLLECTIONS:');
+        //check for filter query
+        if(query.fileter.length > 0) {
+            query.fileter.forEach((filter:CollectionsFilter) => {
+                if(filter.owner) {
+                    ownerHeaderIndicator.filterIndicator = true;
+                }
+                if(filter.floor) {
+                    floorHeaderIndicator.filterIndicator = true;
+                }
+                if(filter.volume) {
+                    volumeHeaderIndicator.filterIndicator = true;
+                }
+            })
+        }
+        //check for sort query
+        if(query.sort.length > 0) {
+            query.sort.forEach((sort:CollectionsSort) => {
+                if(sort.floor) {
+                    floorHeaderIndicator.sortIndicator = sort.floor;
+                }
+                if(sort.volume) {
+                    volumeHeaderIndicator.sortIndicator = sort.volume;
+                }
+            })
+        }
+    }
+    
+    
     const collectionTable = new Table();
-    collectionTable.addColumn( new Column('Collection name', 'TXT',  30, 'LEFT', 'name'));
-    collectionTable.addColumn( new Column('Floor price', 'ETH', 20, 'RIGHT', 'floor'));
-    collectionTable.addColumn( new Column('Volume', 'ETH', 20, 'RIGHT', 'volume'));
-    collectionTable.addColumn( new Column('Owners', 'TXT',  40, 'LEFT', 'owner'));
+    collectionTable.addColumn( new Column('Name', 'TXT',  15, 'LEFT', 'name'));
+    collectionTable.addColumn( 
+        new Column('Floor', 'ETH', 10, 'RIGHT', 'floor', floorHeaderIndicator)
+    );
+    collectionTable.addColumn( 
+        new Column('Volume', 'ETH', 10, 'RIGHT', 'volume', volumeHeaderIndicator)
+    );
+    collectionTable.addColumn( 
+        new Column('Owners', 'TXT',  40, 'LEFT', 'owner', ownerHeaderIndicator)
+    );
     collectionTable.addData(data);
     collectionTable.print(page, totalCount);
     console.log('\n');
