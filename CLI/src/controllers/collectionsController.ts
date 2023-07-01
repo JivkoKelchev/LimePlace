@@ -25,6 +25,7 @@ import {confirmPrompt} from "../views/genericUI/confirmationPrompt";
 import {sortPrompt} from "../views/menu/query/sortPrompt";
 
 let queryState: CollectionsQuery = {
+    page: 1,
     search: null,
     sort: [],
     fileter: []
@@ -35,8 +36,9 @@ export const collectionsAction = async () => {
     const sdk = await getSdk();
     await loadHeader(sdk);
     
-    const data = await getCollections();
-    await renderCollectionsTable(data, 1, 1, queryState);
+    const data = await getCollections(queryState);
+    //todo calculate page
+    await renderCollectionsTable(data.data, queryState.page, data.count, queryState);
     
     //redirect to actions
     const selected = await collectionsTableMenu(false, false);
@@ -189,6 +191,7 @@ const clearQueryAction = async () => {
     //todo perform search
 
     queryState = {
+        page: 1,
         search: null,
         sort: [],
         fileter: []

@@ -1,4 +1,5 @@
 export interface CollectionsQuery {
+    page: number;
     search: string | null;
     fileter: CollectionsFilter[];
     sort: CollectionsSort[];
