@@ -17,15 +17,30 @@ export class CollectionsService {
         await this.collectionRepository.save(collection);
     }
     
-    async getCollections() {
-        return await this.collectionRepository.
-        createQueryBuilder('coll').
-        select('coll.name', 'name').
+    async getCollections(
+        active?: boolean, 
+        name?: string, 
+        floor?: number,
+        floorGt?: number,
+        floorLt?: number,
+        volume?: number,
+        volumeGt?: number,
+        volumeLt?: number,
+        owner?: string,
+        sortFloor?: string,
+        sortVolume?: string
+    ) {
+        const qb = this.collectionRepository.
+        createQueryBuilder('coll');
+        
+        qb.select('coll.name', 'name').
         addSelect('coll.owner', 'owner').
-        addSelect('MIN(listing.price)', 'floor').
-        addSelect('volume.amount', 'volume').
-        //volume temp table    
-        leftJoin(qb => {
+        addSelect('activeCollections.active', 'active').
+        addSelect('floor.floor', 'floor').
+        addSelect('volume.amount', 'volume');
+
+        // volume temp table    
+        qb.leftJoin(qb => {
         return qb.subQuery()
             .select("SUM(history.price)", 'amount')
             .addSelect('list.collection', 'collection')
@@ -34,12 +49,75 @@ export class CollectionsService {
             .leftJoin('listing', 'list', 'list.listingUid = history.listingUid')
             .where("history.historyEvent='SOLD'")
             .groupBy('list.collection')
-        }, 'volume', 'volume.collection = coll.address').
-        //join listing to select only collections with active listings        
-        innerJoin('listing', 'listing', 'coll.address = listing.collection').
-        where('listing.active = 1').
-        groupBy('coll.name, coll.owner, volume.amount').
-        getRawMany();
+        }, 'volume', 'volume.collection = coll.address');
+
+        qb.leftJoin(qb => {
+            return qb.subQuery()
+                .select('listing.collection', 'collection')
+                .addSelect('MIN(listing.price) as floor')
+                .from(Listing, "listing")
+                //join listing to map: history->listing->collection
+                .where("listing.active=1")
+                .groupBy('listing.collection')
+        }, 'floor', 'floor.collection = coll.address');
+
+        qb.leftJoin(qb => {
+            return qb.subQuery()
+                .select('listing.collection', 'collection')
+                .addSelect('MAX(listing.active) as active')
+                .from(Listing, "listing")
+                .groupBy('listing.collection')
+        }, 'activeCollections', 'activeCollections.collection = coll.address');
+
+        if(active) {
+            //join listing to select only collections with active listings
+            qb.where('activeCollections.active = :active', {active: active});
+        }
+
+        if(name) {
+            qb.andWhere('coll.name like :name', {name: `%${name}%`});
+        }
+        
+        if(floor) {
+            qb.andWhere('floor.floor = :floor', {floor: floor})
+        }
+
+        if(floorGt) {
+            qb.andWhere('floor.floor >= :floorGt', {floorGt: floorGt})
+        }
+
+        if(floorLt) {
+            qb.andWhere('floor.floor <= :floorLt', {floorLt: floorLt})
+        }
+
+        if(volume) {
+            qb.andWhere('volume.amount = :volume', {volume: volume})
+        }
+
+        if(volumeGt) {
+            qb.andWhere('volume.amount >= :volumeGt', {volumeGt: volumeGt})
+        }
+
+        if(volumeLt) {
+            qb.andWhere('volume.amount <= :volumeLt', {volumeLt: volumeLt})
+        }
+        
+        if(owner) {
+            qb.andWhere('coll.owner = :owner', {owner: owner})
+        }
+        
+        if(sortFloor === 'ASC' || sortFloor === 'DESC') {
+            qb.addOrderBy('floor.floor', sortFloor)
+        }
+
+        if(sortVolume === 'ASC' || sortVolume === 'DESC') {
+            qb.addOrderBy('floor.floor', sortVolume)
+        }
+        
+        const data = await qb.getRawMany();
+        const count = await qb.getCount();
+        
+        return {data: data, count: count}
     }
     
 }

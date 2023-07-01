@@ -8,6 +8,20 @@ export class CollectionsController {
 
     @Get()
     getCollections(@Query() query) {
-        return this.collectionsService.getCollections();
+        console.log(query.floorGt)
+        //get params
+        return this.collectionsService.getCollections(
+            true, 
+            query.name,
+            query.floor,
+            query.floorGt,
+            query.floorLt,
+            query.volume,
+            query.volumeGt,
+            query.volumeLt,
+            query.owner,
+            query.sortFloor,
+            query.sortVolume
+        );
     }
 }
