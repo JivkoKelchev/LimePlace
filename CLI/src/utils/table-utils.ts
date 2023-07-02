@@ -1,8 +1,15 @@
-export interface CollectionsQuery {
+export interface CollectionsQueryState {
     page: number;
     search: string | null;
     fileter: CollectionsFilter[];
     sort: CollectionsSort[];
+}
+
+export interface ListingsQueryState {
+    page: number;
+    search: string | null;
+    fileter: ListingsFilter[];
+    sort: ListingsSort[];
 }
 
 export interface CollectionsFilter {
@@ -14,6 +21,16 @@ export interface CollectionsFilter {
 export interface CollectionsSort {
     floor?: 'ASC' | 'DESC';
     volume?: 'ASC' | 'DESC';
+}
+
+export interface ListingsFilter {
+    owner?: string;
+    collection?: string;
+    price?: string;
+}
+
+export interface ListingsSort {
+    price?: 'ASC' | 'DESC';
 }
 
 

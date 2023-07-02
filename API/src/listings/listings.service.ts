@@ -19,44 +19,60 @@ export class ListingsService {
         await this.listingRepository.save(listing);
     }
     
-    // async findAll(): Promise<Listing[]> {
-    //     return this.listingRepository.find();
-    // }
     async getListing(listingId: string): Promise<Listing> {
         return await this.listingRepository.findOneBy({listingUid: listingId})
     }
 
-    async findAllActive(query?): Promise<{data:Listing[], count:number}> {
-        //BuildQuery
-        let whereClauseObject : { active: boolean, owner?: string} = { active: true }
-        if(query.user) {
-            whereClauseObject.owner = query.user;
-        }
-        let orderByObject : FindOptionsOrder<Listing>
-        if(query.sort) {
-            orderByObject = { price : 'ASC' }
-        } else {
-            orderByObject = { updated_at : "DESC" }
-        }
-        //pagination
-        const page = query?.page || 1;
-        const take = 5;
-        const skip = (page - 1) * take;
-        //user
+    async findAllActive(page?: number,
+                        active?: boolean,
+                        price?: number,
+                        priceGt?: number,
+                        priceLt?: number,
+                        owner?: string,
+                        sortPrice?: string,
+                        collection?: string
+    ): Promise<{data:Listing[], count:number}> {
         
-        let userQuery : { user: string };
+        //BuildQuery
+        const qb = this.listingRepository.createQueryBuilder('listing').select('*');
 
-        const [result, total] = await this.listingRepository.findAndCount(
-            {
-                where: whereClauseObject, order: orderByObject,
-                take: take,
-                skip: skip
-            }
-        );
-
-        return {
-            data: result,
-            count: total
+        if(active || active === undefined) {
+            qb.where('listing.active = :active', {active: true});
         }
+
+        if(price) {
+            qb.andWhere('listing.price = :price', {price: price})
+        }
+
+        if(priceGt) {
+            qb.andWhere('listing.price >= :priceGt', {priceGt: priceGt})
+        }
+
+        if(priceLt) {
+            qb.andWhere('listing.price <= :priceLt', {priceLt: priceLt})
+        }
+
+        if(owner) {
+            qb.andWhere('listing.owner = :owner', {owner: owner})
+        }
+
+        if(collection) {
+            qb.andWhere('listing.collection = :collection', {collection: collection})
+        }
+
+        if(sortPrice === 'ASC' || sortPrice === 'DESC') {
+            qb.addOrderBy('listing.price', sortPrice)
+        }
+
+        const count = await qb.getCount();
+
+        //pagination
+        page = page || 1;
+        const take = 10;
+
+        const skip = (page - 1) * take;
+        const data = await qb.skip(skip).take(take).getRawMany();
+
+        return {data: data, count: count}
     }
 }

@@ -20,54 +20,63 @@ import {ethers} from "ethers";
 import {
     BACK_MENU_ITEM,
     BUY_NFT_MENU_ITEM,
-    CANCEL_LISTING_MENU_ITEM, CREATE_NEW_COLLECTION_MENU_ITEM,
-    EDIT_PRICE_MENU_ITEM,
-    FILTER_BY_USR_MENU_ITEM, MAIN_MENU_ITEM,
+    CANCEL_LISTING_MENU_ITEM, CLEAR_QUERY_MENU_ITEM, CREATE_NEW_COLLECTION_MENU_ITEM,
+    EDIT_PRICE_MENU_ITEM, FILTER_BY_COLLECTION_MENU_ITEM, FILTER_BY_PRICE_MENU_ITEM, FILTER_BY_SELLER_MENU_ITEM,
+    MAIN_MENU_ITEM, MY_LISTINGS_MENU_ITEM,
     NEXT_PAGE_MENU_ITEM,
-    PREV_PAGE_MENU_ITEM,
-    SORT_BY_PRICE_MENU_ITEM, USE_EXISTING_COLLECTION_MENU_ITEM,
+    PREV_PAGE_MENU_ITEM, SEARCH_MENU_ITEM, SORT_BY_PRICE_MENU_ITEM,
+    USE_EXISTING_COLLECTION_MENU_ITEM,
     VIEW_LISTING_MENU_ITEM
 } from "../views/menu/menuItemsConstants";
 import {selectCollectionMenu} from "../views/menu/collections/selectCollectionMenu";
 import {collectionNamePrompt, collectionSymbolPrompt} from "../views/menu/collections/collectionNamePrompt";
 import {useCollectionPrompt} from "../views/menu/collections/useCollectionPrompt";
 import {mainMenu} from "../views/menu/mainMenu";
+import {collectionsQueryMenu} from "../views/menu/collections/collectionsQuery";
+import {listingsQueryMenu} from "../views/menu/listings/listingsQueryMenu";
+import inquirer from "inquirer";
+import {collectionsAction} from "./collectionsController";
+import {CollectionsQueryState, ListingsQueryState} from "../utils/table-utils";
+import {filterPrompt} from "../views/menu/query/filterPrompt";
+import {sortPrompt} from "../views/menu/query/sortPrompt";
 
-let paginationState : {
-    page: number;
-    user?: string, //filter by user
-    sort?: boolean //sort by price
+let queryState: ListingsQueryState = {
+    page: 1,
+    search: null,
+    sort: [],
+    fileter: []
 }
 
-export const listingsAction = async (page?: number, user?: string, sort?: boolean) => {
+export const listingsAction = async () => {
 
     //render page
-    const data = await getListings(page??1, user, sort); //get active listings from API
-    let {currentPage, hasNext, hasPrev} = getPaginationData(data.count, page??1)
-    paginationState = {page : currentPage, sort: sort, user: user}; //save pagination state
-    await renderActiveListingsTable(data.data, currentPage, data.count)
+    const data = await getListings(queryState); //get active listings from API
+    await renderActiveListingsTable(data.data, queryState.page, data.count, queryState)
+    let {currentPage, hasNext, hasPrev} = getPaginationData(data.count, queryState.page??1)
     const actionInput = await activeListingsMenu(hasNext, hasPrev);
     
     //redirect to actions
     switch (actionInput.menu) {
         case NEXT_PAGE_MENU_ITEM: {
-            await listingsAction(currentPage + 1, user, sort);
+            queryState.page = currentPage++;
+            await listingsAction();
             break;
         }
         case PREV_PAGE_MENU_ITEM: {
-            await listingsAction(currentPage - 1, user, sort);
+            queryState.page = currentPage--;
+            await listingsAction();
             break;
         }
         case VIEW_LISTING_MENU_ITEM: {
             await loadViewListingPrompt();
             break;
         }
-        case SORT_BY_PRICE_MENU_ITEM: {
-            await listingsAction(1, undefined, true)
+        case MY_LISTINGS_MENU_ITEM: {
+            //
             break;
         }
-        case FILTER_BY_USR_MENU_ITEM: {
-            await loadFilterByUserPrompt();
+        case SEARCH_MENU_ITEM: {
+            await listingsQueryAction();
             break;
         }
         case MAIN_MENU_ITEM: 
@@ -79,17 +88,49 @@ export const listingsAction = async (page?: number, user?: string, sort?: boolea
     }
 }
 
+const listingsQueryAction = async () => {
+    const query = await listingsQueryMenu();
+    switch (query.menu) {
+        case FILTER_BY_PRICE_MENU_ITEM: {
+            await filterPriceAction();
+            break;
+        }
+        case FILTER_BY_SELLER_MENU_ITEM: {
+            await filterOwnerAction();
+            break;
+        }
+        case FILTER_BY_COLLECTION_MENU_ITEM: {
+            await filterCollectionActions();
+            break;
+        }
+        case SORT_BY_PRICE_MENU_ITEM: {
+            await sortPriceActions();
+            break;
+        }
+        case CLEAR_QUERY_MENU_ITEM: {
+            await clearQueryAction();
+            break;
+        }
+        case BACK_MENU_ITEM: 
+        default: {
+            
+            break;
+        }
+
+    }
+} 
+
 export const loadViewListingPrompt = async () => {
     const listingIdInput = await openListingPrompt();
     //todo validate prompt
     await viewListingAction(listingIdInput.id);
 }
 
-export const loadFilterByUserPrompt = async () => {
-    const userAddress = await filterByUserPrompt();
-    //todo validate prompt
-    await listingsAction(1, userAddress.address)
-}
+// export const loadFilterByUserPrompt = async () => {
+//     const userAddress = await filterByUserPrompt();
+//     //todo validate prompt
+//     await listingsAction(1, userAddress.address)
+// }
 
 export const viewListingAction = async (listingId: string) => {
     //render page
@@ -134,7 +175,7 @@ export const viewListingAction = async (listingId: string) => {
         }
         case BACK_MENU_ITEM:
         default: {
-            await listingsAction(paginationState.page, paginationState.user, paginationState.sort)
+            await listingsAction();
         }
     }
 }
@@ -208,9 +249,69 @@ const mintAndListInExistingCollectionAction = async (tokenAddress: string) => {
     await homeAction();
 }
 
-
 const mintAndListInNewCollectionAction = async (collectionName: string, collectionsSymbol: string) => {
     const sdk = await getSdk();
     const tokenAddress = await sdk.createERC721Collection(collectionName, collectionsSymbol);
     await mintAndListInExistingCollectionAction(tokenAddress);
 }
+
+
+const filterPriceAction = async () => {
+    const name = await filterPrompt();
+    if(name.query === '<') {
+        await listingsAction();
+    }
+
+    queryState.fileter.push({price: name.query})
+    await listingsAction();
+}
+
+const filterOwnerAction = async () => {
+    const name = await filterPrompt();
+    if(name.query === '<') {
+        await listingsAction();
+    }
+
+    queryState.fileter.push({owner: name.query})
+    await listingsAction();
+}
+
+const filterCollectionActions = async () => {
+    const name = await filterPrompt();
+    if(name.query === '<') {
+        await listingsAction();
+    }
+
+    queryState.fileter.push({collection: name.query})
+    await listingsAction();
+}
+
+const sortPriceActions = async () => {
+    const name = await sortPrompt();
+    if(name.query === '<') {
+        await listingsAction();
+    }
+    if(name.query.toUpperCase() === 'DESC' ) {
+        queryState.sort.push({ price: 'DESC' })
+    }
+
+    if(name.query.toUpperCase() === 'ASC' ) {
+        queryState.sort.push({ price: 'ASC' })
+    }
+    
+    await listingsAction();
+}
+
+const clearQueryAction = async () => {
+    await confirmPrompt('Clear all filters, sorts and searches?')
+
+    queryState = {
+        page: 1,
+        search: null,
+        sort: [],
+        fileter: []
+    }
+
+    await listingsAction();
+}
+

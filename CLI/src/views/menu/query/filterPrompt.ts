@@ -21,7 +21,7 @@ const question = [
     }
 ]
 
-export const filterCollectionPrompt = async () => {
+export const filterPrompt = async () => {
     const lt = chalk.greenBright('<')
     const gt = chalk.greenBright('>')
     const eq = chalk.greenBright('=')

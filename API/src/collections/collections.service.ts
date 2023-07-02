@@ -18,6 +18,7 @@ export class CollectionsService {
     }
     
     async getCollections(
+        page?: number,
         active?: boolean, 
         name?: string, 
         floor?: number,
@@ -30,6 +31,10 @@ export class CollectionsService {
         sortFloor?: string,
         sortVolume?: string
     ) {
+        if(active === undefined) {
+            active = true;
+        }
+        
         const qb = this.collectionRepository.
         createQueryBuilder('coll');
         
@@ -113,9 +118,15 @@ export class CollectionsService {
         if(sortVolume === 'ASC' || sortVolume === 'DESC') {
             qb.addOrderBy('floor.floor', sortVolume)
         }
-        
-        const data = await qb.getRawMany();
+
         const count = await qb.getCount();
+        
+        //pagination
+        page = page || 1;
+        const take = 10;
+        
+        const skip = (page - 1) * take;
+        const data = await qb.skip(skip).take(take).getRawMany();
         
         return {data: data, count: count}
     }

@@ -17,14 +17,14 @@ import {
 } from "../views/menu/menuItemsConstants";
 import {homeAction} from "./homeController";
 import {createNewAction} from "./listingsController";
-import {filterCollectionPrompt} from "../views/menu/query/filterPrompt";
 import {collectionsQueryMenu} from "../views/menu/collections/collectionsQuery";
 import {searchPrompt} from "../views/menu/query/searchCollectionsPrompt";
-import {CollectionsQuery} from "../utils/table-utils";
+import {CollectionsQueryState} from "../utils/table-utils";
 import {confirmPrompt} from "../views/genericUI/confirmationPrompt";
 import {sortPrompt} from "../views/menu/query/sortPrompt";
+import {filterPrompt} from "../views/menu/query/filterPrompt";
 
-let queryState: CollectionsQuery = {
+let queryState: CollectionsQueryState = {
     page: 1,
     search: null,
     sort: [],
@@ -111,9 +111,7 @@ const collectionsSearchAction = async () => {
     if(name.query === '<') {
         await collectionsAction();
     }
-
-    //todo perform search
-
+    
     queryState.search = name.query;
     await collectionsAction();
 }
@@ -123,8 +121,7 @@ const sortFloorAction = async () => {
     if(name.query === '<') {
         await collectionsAction();
     }
-
-    //todo perform search
+    
     if(name.query.toUpperCase() === 'ASC') {
         queryState.sort.push({floor: 'ASC'})
     }
@@ -136,12 +133,10 @@ const sortFloorAction = async () => {
 }
 
 const sortVolumeAction = async () => {
-    const name = await searchPrompt();
+    const name = await sortPrompt();
     if(name.query === '<') {
         await collectionsAction();
     }
-
-    //todo perform search
 
     if(name.query === 'ASC') {
         queryState.sort.push({volume: name.query})
@@ -154,7 +149,7 @@ const sortVolumeAction = async () => {
 }
 
 const filterOwnerAction = async () => {
-    const name = await searchPrompt();
+    const name = await filterPrompt();
     if(name.query === '<') {
         await collectionsAction();
     }
@@ -164,31 +159,27 @@ const filterOwnerAction = async () => {
 }
 
 const filterFloorAction = async () => {
-    const name = await searchPrompt();
+    const name = await filterPrompt();
     if(name.query === '<') {
         await collectionsAction();
     }
 
-    //todo perform search
     queryState.fileter.push({floor: name.query})
     await collectionsAction();
 }
 
 const filterVolumeAction = async () => {
-    const name = await searchPrompt();
+    const name = await filterPrompt();
     if(name.query === '<') {
         await collectionsAction();
     }
 
-    //todo perform search
     queryState.fileter.push({floor: name.query});
     await collectionsAction();
 }
 
 const clearQueryAction = async () => {
     await confirmPrompt('Clear all filters, sorts and searches?')
-
-    //todo perform search
 
     queryState = {
         page: 1,

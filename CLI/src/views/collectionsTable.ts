@@ -1,8 +1,8 @@
 import {clearScreen} from "../utils/view-utils";
 import CollectionStatisticsModel from "../models/CollectionStatistics";
 import {
+    CollectionsQueryState,
     CollectionsFilter,
-    CollectionsQuery,
     CollectionsSort,
     Column,
     HeaderIndicator,
@@ -14,7 +14,7 @@ export const renderCollectionsTable = async (
     data: CollectionStatisticsModel[],
     page: number, 
     totalCount: number,
-    query?: CollectionsQuery
+    query?: CollectionsQueryState
 ) => {
     await clearScreen();
     

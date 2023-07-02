@@ -8,10 +8,9 @@ export class CollectionsController {
 
     @Get()
     getCollections(@Query() query) {
-        console.log(query.floorGt)
-        //get params
         return this.collectionsService.getCollections(
-            true, 
+            query.page, 
+            query.active, 
             query.name,
             query.floor,
             query.floorGt,

@@ -8,6 +8,15 @@ export class ListingsController {
 
     @Get()
     getListings(@Query() query) {
-        return this.listingServise.findAllActive(query);
+        return this.listingServise.findAllActive(
+            query.page,
+            query.active,
+            query.price,
+            query.priceGt,
+            query.priceLt,
+            query.owner,
+            query.sortPrice,
+            query.collection
+        );
     }
 }

@@ -30,10 +30,11 @@ export const EDIT_PRICE_MENU_ITEM = 'Edit price';
 export const CANCEL_LISTING_MENU_ITEM = 'Cancel listing';
 
 
-//todo replace with SEARCH_MENU_ITEM
-export const SORT_BY_PRICE_MENU_ITEM = 'Sort by price';
-export const FILTER_BY_USR_MENU_ITEM = 'Filter by user address';
 
+export const SORT_BY_PRICE_MENU_ITEM = 'Sort by price';
+export const FILTER_BY_SELLER_MENU_ITEM = 'Filter by seller';
+export const FILTER_BY_PRICE_MENU_ITEM = 'Fileter by price';
+export const FILTER_BY_COLLECTION_MENU_ITEM = 'Filter by collections';
 
 //Common menu item
 export const SEARCH_MENU_ITEM = 'Search | Filter | Sort';

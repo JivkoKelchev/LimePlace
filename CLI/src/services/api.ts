@@ -1,12 +1,23 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
 import ListingModel from "../models/Listing";
 import CollectionStatisticsModel from "../models/CollectionStatistics";
-import {CollectionsFilter, CollectionsQuery, CollectionsSort} from "../utils/table-utils";
+import {
+    CollectionsFilter,
+    CollectionsQueryState,
+    CollectionsSort,
+    ListingsFilter,
+    ListingsQueryState, ListingsSort
+} from "../utils/table-utils";
 
-interface QueryParams {
+interface QueryParamsListings {
     page: number;
-    user?: string,
-    sort?: boolean
+    active?: boolean;
+    price?: number;
+    priceGt?: number;
+    priceLt?: number;
+    owner?: string;
+    sortPrice?: string;
+    collection?: string;
 }
 
 interface QueryPramsCollections {
@@ -24,15 +35,41 @@ interface QueryPramsCollections {
     sortVolume?: string
 }
 
-export const getListings = async (page : number, user?: string, sort?: boolean):  Promise<{ data: ListingModel[], count: number }> => {
+export const getListings = async (query: ListingsQueryState):  Promise<{ data: ListingModel[], count: number }> => {
     const apiUrl = process.env.BACKEND_HOST+'/listings';
-    let queryParams: QueryParams = { page: page };
-    if(user) {
-        queryParams.user = user;
+    //parse query state to query string
+    let queryParams: QueryParamsListings = { page: query.page };
+    
+    //check for filter query
+    if(query.fileter.length > 0) {
+        query.fileter.forEach((filter:ListingsFilter) => {
+            if(filter.owner) {
+                queryParams.owner = filter.owner;
+            }
+            if(filter.collection) {
+                queryParams.collection = filter.collection;
+            }
+            if(filter.price) {
+                if(filter.price.startsWith('<')) {
+                    queryParams.priceLt = Number.parseFloat(filter.price.substring(1, filter.price.length))
+                }
+                if(filter.price.startsWith('>')) {
+                    queryParams.priceGt = Number.parseFloat(filter.price.substring(1, filter.price.length))
+                }
+                if(filter.price.startsWith('=')) {
+                    queryParams.price = Number.parseFloat(filter.price.substring(1, filter.price.length))
+                }
+            }
+        })
     }
-    if(sort !== undefined){
-        queryParams.sort = sort;
-    } 
+    //check for sort query
+    if(query.sort.length > 0) {
+        query.sort.forEach((sort:ListingsSort) => {
+            if(sort.price) {
+                queryParams.sortPrice = sort.price;
+            }
+        })
+    }
 
     return axios.get(apiUrl, {params: queryParams})
         .then((response: AxiosResponse) => {
@@ -43,7 +80,7 @@ export const getListings = async (page : number, user?: string, sort?: boolean):
         });
 }
 
-export const getCollections = async (query: CollectionsQuery): Promise<{data: CollectionStatisticsModel[], count: number}> => {
+export const getCollections = async (query: CollectionsQueryState): Promise<{data: CollectionStatisticsModel[], count: number}> => {
     const apiUrl = process.env.BACKEND_HOST+'/collections';
     //parse query state to query string
     let queryParams: QueryPramsCollections = { page: query.page };
@@ -94,10 +131,6 @@ export const getCollections = async (query: CollectionsQuery): Promise<{data: Co
         })
     }
     
-
-
-
-
     return axios.get(apiUrl, {params: queryParams})
         .then((response: AxiosResponse) => {
             return response.data;
