@@ -7,7 +7,7 @@ import {confirmPrompt} from "../views/genericUI/confirmationPrompt";
 import {convertUrlToHttp, getFileFromIpfs, getMetaDataFromIpfs, uploadToIpfs} from "../services/ipfs";
 import Spinner from "../views/genericUI/spinner";
 import {infoMsg} from "../views/genericUI/infoMsg";
-import {getCollection, getListings} from "../services/api";
+import {getCollection, getListingHistory, getListings} from "../services/api";
 import {renderActiveListingsTable} from "../views/listingsTable";
 import {activeListingsMenu} from "../views/menu/listings/listingsTableMenu";
 import {openListingPrompt} from "../views/menu/listings/openListingPrompt";
@@ -130,12 +130,19 @@ export const viewListingAction = async (listingId: string) => {
     const sdk = await getSdk();
     const listingInfo = await sdk.getListing(listingId);
     const tokenUri = await sdk.getLimePlaceNFTTokenUri(listingInfo[0],listingInfo[1]);
-    // const listingHistory = await 
-    
+    //get previous price
+    let previousPrice;
+    const priceEdits = await getListingHistory(listingId, 'EDIT');
+    if(priceEdits.data.length === 1) {
+        const createEvent = await getListingHistory(listingId, 'CREATE')
+        previousPrice = createEvent.data[0].price;
+    } else if(priceEdits.data.length > 1) {
+        previousPrice = priceEdits.data[1].price;
+    }
     const metadata = await getMetaDataFromIpfs(tokenUri);
     const imagePath = await getFileFromIpfs(metadata.image);
     
-    await renderListingDetails(imagePath, metadata, listingInfo);
+    await renderListingDetails(imagePath, metadata, listingInfo, previousPrice);
     const signerAddress = await sdk.getSignerAddress();
     const actionInput = await listingPageMenu(listingInfo, signerAddress);
     
@@ -143,7 +150,8 @@ export const viewListingAction = async (listingId: string) => {
     switch (actionInput.menu) {
         case EDIT_PRICE_MENU_ITEM: {
             const newPriceInput = await editListingPrompt();
-            await sdk.editListing(listingId, newPriceInput.price)
+            const newPrice = ethers.parseEther(newPriceInput.price.toString());
+            await sdk.editListing(listingId, newPrice)
             await viewListingAction(listingId);
             break;
         }

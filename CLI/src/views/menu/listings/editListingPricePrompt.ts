@@ -4,7 +4,7 @@ const questions = [
     {
         type: 'input',
         name: 'price',
-        message: 'Enter the new price :',
+        message: 'Enter new price (ETH):',
     },
 ]
 

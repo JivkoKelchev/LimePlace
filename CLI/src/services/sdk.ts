@@ -62,7 +62,7 @@ export class Sdk{
         await this.limePlace.list(tokenAddress, tokenId, price, options);
     }
 
-    async editListing(listingId: string, price: number) {
+    async editListing(listingId: string, price: BigInt) {
         await this.limePlace.editListing(listingId, price);
     }
 

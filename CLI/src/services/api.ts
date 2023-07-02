@@ -10,6 +10,7 @@ import {
 } from "../utils/table-utils";
 import CollectionModel from "../models/Collection";
 import HistoryModel from "../models/ListingHistory";
+import {ListingHistory} from "../../../API/src/listingsHistory/listingHistory.entity";
 
 interface QueryParamsListings {
     page: number;
@@ -153,13 +154,20 @@ export const getCollection = async (collectionAddress: string) => {
         });
 }
 
-export const getListingHistory = async (listingId: string) => {
+export const getListingHistory = async (listingId: string, historyEvent?: 'CREATE' | 'EDIT' | 'SOLD') 
+    : Promise<{ data: HistoryModel[], count: number }>  => 
+{
     const apiUrl = process.env.BACKEND_HOST+'/listings-history/' + listingId;
-    return axios.get<HistoryModel>(apiUrl)
-        .then((response: AxiosResponse) => {
-            return response.data;
-        })
-        .catch((error: AxiosError) => {
-            console.error('Error:', error.message);
-        });
+    let response: Promise<AxiosResponse>;
+    if(historyEvent) {
+        response = axios.get<HistoryModel>(apiUrl, { params : {event: historyEvent}} );
+    } else {
+        response = axios.get<HistoryModel>(apiUrl)
+    }
+    return response.then((response: AxiosResponse) => {
+        return response.data;
+    })
+    .catch((error: AxiosError) => {
+        console.error('Error:', error.message);
+    });
 }

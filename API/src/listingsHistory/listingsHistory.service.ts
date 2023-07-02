@@ -23,7 +23,7 @@ export class ListingsHistoryService {
             .where('listingUid = :uid', {uid: uid})
             .orderBy('updated_at', 'DESC')
         const count = await qb.getCount();
-        const data = await qb.getRawMany();
+        const data = await qb.getMany();
         return {data: data, count: count };
     }
 
@@ -31,12 +31,12 @@ export class ListingsHistoryService {
         data: ListingHistory[],
         count: number
     }> {
-        const qb = this.listingRepository.createQueryBuilder('history')
+        const qb = this.listingRepository.createQueryBuilder()
             .where('listingUid = :uid', {uid: uid})
-            .where('historyEvent = :event', {event: event})
+            .andWhere('historyEvent = :event', {event: event})
             .orderBy('updated_at', 'DESC')
         const count = await qb.getCount();
-        const data = await qb.getRawMany();
+        const data = await qb.getMany();
         return {data: data, count: count };
     }
 }
