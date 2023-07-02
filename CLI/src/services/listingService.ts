@@ -1,4 +1,13 @@
-
+export class ListingService {
+    public static formatExpirationDate(updatedAt: number) : string {
+        const expiration = new Date(Number(updatedAt) * 1000);
+        expiration.setDate(expiration.getDate() + 30);
+        let year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(expiration);
+        let month = new Intl.DateTimeFormat('en', { month: 'short' }).format(expiration);
+        let day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(expiration);
+        return `${day} ${month} ${year}`;
+    }
+}
 export const getPaginationData = (listingCount: number, currentPage : number) => {
     let hasPrev = true;
     let hasNext = true;
