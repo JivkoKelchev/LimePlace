@@ -9,6 +9,7 @@ import {
     ListingsQueryState, ListingsSort
 } from "../utils/table-utils";
 import CollectionModel from "../models/Collection";
+import HistoryModel from "../models/ListingHistory";
 
 interface QueryParamsListings {
     page: number;
@@ -141,8 +142,8 @@ export const getCollections = async (query: CollectionsQueryState): Promise<{dat
         });
 }
 
-export const getCollection = async (collectionId: string) => {
-    const apiUrl = process.env.BACKEND_HOST+'/collections/' + collectionId;
+export const getCollection = async (collectionAddress: string) => {
+    const apiUrl = process.env.BACKEND_HOST+'/collections/' + collectionAddress;
     return axios.get<CollectionModel>(apiUrl)
         .then((response: AxiosResponse) => {
             return response.data;
@@ -152,3 +153,13 @@ export const getCollection = async (collectionId: string) => {
         });
 }
 
+export const getListingHistory = async (listingId: string) => {
+    const apiUrl = process.env.BACKEND_HOST+'/listings-history/' + listingId;
+    return axios.get<HistoryModel>(apiUrl)
+        .then((response: AxiosResponse) => {
+            return response.data;
+        })
+        .catch((error: AxiosError) => {
+            console.error('Error:', error.message);
+        });
+}

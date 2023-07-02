@@ -1,13 +1,13 @@
-import {Controller, Get, Inject, Query} from '@nestjs/common';
+import {Controller, Get, Inject, Param, Query} from '@nestjs/common';
 import {ListingsHistoryService} from "./listingsHistory.service";
 
-@Controller('listingsHistory')
+@Controller('listings-history')
 export class ListingsHistoryController {
 
     constructor(@Inject(ListingsHistoryService) private readonly listingServise: ListingsHistoryService) {}
 
-    @Get()
-    getListings(@Query() query) {
-        return history;
+    @Get(':listingUid')
+    getListings(@Param() params: any) {
+        return this.listingServise.getHistoryByUid(params.listingUid);
     }
 }

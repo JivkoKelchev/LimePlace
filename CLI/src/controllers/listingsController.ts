@@ -125,17 +125,12 @@ export const loadViewListingPrompt = async () => {
     await viewListingAction(listingIdInput.id);
 }
 
-// export const loadFilterByUserPrompt = async () => {
-//     const userAddress = await filterByUserPrompt();
-//     //todo validate prompt
-//     await listingsAction(1, userAddress.address)
-// }
-
 export const viewListingAction = async (listingId: string) => {
     //render page
     const sdk = await getSdk();
     const listingInfo = await sdk.getListing(listingId);
     const tokenUri = await sdk.getLimePlaceNFTTokenUri(listingInfo[0],listingInfo[1]);
+    // const listingHistory = await 
     
     const metadata = await getMetaDataFromIpfs(tokenUri);
     const imagePath = await getFileFromIpfs(metadata.image);

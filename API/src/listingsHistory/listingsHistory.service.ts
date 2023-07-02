@@ -14,4 +14,16 @@ export class ListingsHistoryService {
         this.listingRepository.create(listing);
         return this.listingRepository.save(listing);
     }
+    
+    async getHistoryByUid(uid: string): Promise<{
+        data: ListingHistory[],
+        count: number
+    }> {
+        const qb = this.listingRepository.createQueryBuilder('history')
+            .where('listingUid = :uid', {uid: uid})
+            .orderBy('updated_at', 'DESC')
+        const count = await qb.getCount();
+        const data = await qb.getRawMany();
+        return {data: data, count: count };
+    }
 }
