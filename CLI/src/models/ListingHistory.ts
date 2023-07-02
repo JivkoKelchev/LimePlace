@@ -3,7 +3,7 @@ export default interface HistoryModel {
     listingUid: string
     tokenId: number
     active: true
-    historyEvent: 'CREATE' | 'UPDATE' | 'SOLD'
+    historyEvent: 'CREATE' | 'EDIT' | 'SOLD'
     owner: string
     price: number
     updated_at: number

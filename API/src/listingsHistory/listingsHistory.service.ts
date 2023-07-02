@@ -26,4 +26,17 @@ export class ListingsHistoryService {
         const data = await qb.getRawMany();
         return {data: data, count: count };
     }
+
+    async getHistoryByEvent(uid: string, event: string): Promise<{
+        data: ListingHistory[],
+        count: number
+    }> {
+        const qb = this.listingRepository.createQueryBuilder('history')
+            .where('listingUid = :uid', {uid: uid})
+            .where('historyEvent = :event', {event: event})
+            .orderBy('updated_at', 'DESC')
+        const count = await qb.getCount();
+        const data = await qb.getRawMany();
+        return {data: data, count: count };
+    }
 }
