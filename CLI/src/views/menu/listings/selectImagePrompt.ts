@@ -8,6 +8,10 @@ const selectImageQuestion = [
         name: 'filePath',
         message: 'Enter the path to the image :',
         validate: function( path: string ) {
+            if(path === '<') {
+                return true;
+            }
+            
             if (!fs.existsSync(path)) {
                 return 'Image not found. Check the path.';
             } else if(getExtension(path) == '.PNG' || getExtension(path) == '.JPG' || getExtension(path) == '.GIF') {

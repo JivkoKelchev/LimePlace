@@ -7,12 +7,11 @@ import {confirmPrompt} from "../views/genericUI/confirmationPrompt";
 import {convertUrlToHttp, getFileFromIpfs, getMetaDataFromIpfs, uploadToIpfs} from "../services/ipfs";
 import Spinner from "../views/genericUI/spinner";
 import {infoMsg} from "../views/genericUI/infoMsg";
-import {getListings} from "../services/api";
+import {getCollection, getListings} from "../services/api";
 import {renderActiveListingsTable} from "../views/listingsTable";
 import {activeListingsMenu} from "../views/menu/listings/listingsTableMenu";
 import {openListingPrompt} from "../views/menu/listings/openListingPrompt";
 import {listingPageMenu} from "../views/menu/listings/listingPageMenu";
-import {filterByUserPrompt} from "../views/menu/listings/filterByUserPrompt";
 import {renderListingDetails} from "../views/listingDetails";
 import {editListingPrompt} from "../views/menu/listings/editListingPricePrompt";
 import {getPaginationData} from "../services/listingService";
@@ -200,6 +199,11 @@ export const createNewAction = async () => {
             if(collectionAddress.address === '<') {
                 await homeAction();
             }
+            //check if collection exist
+            collectionAddress.address = collectionAddress.address.trim();
+            const collectionData = await getCollection(collectionAddress.address);
+            //todo check collection data if we have result or not
+            
             await mintAndListInExistingCollectionAction(collectionAddress.address);
             break;
         }
@@ -217,6 +221,9 @@ const mintAndListInExistingCollectionAction = async (tokenAddress: string) => {
     const sdk = await getSdk();
     //prompt for a image 
     const imagePathInput = await selectImagePrompt();
+    if(imagePathInput.filePath === '<') {
+        await homeAction();
+    }
     await printImage(imagePathInput.filePath)
     const confirm = await confirmPrompt('Do you want to proceed?');
     if(!confirm) {

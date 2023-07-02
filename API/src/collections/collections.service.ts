@@ -131,4 +131,7 @@ export class CollectionsService {
         return {data: data, count: count}
     }
     
+    async getCollectionByAddress(collectionAddress: string) {
+        return await this.collectionRepository.findOneBy({address: collectionAddress})
+    }
 }

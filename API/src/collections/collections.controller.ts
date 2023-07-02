@@ -1,4 +1,4 @@
-import {Controller, Get, Inject, Query} from '@nestjs/common';
+import {BadRequestException, Controller, Get, Inject, NotFoundException, Param, Query} from '@nestjs/common';
 import {CollectionsService} from "./collections.service";
 
 @Controller('collections')
@@ -22,5 +22,14 @@ export class CollectionsController {
             query.sortFloor,
             query.sortVolume
         );
+    }
+    
+    @Get(':address')
+    async getCollection(@Param() params: any) {
+        const collection = await this.collectionsService.getCollectionByAddress(params.address);
+        if (!collection) {
+            throw new NotFoundException('Collection not found!')
+        }
+        return collection;
     }
 }

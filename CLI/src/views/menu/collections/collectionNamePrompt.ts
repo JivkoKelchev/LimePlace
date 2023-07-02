@@ -46,7 +46,6 @@ export const collectionNamePrompt = async () => {
 };
 
 export const collectionSymbolPrompt = async () => {
-    console.log(chalk.grey("Enter '<' for cancel"));
     let collectionData : { symbol: string };
     collectionData = await inquirer.prompt(symbolQuestion);
     return collectionData;

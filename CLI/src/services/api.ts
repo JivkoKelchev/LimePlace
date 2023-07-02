@@ -8,6 +8,7 @@ import {
     ListingsFilter,
     ListingsQueryState, ListingsSort
 } from "../utils/table-utils";
+import CollectionModel from "../models/Collection";
 
 interface QueryParamsListings {
     page: number;
@@ -140,4 +141,14 @@ export const getCollections = async (query: CollectionsQueryState): Promise<{dat
         });
 }
 
+export const getCollection = async (collectionId: string) => {
+    const apiUrl = process.env.BACKEND_HOST+'/collections/' + collectionId;
+    return axios.get<CollectionModel>(apiUrl)
+        .then((response: AxiosResponse) => {
+            return response.data;
+        })
+        .catch((error: AxiosError) => {
+            console.error('Error:', error.message);
+        });
+}
 
