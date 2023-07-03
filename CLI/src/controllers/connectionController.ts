@@ -1,9 +1,10 @@
 import {networkList, networkMenu} from "../views/menu/connection/networksMenu";
-import {ethers} from "ethers";
+import {ethers, Signer} from "ethers";
 import {Sdk} from "../services/sdk";
 // @ts-ignore
 import {MetaMaskSDK} from "@metamask/sdk";
 import {LOCAL_MENU_ITEM, TESTNETS_MENU_ITEM} from "../views/menu/menuItemsConstants";
+import {localSignerAddressPrompt} from "../views/menu/connection/localSignerAddressPrompt";
 
 let sdkInstance: Sdk | null = null;
 let instanceCreated = false;
@@ -39,7 +40,13 @@ const selectNetwork = async () : Promise<string> => {
 
 const initSdkForLocalNetwork = async  () : Promise<Sdk> => {
     const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545/");
-    const signer = await provider.getSigner(`${process.env.LOC_USER_WALLET_ADR}`);
+    let signer: Signer;
+    if(process.env.LOC_USER_WALLET_ADR) {
+        signer = await provider.getSigner(`${process.env.LOC_USER_WALLET_ADR}`);
+    } else {
+        const addressInput = await localSignerAddressPrompt();
+        signer = await provider.getSigner(addressInput.address);
+    }
     sdkInstance = new Sdk(provider, `${process.env.LOC_LIME_PLACE_ADR}`, `${process.env.LOC_LIME_PLACE_NFT_ADR}`, signer);
     instanceCreated = true;
     return sdkInstance;

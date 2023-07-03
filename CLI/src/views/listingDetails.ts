@@ -22,9 +22,15 @@ export const renderListingDetails = async (imagePath: string, metadata: Metadata
         }
         prevPriceFormatted = 'previous : ' + Number.parseFloat(prevPrice.toString()).toString() + ' ETH';
     }
-    //todo calc status : expired/active/canceled
+    let updatedAt = listingInfo[5];
+    let status = chalk.red('Inactive');
+    if(ListingService.isListingExpired(updatedAt)) {
+        status = chalk.red('Expired')
+    } else if (listingInfo[4]) {
+        status = chalk.greenBright('Active')
+    }
     
-    const expirationFormatted = ListingService.formatExpirationDate(listingInfo[5]);
+    const expirationFormatted = ListingService.formatExpirationDate(updatedAt);
     const currentPriceFormatted = Number.parseFloat(currentPrice.toString()).toString() + ' ETH';
     let details  = `    Name        : ${metadata.name}\n\n`;
     details += `    Description : ${metadata.description}\n\n`;
@@ -32,7 +38,7 @@ export const renderListingDetails = async (imagePath: string, metadata: Metadata
     details += `    Seller      : ${listingInfo[2]}\n\n`;
     details += `    Price       : ${currentPriceFormatted} ${arrow} ${chalk.grey(prevPriceFormatted)}\n\n`;
     details += `    Expiration  : ${expirationFormatted}\n\n`;
-    details += `    Status      : ${listingInfo[3] ? chalk.greenBright('Active') : chalk.red('Canceled')}\n\n`;
+    details += `    Status      : ${status}\n\n`;
     details += `    Image URL   : ${imageUrl}`;
     const paddedDetails = padArt(details, 20);
     console.log(combineArt(image, paddedDetails))

@@ -14,7 +14,7 @@ import {openListingPrompt} from "../views/menu/listings/openListingPrompt";
 import {listingPageMenu} from "../views/menu/listings/listingPageMenu";
 import {renderListingDetails} from "../views/listingDetails";
 import {editListingPrompt} from "../views/menu/listings/editListingPricePrompt";
-import {getPaginationData} from "../services/listingService";
+import {getPaginationData, ListingService} from "../services/listingService";
 import {ethers} from "ethers";
 import {
     BACK_MENU_ITEM,
@@ -51,7 +51,7 @@ export const listingsAction = async () => {
     //render page
     const data = await Api.getListings(queryState); //get active listings from API
     await renderActiveListingsTable(data.data, queryState.page, data.count, queryState)
-    let {currentPage, hasNext, hasPrev} = getPaginationData(data.count, queryState.page??1)
+    let {currentPage, hasNext, hasPrev} = ListingService.getPaginationData(data.count, queryState.page??1)
     const actionInput = await activeListingsMenu(hasNext, hasPrev);
     
     //redirect to actions

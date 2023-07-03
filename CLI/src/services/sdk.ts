@@ -66,8 +66,10 @@ export class Sdk{
         await this.limePlace.cancelListing(listingId)
     }
 
-    async buy(listingId: string) {
-        await this.limePlace.buy(listingId)
+    async buy(listingId: string) { 
+        const listing = await this.limePlace.getListing(listingId);
+        const options = {'value': listing[3]};
+        await this.limePlace.buy(listingId, options);
     }
     
     async getSignerAddress(): Promise<string> {
