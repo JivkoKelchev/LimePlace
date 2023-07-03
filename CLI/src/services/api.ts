@@ -159,7 +159,7 @@ export class Api {
             });
     }
     
-    public static getListingHistory = async (listingId: string, historyEvent?: 'CREATE' | 'EDIT' | 'SOLD')
+    public static getListingHistory = async (listingId: string, historyEvent?: 'CREATE' | 'EDIT' | 'SOLD' | 'CANCEL')
         : Promise<{ data: HistoryModel[], count: number }>  => {
         const apiUrl = process.env.BACKEND_HOST + '/listings-history/' + listingId;
         let response: Promise<AxiosResponse>;

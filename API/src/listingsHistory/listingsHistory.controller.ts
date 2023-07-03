@@ -11,7 +11,7 @@ export class ListingsHistoryController {
         @Param() params: any, 
         @Query() query
     ) {
-        if(query.event === 'CREATE' || query.event ===  'EDIT' || query.event ===  'SOLD') {
+        if(query.event === 'CREATE' || query.event ===  'EDIT' || query.event ===  'SOLD' || query.event === 'CANCEL') {
             return this.listingServise.getHistoryByEvent(params.listingUid, query.event)
         }
         return this.listingServise.getHistoryByUid(params.listingUid);

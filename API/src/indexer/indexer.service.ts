@@ -1,4 +1,4 @@
-import {Inject, Injectable, Logger} from '@nestjs/common';
+import {Inject, Injectable} from '@nestjs/common';
 import {ethers, BigNumberish, Contract} from 'ethers';
 import { getProvider } from '../ethers.provider';
 import {Listing} from "../listings/listing.entity";
@@ -37,26 +37,67 @@ export class IndexerService {
             this.provider,
         );
         //parse any missed old events (from last processed block - to current block)
-        const LogListingAddedFilter = contract.filters.LogListingAdded();
-        const events = await contract.queryFilter(LogListingAddedFilter);
+        const lastBlockNumber = await this.blockInfoService.getLastBlock();
+        const currentBlockNumber = await this.provider.getBlockNumber();
+        
+        const logListingAddedFilter = contract.filters.LogListingAdded();
+        const logListingUpdatedFilter = contract.filters.LogListingUpdated();
+        const logListingCanceledFilter = contract.filters.LogListingCanceled();
+        const logListingSoldFilter = contract.filters.LogListingSold();
+        const logCollectionAddedFilter = contract.filters.LogCollectionCreated();
+        
+        const listingAddedEvents = await contract.queryFilter(logListingAddedFilter, lastBlockNumber, currentBlockNumber);
+        const listingUpdatedEvents = await contract.queryFilter(logListingUpdatedFilter, lastBlockNumber, currentBlockNumber);
+        const listingCanceledEvents = await contract.queryFilter(logListingCanceledFilter, lastBlockNumber, currentBlockNumber);
+        const listingSoldEvents = await contract.queryFilter(logListingSoldFilter, lastBlockNumber, currentBlockNumber);
+        const collectionAddedEvents = await contract.queryFilter(logCollectionAddedFilter, lastBlockNumber, currentBlockNumber);
+        
+        
         const iface = new ethers.Interface(this.contractABI);
 
         console.log('--------------------------------------')
         console.log('Old events: ')
         //index old events
-        events.map((eventLog) => {
-            const decodedArgs = iface.decodeEventLog(
-                'LogListingAdded',
-                eventLog.data,
-            );
-            console.log(decodedArgs);
+        for (const eventLog of collectionAddedEvents) {
+            const decodedArgs = iface.decodeEventLog('LogCollectionCreated', eventLog.data,);
+            console.log('LogCollectionCreated', decodedArgs);
+            await this.handleCollectionCreatedEvent(decodedArgs[0], decodedArgs[1], decodedArgs[2], decodedArgs[3], eventLog.blockNumber);
+        }
+
+        for (const eventLog of listingAddedEvents) {
+            const decodedArgs = iface.decodeEventLog('LogListingAdded', eventLog.data,);
+            console.log('LogListingAdded', decodedArgs)
+            await this.handleListingAddedEvent(decodedArgs[0], decodedArgs[1], decodedArgs[2], decodedArgs[3], decodedArgs[4], eventLog.blockNumber)
+        }
+
+        for (const eventLog of listingUpdatedEvents) {
+            const decodedArgs = iface.decodeEventLog('LogListingUpdated', eventLog.data,);
+            console.log('LogListingUpdated', decodedArgs)
+            await this.handleListingUpdatedEvent(decodedArgs[0], decodedArgs[1], eventLog.blockNumber);
+        }
+
+        
+        listingCanceledEvents.map((eventLog) => {
+            const decodedArgs = iface.decodeEventLog('LogListingCanceled', eventLog.data,);
+            console.log('LogListingCanceled',decodedArgs)
+            await this.handleListingCanceledEvent(decodedArgs[0], eventLog.blockNumber)
         });
+
+        //todo handle sold!!!
+        listingSoldEvents.map((eventLog) => {
+            const decodedArgs = iface.decodeEventLog('LogListingSold', eventLog.data,);
+            console.log('LogListingSold', decodedArgs)
+            // await this.handleListingAddedEvent(eventLog.data[])
+        });
+        
         console.log('--------------------------------------')
         
         //add listeners for all new events
         await this.listenForLogListingAdded(contract);
         
         await this.listenForLogListingUpdated(contract);
+        
+        await this.listenForLogListingCanceled(contract);
         
         await this.listenForLogListingSold(contract);
 
@@ -69,87 +110,31 @@ export class IndexerService {
         await contract.on(
             'LogListingAdded',
                 async(listingId: string, tokenContract: string, tokenId: number, seller: string, price: BigNumberish) => {
-                const lastBlockNumber = await this.blockInfoService.getLastBlock();;
+                const lastBlockNumber = await this.blockInfoService.getLastBlock();
                 const blockNumber = await this.provider.getBlockNumber();
                 if(blockNumber === lastBlockNumber) {
                     //todo check if listing exist (we may have multiple listings in same block)
                     return;
                 }
-                const block = await this.provider.getBlock(blockNumber);
-                //const event = args[args.length - 1];
-                console.log('event LogListingAdded')
-                console.log('current block : ' + blockNumber)
-                //console.log("event block :"+event.blockNumber) //undefined
-                //todo use database to check last block number
-                //if(event.blockNumber <= blockNumber) return;
-                console.log(
-                    `LogListingAdded emitted
-                    listingId: ${listingId}
-                    tokenContract: ${tokenContract}
-                    tokenId: ${tokenId}
-                    seller: ${seller}
-                    price: ${ethers.formatEther(price)}`
-                );
-                
-                
-                const listingEntity = new Listing();
-                listingEntity.listingUid = listingId;
-                listingEntity.tokenId = Number(tokenId);
-                listingEntity.owner = seller;
-                listingEntity.price = Number(ethers.formatEther(price));
-                listingEntity.active = true;
-                listingEntity.collection = tokenContract;
-                listingEntity.updated_at = block.timestamp;
-                await this.listingService.addListing(listingEntity);
-                //update block info
-                await this.blockInfoService.updateBlockInfo(blockNumber);
-                //add history
-                const listingHistory = new ListingHistory();
-                listingHistory.listingUid = listingId;
-                listingHistory.tokenId = listingEntity.tokenId;
-                listingHistory.owner = listingEntity.owner;
-                listingHistory.price = Number(ethers.formatEther(price));
-                listingHistory.active = true;
-                listingHistory.historyEvent = 'CREATE'
-                listingHistory.updated_at = block.timestamp;
-
-                await this.listingsHistoryService.addListing(listingHistory)
+                await this.handleListingAddedEvent(listingId, tokenContract, tokenId, seller, price, blockNumber)
             },
         );
     }
+    
+    
     
     private listenForLogListingUpdated = async (contract: Contract) => {
         //event LogListingUpdated(bytes32 listingId, uint256 price);
         await contract.on(
             'LogListingUpdated',
             async (listingId: string, price:BigNumberish) => {
-                console.log('event LogListingUpdated');
-                console.log('listingId : ' + listingId);
-                console.log('price : ' + ethers.formatEther(price));
-
-                const lastBlockNumber = await this.blockInfoService.getLastBlock();;
+                const lastBlockNumber = await this.blockInfoService.getLastBlock();
                 const blockNumber = await this.provider.getBlockNumber();
                 if(blockNumber === lastBlockNumber) {
                     //todo check if listing exist (we may have multiple listings in same block)
                     return;
                 }
-                const block = await this.provider.getBlock(blockNumber);
-                const listing = await this.listingService.getListing(listingId);
-                listing.price = Number(ethers.formatEther(price));
-                await this.listingService.saveListing(listing);
-                const listingHistory = new ListingHistory();
-                listingHistory.listingUid = listingId;
-                listingHistory.tokenId = listing.tokenId;
-                listingHistory.owner = listing.owner;
-                listingHistory.price = Number(ethers.formatEther(price));
-                listingHistory.active = true;
-                listingHistory.historyEvent = 'EDIT'
-                listingHistory.updated_at = block.timestamp;
-                
-                
-                await this.listingsHistoryService.addListing(listingHistory)
-
-                await this.blockInfoService.updateBlockInfo(blockNumber);
+                await this.handleListingUpdatedEvent(listingId, price, blockNumber );
             }
         );
     }
@@ -159,28 +144,13 @@ export class IndexerService {
         await contract.on(
             'LogCollectionCreated',
             async (collectionAddress: string, collectionOwner:string, name: string, symbol: string) => {
-                console.log('event LogCollectionCreated');
-                console.log('collectionAddress : ' + collectionAddress);
-                console.log('collectionOwner : ' + collectionOwner);
-
-                const lastBlockNumber = await this.blockInfoService.getLastBlock();;
+                const lastBlockNumber = await this.blockInfoService.getLastBlock();
                 const blockNumber = await this.provider.getBlockNumber();
                 if(blockNumber === lastBlockNumber) {
                     //todo check if listing exist (we may have multiple listings in same block)
                     return;
                 }
-                const block = await this.provider.getBlock(blockNumber);
-                const collection = new Collection();
-                collection.address = collectionAddress;
-                collection.owner = collectionOwner;
-                collection.name = name;
-                collection.symbol = symbol;
-                collection.updated_at = block.timestamp;
-
-
-                await this.collectionService.addCollection(collection)
-
-                await this.blockInfoService.updateBlockInfo(blockNumber);
+                await this.handleCollectionCreatedEvent(collectionAddress, collectionOwner, name, symbol, blockNumber)
             }
         );
     }
@@ -189,13 +159,14 @@ export class IndexerService {
         //event LogListingCanceled(bytes32 listingId, bool active);
         await contract.on(
             'LogListingCanceled',
-            async (listingId: string, active: boolean) => {
-                console.log('event LogListingCanceled');
-                console.log('listingId : ' + listingId);
-                console.log('active : ' + active);
-
+            async (listingId: string) => {
+                const lastBlockNumber = await this.blockInfoService.getLastBlock();
                 const blockNumber = await this.provider.getBlockNumber();
-                await this.blockInfoService.updateBlockInfo(blockNumber);
+                if(blockNumber === lastBlockNumber) {
+                    //todo check if listing exist (we may have multiple listings in same block)
+                    return;
+                }
+                await this.handleListingCanceledEvent(listingId, blockNumber);
             }
         );
     }
@@ -205,14 +176,99 @@ export class IndexerService {
         await contract.on(
             'LogListingSold',
             async (listingId: string, buyer: string, price: BigNumberish) => {
-                console.log('event LogListingSold');
-                console.log('listingId : ' + listingId);
-                console.log('buyer : ' + buyer);
-                console.log('price : ' + ethers.formatEther(price));
-
+                const lastBlockNumber = await this.blockInfoService.getLastBlock();
                 const blockNumber = await this.provider.getBlockNumber();
-                await this.blockInfoService.updateBlockInfo(blockNumber);
+                if(blockNumber === lastBlockNumber) {
+                    //todo check if listing exist (we may have multiple listings in same block)
+                    return;
+                }
+                await this.handleListingSoldEvent(listingId, buyer, price, blockNumber);
             }
         );
+    }
+    
+    private async handleListingAddedEvent( listingId: string, tokenContract: string, tokenId: BigNumberish, seller: string, 
+                              price: BigNumberish, blockNumber: number) {
+        const block = await this.provider.getBlock(blockNumber);
+        console.log('event LogListingAdded')
+        const listingEntity = new Listing();
+        listingEntity.listingUid = listingId;
+        listingEntity.tokenId = Number(tokenId);
+        listingEntity.owner = seller;
+        listingEntity.price = Number(ethers.formatEther(price));
+        listingEntity.active = true;
+        listingEntity.collection = tokenContract;
+        listingEntity.updated_at = block.timestamp;
+        await this.listingService.addListing(listingEntity);
+        //update block info
+        await this.blockInfoService.updateBlockInfo(blockNumber);
+        //add history
+        await this.addHistoryToDB(listingId, Number(tokenId), seller, price, block.timestamp, 'CREATE')
+    }
+    
+    private async handleListingUpdatedEvent(listingId:string, price: BigNumberish, blockNumber: number) {
+        console.log('event LogListingUpdated');
+        const block = await this.provider.getBlock(blockNumber);
+        const listing = await this.listingService.getListing(listingId);
+        listing.price = Number(ethers.formatEther(price));
+        await this.listingService.saveListing(listing);
+        await this.blockInfoService.updateBlockInfo(blockNumber);
+
+        await this.addHistoryToDB(listingId, listing.tokenId, listing.owner, price, block.timestamp, 'EDIT')
+    }
+    
+    private async handleCollectionCreatedEvent(collectionAddress:string, collectionOwner:string,
+                                               name: string, symbol:string, blockNumber: number) {
+        const block = await this.provider.getBlock(blockNumber);
+        console.log('event LogCollectionCreated');
+        const collection = new Collection();
+        collection.address = collectionAddress;
+        collection.owner = collectionOwner;
+        collection.name = name;
+        collection.symbol = symbol;
+        collection.updated_at = block.timestamp;
+
+        await this.collectionService.addCollection(collection)
+        await this.blockInfoService.updateBlockInfo(blockNumber);        
+    }
+    
+    private async handleListingCanceledEvent(listingId: string, blockNumber: number) {
+        const block = await this.provider.getBlock(blockNumber);
+        console.log('event LogListingCanceled');
+        const listing = await this.listingService.getListing(listingId);
+        listing.active = false;
+        await this.listingService.saveListing(listing);
+        await this.blockInfoService.updateBlockInfo(blockNumber);
+        const price = ethers.parseEther(listing.price.toString());
+        await this.addHistoryToDB(listingId, listing.tokenId, listing.owner, price, block.timestamp, 'CANCEL')
+        await this.blockInfoService.updateBlockInfo(blockNumber);
+    }
+    
+    private async handleListingSoldEvent(listingId: string, buyer: string, price:BigNumberish, 
+                                         blockNumber: number) {
+        const block = await this.provider.getBlock(blockNumber)
+        console.log('event LogListingSold');
+        const listing = await this.listingService.getListing(listingId);
+        listing.active = false;
+        await this.listingService.saveListing(listing);
+        await this.blockInfoService.updateBlockInfo(blockNumber);
+        await this.addHistoryToDB(listingId, listing.tokenId, buyer, price, block.timestamp, 'SOLD')
+        await this.blockInfoService.updateBlockInfo(blockNumber);
+    }
+    
+    
+    
+    private async addHistoryToDB(listingId: string, tokenId:number, owner:string, 
+                             price: BigNumberish, updatedAt: number, historyEvent: 'CREATE' | 'EDIT' | 'SOLD' | 'CANCEL') {
+        const listingHistory = new ListingHistory();
+        listingHistory.listingUid = listingId;
+        listingHistory.tokenId = tokenId;
+        listingHistory.owner = owner;
+        listingHistory.price = Number(ethers.formatEther(price));
+        listingHistory.active = true;
+        listingHistory.historyEvent = historyEvent
+        listingHistory.updated_at = updatedAt;
+
+        await this.listingsHistoryService.addListing(listingHistory)
     }
 }

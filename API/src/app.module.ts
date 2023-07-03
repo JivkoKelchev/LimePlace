@@ -35,7 +35,7 @@ import {CollectionsModule} from "./collections/collections.module";
                 database: 'lime_place',
                 entities: [Listing, ListingHistory, BlockInfo, Collection],
                 synchronize: true,
-                logging: true
+                // logging: true
             }),
             inject: [ConfigService],
         }),
