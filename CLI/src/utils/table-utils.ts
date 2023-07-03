@@ -21,6 +21,7 @@ export interface CollectionsFilter {
 export interface CollectionsSort {
     floor?: 'ASC' | 'DESC';
     volume?: 'ASC' | 'DESC';
+    listings?: 'ASC' | 'DESC';
 }
 
 export interface ListingsFilter {

@@ -19,6 +19,7 @@ export const FILTER_BY_FLOOR_MENU_ITEM= 'Filter by FLOOR'
 export const FILTER_BY_VOLUME_MENU_ITEM= 'Filter by VOLUME'
 export const SORT_BY_FLOOR_MENU_ITEM = 'Sort by FLOOR'
 export const SORT_BY_VOLUME_MENU_ITEM = 'Sort by VOLUME'
+export const SORT_BY_LISTINGS_MENU_ITEM = 'Sort by LISTINGS'
 export const CLEAR_QUERY_MENU_ITEM = 'Clear query'
 
 

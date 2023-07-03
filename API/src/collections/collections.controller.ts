@@ -1,4 +1,4 @@
-import {BadRequestException, Controller, Get, Inject, NotFoundException, Param, Query} from '@nestjs/common';
+import {Controller, Get, Inject, NotFoundException, Param, Query} from '@nestjs/common';
 import {CollectionsService} from "./collections.service";
 
 @Controller('collections')
@@ -20,7 +20,8 @@ export class CollectionsController {
             query.volumeLt,
             query.owner,
             query.sortFloor,
-            query.sortVolume
+            query.sortVolume,
+            query.sortListings
         );
     }
     

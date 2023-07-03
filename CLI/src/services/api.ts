@@ -35,7 +35,8 @@ interface QueryPramsCollections {
     volumeLt?: number,
     owner?: string,
     sortFloor?: string,
-    sortVolume?: string
+    sortVolume?: string,
+    sortListings?: string
 }
 
 export const getListings = async (query: ListingsQueryState):  Promise<{ data: ListingModel[], count: number }> => {
@@ -130,6 +131,9 @@ export const getCollections = async (query: CollectionsQueryState): Promise<{dat
             }
             if(sort.volume) {
                 queryParams.sortVolume = sort.volume;
+            }
+            if(sort.listings) {
+                queryParams.sortListings = sort.listings;
             }
         })
     }

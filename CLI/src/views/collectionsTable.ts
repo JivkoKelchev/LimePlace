@@ -21,6 +21,7 @@ export const renderCollectionsTable = async (
     let ownerHeaderIndicator: HeaderIndicator = {};
     let floorHeaderIndicator: HeaderIndicator = {};
     let volumeHeaderIndicator: HeaderIndicator = {};
+    let listingsHeaderIndicator: HeaderIndicator = {};
     
     if(query){
         //check for search query
@@ -48,6 +49,9 @@ export const renderCollectionsTable = async (
                 if(sort.volume) {
                     volumeHeaderIndicator.sortIndicator = sort.volume;
                 }
+                if(sort.listings) {
+                    listingsHeaderIndicator.sortIndicator = sort.listings
+                }
             })
         }
     }
@@ -60,6 +64,10 @@ export const renderCollectionsTable = async (
     );
     collectionTable.addColumn( 
         new Column('Volume', 'ETH', 10, 'RIGHT', 'volume', volumeHeaderIndicator)
+    );
+    collectionTable.addColumn(
+        new Column('Listings', 'TXT', 10, 'LEFT', 'listings', listingsHeaderIndicator
+        )
     );
     collectionTable.addColumn( 
         new Column('Owners', 'TXT',  40, 'LEFT', 'owner', ownerHeaderIndicator)

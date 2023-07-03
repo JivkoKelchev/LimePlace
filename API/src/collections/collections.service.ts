@@ -29,7 +29,8 @@ export class CollectionsService {
         volumeLt?: number,
         owner?: string,
         sortFloor?: string,
-        sortVolume?: string
+        sortVolume?: string,
+        sortListing?: string
     ) {
         if(active === undefined) {
             active = true;
@@ -41,6 +42,7 @@ export class CollectionsService {
         qb.select('coll.name', 'name').
         addSelect('coll.owner', 'owner').
         addSelect('activeCollections.active', 'active').
+        addSelect('activeCollections.count', 'listings').
         addSelect('floor.floor', 'floor').
         addSelect('volume.amount', 'volume');
 
@@ -70,6 +72,7 @@ export class CollectionsService {
             return qb.subQuery()
                 .select('listing.collection', 'collection')
                 .addSelect('MAX(listing.active) as active')
+                .addSelect('COUNT(*) as count')
                 .from(Listing, "listing")
                 .groupBy('listing.collection')
         }, 'activeCollections', 'activeCollections.collection = coll.address');
@@ -117,6 +120,10 @@ export class CollectionsService {
 
         if(sortVolume === 'ASC' || sortVolume === 'DESC') {
             qb.addOrderBy('floor.floor', sortVolume)
+        }
+
+        if(sortListing === 'ASC' || sortListing === 'DESC') {
+            qb.addOrderBy('activeCollections.count', sortListing)
         }
 
         const count = await qb.getCount();

@@ -12,7 +12,7 @@ import {
     MAIN_MENU_ITEM,
     MY_COLLECTIONS_MENU_ITEM, SEARCH_BY_COL_NAME_MENU_ITEM,
     SEARCH_MENU_ITEM,
-    SORT_BY_FLOOR_MENU_ITEM,
+    SORT_BY_FLOOR_MENU_ITEM, SORT_BY_LISTINGS_MENU_ITEM,
     SORT_BY_VOLUME_MENU_ITEM
 } from "../views/menu/menuItemsConstants";
 import {homeAction} from "./homeController";
@@ -82,6 +82,10 @@ const collectionsQueryAction = async () => {
             await sortVolumeAction();
             break;
         }
+        case SORT_BY_LISTINGS_MENU_ITEM: {
+            await sortListingsAction();
+            break;
+        }
         case FILTER_BY_OWNER_MENU_ITEM: {
             await filterOwnerAction();
             break;
@@ -138,12 +142,28 @@ const sortVolumeAction = async () => {
         await collectionsAction();
     }
 
-    if(name.query === 'ASC') {
-        queryState.sort.push({volume: name.query})
+    if(name.query.toUpperCase() === 'ASC') {
+        queryState.sort.push({volume: 'ASC'})
     }
 
-    if(name.query === 'DESC') {
-        queryState.sort.push({volume: name.query})
+    if(name.query.toUpperCase() === 'DESC') {
+        queryState.sort.push({volume: 'DESC'})
+    }
+    await collectionsAction();
+}
+
+const sortListingsAction = async () => {
+    const name = await sortPrompt();
+    if(name.query === '<') {
+        await collectionsAction();
+    }
+
+    if(name.query.toUpperCase() === 'ASC') {
+        queryState.sort.push({listings: 'ASC'})
+    }
+
+    if(name.query.toUpperCase() === 'DESC') {
+        queryState.sort.push({listings: 'DESC'})
     }
     await collectionsAction();
 }
