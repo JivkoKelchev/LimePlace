@@ -71,7 +71,10 @@ export const listingsAction = async () => {
             break;
         }
         case MY_LISTINGS_MENU_ITEM: {
-            //
+            const sdk = await getSdk();
+            const signerAddress = await sdk.getSignerAddress();
+            queryState.fileter.push({owner: signerAddress})
+            await listingsAction();
             break;
         }
         case SEARCH_MENU_ITEM: {
