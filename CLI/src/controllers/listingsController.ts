@@ -7,7 +7,7 @@ import {confirmPrompt} from "../views/genericUI/confirmationPrompt";
 import {convertUrlToHttp, getFileFromIpfs, getMetaDataFromIpfs, uploadToIpfs} from "../services/ipfs";
 import Spinner from "../views/genericUI/spinner";
 import {infoMsg} from "../views/genericUI/infoMsg";
-import {getCollection, getListingHistory, getListings} from "../services/api";
+import {Api} from "../services/api";
 import {renderActiveListingsTable} from "../views/listingsTable";
 import {activeListingsMenu} from "../views/menu/listings/listingsTableMenu";
 import {openListingPrompt} from "../views/menu/listings/openListingPrompt";
@@ -49,7 +49,7 @@ let queryState: ListingsQueryState = {
 export const listingsAction = async () => {
 
     //render page
-    const data = await getListings(queryState); //get active listings from API
+    const data = await Api.getListings(queryState); //get active listings from API
     await renderActiveListingsTable(data.data, queryState.page, data.count, queryState)
     let {currentPage, hasNext, hasPrev} = getPaginationData(data.count, queryState.page??1)
     const actionInput = await activeListingsMenu(hasNext, hasPrev);
@@ -135,9 +135,9 @@ export const viewListingAction = async (listingId: string) => {
     const tokenUri = await sdk.getLimePlaceNFTTokenUri(listingInfo[0],listingInfo[1]);
     //get previous price
     let previousPrice;
-    const priceEdits = await getListingHistory(listingId, 'EDIT');
+    const priceEdits = await Api.getListingHistory(listingId, 'EDIT');
     if(priceEdits.data.length === 1) {
-        const createEvent = await getListingHistory(listingId, 'CREATE')
+        const createEvent = await Api.getListingHistory(listingId, 'CREATE')
         previousPrice = createEvent.data[0].price;
     } else if(priceEdits.data.length > 1) {
         previousPrice = priceEdits.data[1].price;
@@ -207,7 +207,7 @@ export const createNewAction = async () => {
             }
             //check if collection exist
             collectionAddress.address = collectionAddress.address.trim();
-            const collectionData = await getCollection(collectionAddress.address);
+            const collectionData = await Api.getCollection(collectionAddress.address);
             //todo check collection data if we have result or not
             
             await mintAndListInExistingCollectionAction(collectionAddress.address);

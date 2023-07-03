@@ -1,6 +1,6 @@
 import {getSdk} from "./connectionController";
 import {loadHeader} from "../views/header";
-import {getCollections} from "../services/api";
+import {Api} from "../services/api";
 import {renderCollectionsTable} from "../views/collectionsTable";
 import {collectionsTableMenu} from "../views/menu/collections/collectionsTableMenu";
 import {
@@ -37,7 +37,7 @@ export const collectionsAction = async () => {
     const sdk = await getSdk();
     await loadHeader(sdk);
     
-    const data = await getCollections(queryState);
+    const data = await Api.getCollections(queryState);
     //todo calculate page
     await renderCollectionsTable(data.data, queryState.page, data.count, queryState);
     
