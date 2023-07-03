@@ -23,6 +23,7 @@ import {CollectionsQueryState} from "../utils/table-utils";
 import {confirmPrompt} from "../views/genericUI/confirmationPrompt";
 import {sortPrompt} from "../views/menu/query/sortPrompt";
 import {filterPrompt} from "../views/menu/query/filterPrompt";
+import {ethers} from "ethers";
 
 let queryState: CollectionsQueryState = {
     page: 1,
@@ -64,7 +65,11 @@ export const collectionsAction = async () => {
 }
 
 const myCollectionsQueryAction = async () => {
-    return true;
+    const sdk = await getSdk();
+    const signerAddress = await sdk.getSignerAddress();
+    
+    queryState.fileter.push({owner: signerAddress})
+    await collectionsAction();
 }
 
 const collectionsQueryAction = async () => {
