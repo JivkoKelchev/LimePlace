@@ -76,19 +76,19 @@ export class IndexerService {
             await this.handleListingUpdatedEvent(decodedArgs[0], decodedArgs[1], eventLog.blockNumber);
         }
 
-        
-        listingCanceledEvents.map((eventLog) => {
+
+        for (const eventLog of listingCanceledEvents) {
             const decodedArgs = iface.decodeEventLog('LogListingCanceled', eventLog.data,);
             console.log('LogListingCanceled',decodedArgs)
             await this.handleListingCanceledEvent(decodedArgs[0], eventLog.blockNumber)
-        });
+        }
 
         //todo handle sold!!!
-        listingSoldEvents.map((eventLog) => {
+        for (const eventLog of listingSoldEvents) {
             const decodedArgs = iface.decodeEventLog('LogListingSold', eventLog.data,);
             console.log('LogListingSold', decodedArgs)
-            // await this.handleListingAddedEvent(eventLog.data[])
-        });
+            await this.handleListingSoldEvent(decodedArgs[0], decodedArgs[1], decodedArgs[2], eventLog.blockNumber)
+        }
         
         console.log('--------------------------------------')
         
