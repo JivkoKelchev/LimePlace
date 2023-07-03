@@ -3,10 +3,6 @@ import {Contract, ethers, Provider, Signer} from "ethers";
 const limePlaceAbi = require('../../artifacts/LimePlace.json')
 const limePlaceNftAbi = require('../../artifacts/LimePlaceNFT.json')
 
-export interface ListingDetails {
-    
-}
-
 export class Sdk{
     provider : Provider;
     limePlace: Contract;
@@ -35,7 +31,7 @@ export class Sdk{
         const rc = await tx.wait(); // 0ms, as tx is already confirmed
         const tokenId = rc?.logs[0].args[2];
         
-        //check for approvel
+        //check for approval
         const signerAddress = await this.signer.getAddress();
         const isApprovedForAll = await tokenContract.isApprovedForAll(signerAddress, this.limePlaceAddress);
         if(!isApprovedForAll) {
