@@ -4,7 +4,7 @@ import {getSdk} from "./connectionController";
 import {printImage} from "../utils/view-utils";
 import {mintMetadataPrompt} from "../views/menu/listings/mintMetadataPrompt";
 import {confirmPrompt} from "../views/genericUI/confirmationPrompt";
-import {convertUrlToHttp, getFileFromIpfs, getMetaDataFromIpfs, uploadToIpfs} from "../services/ipfs";
+import {convertUrlToHttp, getFileFromIpfs, getMetaDataFromIpfs} from "../services/ipfs";
 import Spinner from "../views/genericUI/spinner";
 import {infoMsg} from "../views/genericUI/infoMsg";
 import {Api} from "../services/api";

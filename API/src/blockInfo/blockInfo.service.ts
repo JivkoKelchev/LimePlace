@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {BlockInfo} from "./blockInfo.enitity";
 import {InjectRepository} from "@nestjs/typeorm";
-import {FindOptionsOrder, ListDatabasesResult, Repository} from "typeorm";
+import {Repository} from "typeorm";
 
 @Injectable()
 export class BlockInfoService {

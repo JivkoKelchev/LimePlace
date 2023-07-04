@@ -1,6 +1,5 @@
 import chalk from "chalk";
 import inquirer from "inquirer";
-import {parseCollectionFilterUserInput} from "../../../utils/parse-utils";
 import {ethers} from "ethers";
 
 const question = [

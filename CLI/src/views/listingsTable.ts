@@ -1,8 +1,6 @@
 import ListingModel from "../models/Listing";
 import {clearScreen} from "../utils/view-utils";
 import {
-    CollectionsFilter,
-    CollectionsSort,
     Column,
     HeaderIndicator, ListingsFilter,
     ListingsQueryState, ListingsSort,

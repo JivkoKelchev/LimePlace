@@ -1,4 +1,4 @@
-import {networkList, networkMenu} from "../views/menu/connection/networksMenu";
+import {networkMenu} from "../views/menu/connection/networksMenu";
 import {ethers, Signer} from "ethers";
 import {Sdk} from "../services/sdk";
 // @ts-ignore

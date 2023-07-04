@@ -10,7 +10,6 @@ import {
 } from "../utils/table-utils";
 import CollectionModel from "../models/Collection";
 import HistoryModel from "../models/ListingHistory";
-import {ListingHistory} from "../../../API/src/listingsHistory/listingHistory.entity";
 
 interface QueryParamsListings {
     page: number;

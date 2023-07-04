@@ -1,4 +1,4 @@
-import {clearScreen, combineArt, getImage, padArt, printImage} from "../utils/view-utils";
+import {clearScreen, combineArt, getImage, padArt} from "../utils/view-utils";
 import {convertUrlToHttp, Metadata} from "../services/ipfs";
 import chalk from "chalk";
 import {ethers} from "ethers";

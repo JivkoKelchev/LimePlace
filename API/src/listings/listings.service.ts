@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {Listing} from "./listing.entity";
 import {InjectRepository} from "@nestjs/typeorm";
-import {FindOptionsOrder, ListDatabasesResult, Repository} from "typeorm";
+import {Repository} from "typeorm";
 
 @Injectable()
 export class ListingsService {
