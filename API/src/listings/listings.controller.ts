@@ -1,4 +1,4 @@
-import {Controller, Get, Inject, Query} from '@nestjs/common';
+import {Controller, Get, Inject, Param, Query} from '@nestjs/common';
 import {ListingsService} from "./listings.service";
 
 @Controller('listings')
@@ -18,5 +18,10 @@ export class ListingsController {
             query.sortPrice,
             query.collection
         );
+    }
+
+    @Get(':id')
+    getListing(@Param() params: any) {
+        return this.listingServise.getListingById(params.id);
     }
 }

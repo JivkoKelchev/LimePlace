@@ -19,8 +19,12 @@ export class ListingsService {
         await this.listingRepository.save(listing);
     }
     
-    async getListing(listingId: string): Promise<Listing> {
-        return await this.listingRepository.findOneBy({listingUid: listingId})
+    async getListingByUID(listingUID: string): Promise<Listing> {
+        return await this.listingRepository.findOneBy({listingUid: listingUID})
+    }
+
+    async getListingById(listingId: number): Promise<Listing> {
+        return await this.listingRepository.findOneBy({id: listingId})
     }
 
     async findAllActive(page?: number,

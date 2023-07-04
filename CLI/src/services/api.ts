@@ -1,4 +1,4 @@
-import axios, { AxiosResponse, AxiosError } from 'axios';
+import axios, {AxiosError, AxiosResponse} from 'axios';
 import ListingModel from "../models/Listing";
 import CollectionStatisticsModel from "../models/CollectionStatistics";
 import {
@@ -6,7 +6,8 @@ import {
     CollectionsQueryState,
     CollectionsSort,
     ListingsFilter,
-    ListingsQueryState, ListingsSort
+    ListingsQueryState,
+    ListingsSort
 } from "../utils/table-utils";
 import CollectionModel from "../models/Collection";
 import HistoryModel from "../models/ListingHistory";
@@ -39,6 +40,12 @@ interface QueryPramsCollections {
 }
 
 export class Api {
+    
+    public static getListing = async (listingId: number): Promise<ListingModel> => {
+        const apiUrl = process.env.BACKEND_HOST+'/listings/'+listingId;
+        return (await axios.get(apiUrl)).data;
+    }
+    
     public static getListings = async (query: ListingsQueryState):  Promise<{ data: ListingModel[], count: number }> => {
         const apiUrl = process.env.BACKEND_HOST+'/listings';
         //parse query state to query string
@@ -74,14 +81,7 @@ export class Api {
                 }
             })
         }
-
-        return axios.get(apiUrl, {params: queryParams})
-            .then((response: AxiosResponse) => {
-                return response.data;
-            })
-            .catch((error: AxiosError) => {
-                console.error('Error:', error.message);
-            });
+        return (await axios.get(apiUrl, {params: queryParams})).data;
     }
     
     public static getCollections = async (query: CollectionsQueryState): Promise<{data: CollectionStatisticsModel[], count: number}> => {
@@ -137,41 +137,22 @@ export class Api {
                 }
             })
         }
-
-        return axios.get(apiUrl, {params: queryParams})
-            .then((response: AxiosResponse) => {
-                return response.data;
-            })
-            .catch((error: AxiosError) => {
-                console.error('Error:', error.message);
-            });
+        
+        return (await axios.get(apiUrl, {params: queryParams})).data;
     }
 
-    public static getCollection = async (collectionAddress: string) => {
+    public static getCollection = async (collectionAddress: string): Promise<CollectionModel>=> {
         const apiUrl = process.env.BACKEND_HOST+'/collections/' + collectionAddress;
-        return axios.get<CollectionModel>(apiUrl)
-            .then((response: AxiosResponse) => {
-                return response.data;
-            })
-            .catch((error: AxiosError) => {
-                console.error('Error:', error.message);
-            });
+        return (await axios.get(apiUrl)).data;
     }
     
     public static getListingHistory = async (listingId: string, historyEvent?: 'CREATE' | 'EDIT' | 'SOLD' | 'CANCEL')
         : Promise<{ data: HistoryModel[], count: number }>  => {
         const apiUrl = process.env.BACKEND_HOST + '/listings-history/' + listingId;
-        let response: Promise<AxiosResponse>;
         if (historyEvent) {
-            response = axios.get<HistoryModel>(apiUrl, {params: {event: historyEvent}});
+            return (await axios.get(apiUrl, {params: {event: historyEvent}})).data;
         } else {
-            response = axios.get<HistoryModel>(apiUrl)
+            return (await axios.get(apiUrl)).data
         }
-        return response.then((response: AxiosResponse) => {
-            return response.data;
-        })
-            .catch((error: AxiosError) => {
-                console.error('Error:', error.message);
-            });
     }
 }

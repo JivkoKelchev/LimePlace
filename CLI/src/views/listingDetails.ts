@@ -3,14 +3,17 @@ import {convertUrlToHttp, Metadata} from "../services/ipfs";
 import chalk from "chalk";
 import {ethers} from "ethers";
 import {ListingService} from "../services/listingService";
+import CollectionModel from "../models/Collection";
+import ListingModel from "../models/Listing";
 
-export const renderListingDetails = async (imagePath: string, metadata: Metadata, listingInfo: any, prevPrice?: number) => {
+export const renderListingDetails = async (
+    imagePath: string, metadata: Metadata, listing: ListingModel, prevPrice?: number) => {
     await clearScreen();
     const image = await getImage(imagePath);
     const imageUrl = convertUrlToHttp(metadata.image);
     
     //check previous price
-    const currentPrice = Number(ethers.formatEther(listingInfo[3]));
+    const currentPrice = listing.price;
     let arrow = '';
     let prevPriceFormatted = '';
     if(prevPrice) {
@@ -22,11 +25,11 @@ export const renderListingDetails = async (imagePath: string, metadata: Metadata
         }
         prevPriceFormatted = 'previous : ' + Number.parseFloat(prevPrice.toString()).toString() + ' ETH';
     }
-    let updatedAt = listingInfo[5];
+    let updatedAt = listing.updated_at;
     let status = chalk.red('Inactive');
     if(ListingService.isListingExpired(updatedAt)) {
         status = chalk.red('Expired')
-    } else if (listingInfo[4]) {
+    } else if (listing.active) {
         status = chalk.greenBright('Active')
     }
     
@@ -34,12 +37,13 @@ export const renderListingDetails = async (imagePath: string, metadata: Metadata
     const currentPriceFormatted = Number.parseFloat(currentPrice.toString()).toString() + ' ETH';
     let details  = `    Name        : ${metadata.name}\n\n`;
     details += `    Description : ${metadata.description}\n\n`;
-    details += `    Collection  : ${listingInfo[0]}\n\n`;
-    details += `    Seller      : ${listingInfo[2]}\n\n`;
+    details += `    Collection  : ${listing.collection}\n\n`;
+    details += `    Seller      : ${listing.owner}\n\n`;
     details += `    Price       : ${currentPriceFormatted} ${arrow} ${chalk.grey(prevPriceFormatted)}\n\n`;
     details += `    Expiration  : ${expirationFormatted}\n\n`;
     details += `    Status      : ${status}\n\n`;
-    details += `    Image URL   : ${imageUrl}`;
+    details += `    Image URL   : ${imageUrl}\n\n`;
+    details += `    Listing UID : ${listing.listingUid}`;
     const paddedDetails = padArt(details, 20);
     console.log(combineArt(image, paddedDetails))
     console.log('')

@@ -209,7 +209,7 @@ export class IndexerService {
     private async handleListingUpdatedEvent(listingId:string, price: BigNumberish, blockNumber: number) {
         console.log('event LogListingUpdated');
         const block = await this.provider.getBlock(blockNumber);
-        const listing = await this.listingService.getListing(listingId);
+        const listing = await this.listingService.getListingByUID(listingId);
         listing.price = Number(ethers.formatEther(price));
         await this.listingService.saveListing(listing);
         await this.blockInfoService.updateBlockInfo(blockNumber);
@@ -235,7 +235,7 @@ export class IndexerService {
     private async handleListingCanceledEvent(listingId: string, blockNumber: number) {
         const block = await this.provider.getBlock(blockNumber);
         console.log('event LogListingCanceled');
-        const listing = await this.listingService.getListing(listingId);
+        const listing = await this.listingService.getListingByUID(listingId);
         listing.active = false;
         await this.listingService.saveListing(listing);
         await this.blockInfoService.updateBlockInfo(blockNumber);
@@ -248,7 +248,7 @@ export class IndexerService {
                                          blockNumber: number) {
         const block = await this.provider.getBlock(blockNumber)
         console.log('event LogListingSold');
-        const listing = await this.listingService.getListing(listingId);
+        const listing = await this.listingService.getListingByUID(listingId);
         listing.active = false;
         await this.listingService.saveListing(listing);
         await this.blockInfoService.updateBlockInfo(blockNumber);

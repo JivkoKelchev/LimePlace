@@ -45,6 +45,7 @@ import {filterPrompt} from "../views/menu/query/filterPrompt";
 import {sortPrompt} from "../views/menu/query/sortPrompt";
 import {useTokenPrompt} from "../views/menu/listings/useTokenPrompt";
 import {listingPricePrompt} from "../views/menu/listings/listingPricePrompt";
+import ListingModel from "../models/Listing";
 
 let queryState: ListingsQueryState = {
     page: 1,
@@ -132,19 +133,20 @@ const listingsQueryAction = async () => {
 export const loadViewListingPrompt = async () => {
     const listingIdInput = await openListingPrompt();
     //todo validate prompt
-    await viewListingAction(listingIdInput.id);
+    await viewListingAction(Number(listingIdInput.id));
 }
 
-export const viewListingAction = async (listingId: string) => {
+export const viewListingAction = async (listingId: number) => {
     //render page
+    const listing: ListingModel = await Api.getListing(listingId)
+    const listingUID = listing.listingUid;
     const sdk = await getSdk();
-    const listingInfo = await sdk.getListing(listingId);
-    const tokenUri = await sdk.getLimePlaceNFTTokenUri(listingInfo[0],listingInfo[1]);
+    const tokenUri = await sdk.getLimePlaceNFTTokenUri(listing.collection,BigInt(listing.tokenId));
     //get previous price
     let previousPrice;
-    const priceEdits = await Api.getListingHistory(listingId, 'EDIT');
+    const priceEdits = await Api.getListingHistory(listingUID, 'EDIT');
     if(priceEdits.data.length === 1) {
-        const createEvent = await Api.getListingHistory(listingId, 'CREATE')
+        const createEvent = await Api.getListingHistory(listingUID, 'CREATE')
         previousPrice = createEvent.data[0].price;
     } else if(priceEdits.data.length > 1) {
         previousPrice = priceEdits.data[1].price;
@@ -152,16 +154,16 @@ export const viewListingAction = async (listingId: string) => {
     const metadata = await getMetaDataFromIpfs(tokenUri);
     const imagePath = await getFileFromIpfs(metadata.image);
     
-    await renderListingDetails(imagePath, metadata, listingInfo, previousPrice);
+    await renderListingDetails(imagePath, metadata, listing, previousPrice);
     const signerAddress = await sdk.getSignerAddress();
-    const actionInput = await listingPageMenu(listingInfo, signerAddress);
+    const actionInput = await listingPageMenu(listing, signerAddress);
     
     // redirect to actions
     switch (actionInput.menu) {
         case EDIT_PRICE_MENU_ITEM: {
             const newPriceInput = await editListingPrompt();
             const newPrice = ethers.parseEther(newPriceInput.price.toString());
-            await sdk.editListing(listingId, newPrice)
+            await sdk.editListing(listingUID, newPrice)
             await viewListingAction(listingId);
             break;
         }
@@ -169,7 +171,7 @@ export const viewListingAction = async (listingId: string) => {
             const confirm = await confirmPrompt('Do you want to cancel listing?');
             if(confirm) {
                 const spinner = new Spinner('Cancel listing...')
-                await sdk.cancelListing(listingId);
+                await sdk.cancelListing(listingUID);
                 spinner.stopSpinner();
                 await viewListingAction(listingId);
             }
@@ -179,7 +181,7 @@ export const viewListingAction = async (listingId: string) => {
             const confirm = await confirmPrompt('Do you want to buy?');
             if(confirm) {
                 const spinner = new Spinner('Transfer NFT...')
-                await sdk.buy(listingId);
+                await sdk.buy(listingUID);
                 spinner.stopSpinner();
                 await viewListingAction(listingId);
             }

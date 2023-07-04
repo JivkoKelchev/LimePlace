@@ -40,7 +40,10 @@ export const renderActiveListingsTable = async (
     
     await clearScreen();
     const listingsTable = new Table();
-    listingsTable.addColumn(new Column('Listing ID', 'TXT', 68, 'LEFT',  'listingUid'));
+    listingsTable.addColumn(new Column('ID', 'TXT', 5, 'LEFT',  'id'));
+    listingsTable.addColumn(new Column('Listing UID', 'TXT', 15, 'LEFT',  'listingUid'));
+    listingsTable.addColumn(new Column('Collection address', 'TXT', 44, 'LEFT', 'collection'));
+    listingsTable.addColumn(new Column('Token ID', 'TXT', 8, 'LEFT',  'tokenId'));
     listingsTable.addColumn(new Column('Seller', 'TXT', 44, 'LEFT', 'owner', ownerHeaderIndicator));
     listingsTable.addColumn(new Column('Price', 'ETH', 10, "RIGHT", 'price', priceHeaderIndicator));
     listingsTable.addData(data);

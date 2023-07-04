@@ -141,7 +141,7 @@ export class Table {
         }
         
         if(text.length > width) {
-            return text.substring(0, width);
+            return text.substring(0, width-3) + '...';
         }
 
         const whiteSpaceNumber = width - text.length;
