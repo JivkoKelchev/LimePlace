@@ -19,11 +19,20 @@ import {ethers} from "ethers";
 import {
     BACK_MENU_ITEM,
     BUY_NFT_MENU_ITEM,
-    CANCEL_LISTING_MENU_ITEM, CLEAR_QUERY_MENU_ITEM, CREATE_NEW_COLLECTION_MENU_ITEM,
-    EDIT_PRICE_MENU_ITEM, FILTER_BY_COLLECTION_MENU_ITEM, FILTER_BY_PRICE_MENU_ITEM, FILTER_BY_SELLER_MENU_ITEM,
-    MAIN_MENU_ITEM, MY_LISTINGS_MENU_ITEM,
+    CANCEL_LISTING_MENU_ITEM,
+    CLEAR_QUERY_MENU_ITEM,
+    CREATE_NEW_COLLECTION_MENU_ITEM,
+    EDIT_PRICE_MENU_ITEM,
+    FILTER_BY_COLLECTION_MENU_ITEM,
+    FILTER_BY_PRICE_MENU_ITEM,
+    FILTER_BY_SELLER_MENU_ITEM,
+    LIST_EXISTING_TOKEN_MENU_ITEM,
+    MAIN_MENU_ITEM,
+    MY_LISTINGS_MENU_ITEM,
     NEXT_PAGE_MENU_ITEM,
-    PREV_PAGE_MENU_ITEM, SEARCH_MENU_ITEM, SORT_BY_PRICE_MENU_ITEM,
+    PREV_PAGE_MENU_ITEM,
+    SEARCH_MENU_ITEM,
+    SORT_BY_PRICE_MENU_ITEM,
     USE_EXISTING_COLLECTION_MENU_ITEM,
     VIEW_LISTING_MENU_ITEM
 } from "../views/menu/menuItemsConstants";
@@ -34,6 +43,8 @@ import {listingsQueryMenu} from "../views/menu/listings/listingsQueryMenu";
 import { ListingsQueryState} from "../utils/table-utils";
 import {filterPrompt} from "../views/menu/query/filterPrompt";
 import {sortPrompt} from "../views/menu/query/sortPrompt";
+import {useTokenPrompt} from "../views/menu/listings/useTokenPrompt";
+import {listingPricePrompt} from "../views/menu/listings/listingPricePrompt";
 
 let queryState: ListingsQueryState = {
     page: 1,
@@ -209,6 +220,21 @@ export const createNewAction = async () => {
             await mintAndListInExistingCollectionAction(collectionAddress.address);
             break;
         }
+        case LIST_EXISTING_TOKEN_MENU_ITEM: {
+            const collectionAddress = await useCollectionPrompt();
+            if(collectionAddress.address === '<') {
+                await homeAction();
+            }
+            const tokenId = await useTokenPrompt();
+            if(tokenId.id === '<') {
+                await homeAction();
+            }
+            const price = await listingPricePrompt();
+            if(price.price === '<') {
+                await homeAction();
+            }
+            await listExistingTokenAction(collectionAddress.address, parseInt(tokenId.id), parseFloat(price.price));
+        }
         case BACK_MENU_ITEM: {
             await homeAction();
             break;
@@ -256,6 +282,11 @@ const mintAndListInExistingCollectionAction = async (tokenAddress: string) => {
 
     //render view listing view --- or home menu
     await homeAction();
+}
+
+export const listExistingTokenAction = async (tokenAddress: string, tokenId: number, price:number) => {
+    const sdk = await getSdk();
+    await sdk.list(tokenAddress, tokenId, ethers.parseEther(price.toString()))
 }
 
 const mintAndListInNewCollectionAction = async (collectionName: string, collectionsSymbol: string) => {

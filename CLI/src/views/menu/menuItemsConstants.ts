@@ -10,8 +10,9 @@ export const EXIT_MENU_ITEM = 'Exit'
 
 //Collections menu items
 export const MY_COLLECTIONS_MENU_ITEM = 'My collections';
-export const USE_EXISTING_COLLECTION_MENU_ITEM = 'Use existing collection';
-export const CREATE_NEW_COLLECTION_MENU_ITEM = 'Create new collection'
+export const USE_EXISTING_COLLECTION_MENU_ITEM = 'List new token in existing collection';
+export const CREATE_NEW_COLLECTION_MENU_ITEM = 'List new token in new collection'
+export const LIST_EXISTING_TOKEN_MENU_ITEM = 'List existing token';
 //collections query
 export const SEARCH_BY_COL_NAME_MENU_ITEM = 'Search by NAME'
 export const FILTER_BY_OWNER_MENU_ITEM = 'Filter by OWNER'
