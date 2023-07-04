@@ -70,7 +70,7 @@ export const renderCollectionsTable = async (
         )
     );
     collectionTable.addColumn( 
-        new Column('Owners', 'TXT',  40, 'LEFT', 'owner', ownerHeaderIndicator)
+        new Column('Owners', 'TXT',  44, 'LEFT', 'owner', ownerHeaderIndicator)
     );
     collectionTable.addData(data);
     collectionTable.print(page, totalCount);

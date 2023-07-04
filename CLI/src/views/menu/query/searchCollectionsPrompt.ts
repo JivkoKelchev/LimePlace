@@ -21,7 +21,6 @@ const question = [
 ]
 
 export const searchPrompt = async () => {
-    console.log(chalk.grey("Enter '<' for cancel"));
     let collectionData : { query: string };
     collectionData = await inquirer.prompt(question);
     return collectionData;

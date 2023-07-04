@@ -39,7 +39,6 @@ const symbolQuestion = [
 ]
 
 export const collectionNamePrompt = async () => {
-    console.log(chalk.grey("Enter '<' for cancel"));
     let collectionData : { name: string };
     collectionData = await inquirer.prompt(nameQuestions);
     return collectionData;

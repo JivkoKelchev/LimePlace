@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import inquirer from "inquirer";
 import {parseCollectionFilterUserInput} from "../../../utils/parse-utils";
+import {ethers} from "ethers";
 
 const question = [
     {
@@ -8,8 +9,9 @@ const question = [
         name: 'query',
         message: 'Enter operator (>=<) and filter value :',
         validate: function( query: string ) {
-            if(!query.startsWith('>') || !query.startsWith('=') || !query.startsWith('<')) {
-                return 'Operator is missing. Enter operator before the value ( =1.0 )'
+            if(!query.startsWith('>') && !query.startsWith('=') && 
+                !query.startsWith('<') && !ethers.isAddress(query)) {
+                return 'Operator is missing OR value is not a valid address!'
             }
             
             if(query.length >= 2 || query === '<') {
@@ -22,17 +24,8 @@ const question = [
 ]
 
 export const filterPrompt = async () => {
-    const lt = chalk.greenBright('<')
-    const gt = chalk.greenBright('>')
-    const eq = chalk.greenBright('=')
-    const address = chalk.greenBright('address')
-    const price = chalk.greenBright('price');
-    const volume = chalk.greenBright('volume');
-    console.log('Available filters (replace green placeholders with values):');
-    console.log(`-O:${address}         ${chalk.grey('Filter by owner address')}`);
-    console.log(`-F:${gt}${eq}${lt}:${price}       ${chalk.grey('Filter by floor price (use one of the operators)')}`)
-    console.log(`-V:${gt}${eq}${lt}:${volume}      ${chalk.grey('Filter by Volume (use one of the operators)')}`)
-    console.log(chalk.grey("Enter '<' for cancel"));
+    console.log(chalk.grey('Enter comparison operator followed by the value.'));
+    console.log(chalk.grey('For address filtering, enter only the address.'));
     let queryData : { query: string };
     queryData = await inquirer.prompt(question);
     return queryData;

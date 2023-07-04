@@ -14,7 +14,7 @@ import {openListingPrompt} from "../views/menu/listings/openListingPrompt";
 import {listingPageMenu} from "../views/menu/listings/listingPageMenu";
 import {renderListingDetails} from "../views/listingDetails";
 import {editListingPrompt} from "../views/menu/listings/editListingPricePrompt";
-import {getPaginationData, ListingService} from "../services/listingService";
+import {ListingService} from "../services/listingService";
 import {ethers} from "ethers";
 import {
     BACK_MENU_ITEM,
@@ -30,12 +30,8 @@ import {
 import {selectCollectionMenu} from "../views/menu/collections/selectCollectionMenu";
 import {collectionNamePrompt, collectionSymbolPrompt} from "../views/menu/collections/collectionNamePrompt";
 import {useCollectionPrompt} from "../views/menu/collections/useCollectionPrompt";
-import {mainMenu} from "../views/menu/mainMenu";
-import {collectionsQueryMenu} from "../views/menu/collections/collectionsQuery";
 import {listingsQueryMenu} from "../views/menu/listings/listingsQueryMenu";
-import inquirer from "inquirer";
-import {collectionsAction} from "./collectionsController";
-import {CollectionsQueryState, ListingsQueryState} from "../utils/table-utils";
+import { ListingsQueryState} from "../utils/table-utils";
 import {filterPrompt} from "../views/menu/query/filterPrompt";
 import {sortPrompt} from "../views/menu/query/sortPrompt";
 
@@ -254,7 +250,7 @@ const mintAndListInExistingCollectionAction = async (tokenAddress: string) => {
 
     //list
     spinner = new Spinner('Listing..')
-    await sdk.list(tokenAddress, tokenId, ethers.parseEther(tokenMetadataInput.price.toString()) )
+    await sdk.list(tokenAddress, tokenId, ethers.parseEther(tokenMetadataInput.price) )
     spinner.stopSpinner();
     await infoMsg('Token is listed', true);
 
@@ -264,7 +260,9 @@ const mintAndListInExistingCollectionAction = async (tokenAddress: string) => {
 
 const mintAndListInNewCollectionAction = async (collectionName: string, collectionsSymbol: string) => {
     const sdk = await getSdk();
+    const spinner = new Spinner('Creating collection...')
     const tokenAddress = await sdk.createERC721Collection(collectionName, collectionsSymbol);
+    spinner.stopSpinner();
     await mintAndListInExistingCollectionAction(tokenAddress);
 }
 

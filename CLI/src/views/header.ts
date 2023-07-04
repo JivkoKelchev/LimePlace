@@ -30,5 +30,5 @@ const printHeader = async (sdk?: Sdk) => {
     const paddedLogo = padArt(logoText, 9);
     const result = combineArt(paddedLogo, paddedTxt);
     console.log(result + '\n' + statusBar);
-    console.log();
+    console.log(chalk.grey("\nHint: Enter '<' on prompts for cancel...\n"));
 }

@@ -23,7 +23,6 @@ import {CollectionsQueryState} from "../utils/table-utils";
 import {confirmPrompt} from "../views/genericUI/confirmationPrompt";
 import {sortPrompt} from "../views/menu/query/sortPrompt";
 import {filterPrompt} from "../views/menu/query/filterPrompt";
-import {ethers} from "ethers";
 
 let queryState: CollectionsQueryState = {
     page: 1,
