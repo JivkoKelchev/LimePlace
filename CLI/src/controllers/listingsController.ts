@@ -53,12 +53,12 @@ export const listingsAction = async () => {
     //redirect to actions
     switch (actionInput.menu) {
         case NEXT_PAGE_MENU_ITEM: {
-            queryState.page = currentPage++;
+            queryState.page = currentPage + 1;
             await listingsAction();
             break;
         }
         case PREV_PAGE_MENU_ITEM: {
-            queryState.page = currentPage--;
+            queryState.page = currentPage - 1;
             await listingsAction();
             break;
         }

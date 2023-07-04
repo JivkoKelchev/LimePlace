@@ -37,8 +37,8 @@ export class IndexerService {
             this.provider,
         );
         //parse any missed old events (from last processed block - to current block)
-        const lastBlockNumber = await this.blockInfoService.getLastBlock();
-        const currentBlockNumber = await this.provider.getBlockNumber();
+        const lastBlockNumber = await this.blockInfoService.getLastBlock() + 1;
+        const currentBlockNumber = await this.provider.getBlockNumber() + 1;
         
         const logListingAddedFilter = contract.filters.LogListingAdded();
         const logListingUpdatedFilter = contract.filters.LogListingUpdated();
@@ -60,13 +60,13 @@ export class IndexerService {
         //index old events
         for (const eventLog of collectionAddedEvents) {
             const decodedArgs = iface.decodeEventLog('LogCollectionCreated', eventLog.data,);
-            console.log('LogCollectionCreated', decodedArgs);
+            console.log('LogCollectionCreated', eventLog.blockNumber, decodedArgs);
             await this.handleCollectionCreatedEvent(decodedArgs[0], decodedArgs[1], decodedArgs[2], decodedArgs[3], eventLog.blockNumber);
         }
 
         for (const eventLog of listingAddedEvents) {
             const decodedArgs = iface.decodeEventLog('LogListingAdded', eventLog.data,);
-            console.log('LogListingAdded', decodedArgs)
+            console.log('LogListingAdded', eventLog.blockNumber, decodedArgs)
             await this.handleListingAddedEvent(decodedArgs[0], decodedArgs[1], decodedArgs[2], decodedArgs[3], decodedArgs[4], eventLog.blockNumber)
         }
 

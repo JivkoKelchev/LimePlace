@@ -129,7 +129,7 @@ export class CollectionsService {
         const take = 10;
         
         const skip = (page - 1) * take;
-        const data = await qb.skip(skip).take(take).getRawMany();
+        const data = await qb.offset(skip).limit(take).getRawMany();
         
         return {data: data, count: count}
     }

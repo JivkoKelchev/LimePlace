@@ -10,7 +10,7 @@ import {
     FILTER_BY_OWNER_MENU_ITEM,
     FILTER_BY_VOLUME_MENU_ITEM,
     MAIN_MENU_ITEM,
-    MY_COLLECTIONS_MENU_ITEM, SEARCH_BY_COL_NAME_MENU_ITEM,
+    MY_COLLECTIONS_MENU_ITEM, NEXT_PAGE_MENU_ITEM, PREV_PAGE_MENU_ITEM, SEARCH_BY_COL_NAME_MENU_ITEM,
     SEARCH_MENU_ITEM,
     SORT_BY_FLOOR_MENU_ITEM, SORT_BY_LISTINGS_MENU_ITEM,
     SORT_BY_VOLUME_MENU_ITEM
@@ -23,6 +23,7 @@ import {CollectionsQueryState} from "../utils/table-utils";
 import {confirmPrompt} from "../views/genericUI/confirmationPrompt";
 import {sortPrompt} from "../views/menu/query/sortPrompt";
 import {filterPrompt} from "../views/menu/query/filterPrompt";
+import {ListingService} from "../services/listingService";
 
 let queryState: CollectionsQueryState = {
     page: 1,
@@ -35,14 +36,24 @@ export const collectionsAction = async () => {
     //render view
     const sdk = await getSdk();
     await loadHeader(sdk);
-    
+
     const data = await Api.getCollections(queryState);
-    //todo calculate page
+    let {currentPage, hasNext, hasPrev} = ListingService.getPaginationData(data.count, queryState.page??1)
     await renderCollectionsTable(data.data, queryState.page, data.count, queryState);
     
     //redirect to actions
-    const selected = await collectionsTableMenu(false, false);
+    const selected = await collectionsTableMenu(hasNext, hasPrev);
     switch (selected.menu) {
+        case NEXT_PAGE_MENU_ITEM: {
+            queryState.page = currentPage + 1;
+            await collectionsAction();
+            break;
+        }
+        case PREV_PAGE_MENU_ITEM: {
+            queryState.page = currentPage - 1;
+            await collectionsAction();
+            break;
+        }
         case SEARCH_MENU_ITEM: {
             await collectionsQueryAction();
             break;

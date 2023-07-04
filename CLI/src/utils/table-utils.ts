@@ -85,7 +85,7 @@ export class Table {
         const totalLength = this.buildHeader();
         this.buildData();
         console.log(Table.fillSpace(totalLength, '-'));
-        const totalPages = Math.ceil(totalCount/5);
+        const totalPages = Math.ceil(totalCount/10);
         console.log(`Page ${page}/${totalPages}`)
     }
     

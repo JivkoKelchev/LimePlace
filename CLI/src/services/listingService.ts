@@ -19,7 +19,7 @@ export class ListingService {
         let hasPrev = true;
         let hasNext = true;
         currentPage = currentPage??1;
-        const pageCount = Math.ceil(listingCount / 5);
+        const pageCount = Math.ceil(listingCount / 10);
         if(pageCount === 0) {
             currentPage = 0;
         }
