@@ -32,14 +32,11 @@ export class CollectionsService {
         sortVolume?: string,
         sortListing?: string
     ) {
-        if(active === undefined) {
-            active = true;
-        }
-        
         const qb = this.collectionRepository.
         createQueryBuilder('coll');
         
         qb.select('coll.name', 'name').
+        addSelect('coll.address', 'address').    
         addSelect('coll.owner', 'owner').
         addSelect('activeCollections.active', 'active').
         addSelect('activeCollections.count', 'listings').
@@ -78,7 +75,6 @@ export class CollectionsService {
         }, 'activeCollections', 'activeCollections.collection = coll.address');
 
         if(active) {
-            //join listing to select only collections with active listings
             qb.where('activeCollections.active = :active', {active: active});
         }
 

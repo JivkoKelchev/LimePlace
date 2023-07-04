@@ -20,7 +20,6 @@ const questions = [
 ];
 
 export const useCollectionPrompt = async () => {
-    console.log(chalk.grey("Enter '<' for cancel"))
     let collectionData : { address: string };
     collectionData = await inquirer.prompt(questions);
     return collectionData;

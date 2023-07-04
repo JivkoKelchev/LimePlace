@@ -58,6 +58,9 @@ export const renderCollectionsTable = async (
     
     
     const collectionTable = new Table();
+    collectionTable.addColumn(
+        new Column('Address', 'TXT',  44, 'LEFT', 'address')
+    );
     collectionTable.addColumn( new Column('Name', 'TXT',  15, 'LEFT', 'name'));
     collectionTable.addColumn( 
         new Column('Floor', 'ETH', 10, 'RIGHT', 'floor', floorHeaderIndicator)
