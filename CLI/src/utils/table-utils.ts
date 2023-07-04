@@ -68,9 +68,6 @@ export class Column {
 export class Table {
     columns: Column[] = [];
     data: any[] = [];
-    sortBy: string[] = [];
-    filterBy: string[] = [];
-    search: string = '';
     border: string = '    ';
     
     addColumn(col: Column) {
@@ -144,7 +141,7 @@ export class Table {
         }
         
         if(text.length > width) {
-            return text.substring(0, width - 1);
+            return text.substring(0, width);
         }
 
         const whiteSpaceNumber = width - text.length;
