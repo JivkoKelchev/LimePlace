@@ -43,20 +43,12 @@ export const printImage = async (imagePath: string) => {
         width:  20,
     }
 
+    //todo handle errors
     const asciified = await asciifyImage(imagePath, options);
     
     console.log('');
     // Print asciified image to console
     console.log(asciified);
-        // .then(function (asciified) {
-        //     console.log('');
-        //     // Print asciified image to console
-        //     console.log(asciified);
-        // })
-        // .catch(function (err) {
-        //     // Print error to console
-        //     console.error(err);
-        // });
 }
 
 export const getImage = async (imagePath: string): Promise<string> => {

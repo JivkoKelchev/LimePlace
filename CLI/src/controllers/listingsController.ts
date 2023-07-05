@@ -2,9 +2,8 @@ import {selectImagePrompt } from "../views/menu/listings/selectImagePrompt";
 import {homeAction} from "./homeController";
 import {getSdk} from "./connectionController";
 import {printImage} from "../utils/view-utils";
-import {mintMetadataPrompt} from "../views/menu/listings/mintMetadataPrompt";
 import {confirmPrompt} from "../views/genericUI/confirmationPrompt";
-import {convertUrlToHttp, getFileFromIpfs, getMetaDataFromIpfs} from "../services/ipfs";
+import {convertUrlToHttp, getFileFromIpfs, getMetaDataFromIpfs, uploadToIpfs} from "../services/ipfs";
 import Spinner from "../views/genericUI/spinner";
 import {infoMsg} from "../views/genericUI/infoMsg";
 import {Api} from "../services/api";
@@ -46,6 +45,8 @@ import {sortPrompt} from "../views/menu/query/sortPrompt";
 import {useTokenPrompt} from "../views/menu/listings/useTokenPrompt";
 import {listingPricePrompt} from "../views/menu/listings/listingPricePrompt";
 import ListingModel from "../models/Listing";
+import {listingNamePrompt} from "../views/menu/listings/listingNamePrompt";
+import {listingDescriptionPrompt} from "../views/menu/listings/listingDescriptioinPrompt";
 
 let queryState: ListingsQueryState = {
     page: 1,
@@ -259,14 +260,25 @@ const mintAndListInExistingCollectionAction = async (tokenAddress: string) => {
     if(!confirm) {
         await homeAction();
     }
-
-    const tokenMetadataInput = await mintMetadataPrompt();
+    
+    const nameInput = await listingNamePrompt();
+    if(nameInput.name === '<') {
+        return await homeAction(); 
+    }
+    const descriptionInput = await listingDescriptionPrompt();
+    if(descriptionInput.description === '<') {
+        return await homeAction();
+    }
+    const priceInput = await listingPricePrompt();
+    if(priceInput.price === '<') {
+        return await homeAction();
+    }
 
     //upload image to ipfs
     let spinner = new Spinner('Image is uploading...');
     //todo: uncomment and remove test url
-    // const url = await uploadToIpfs(imagePathInput.filePath, tokenMetadataInput.name, tokenMetadataInput.description);
-    const url = 'ipfs://bafyreied7myfsa667o5lykhoe77pdzzhtd36g36dbe645xdmueg3hj7by4/metadata.json'
+    // const url = await uploadToIpfs(imagePathInput.filePath, nameInput.name, descriptionInput.description);
+    const url = 'https://bafyreihkp6fmltozum33pjhohawd6chpevovxpbkuc7ftbvygvhyixtwfu.ipfs.dweb.link/metadata.json'
     spinner.stopSpinner();
     await infoMsg(`Metadata url: ${convertUrlToHttp(url)}`);
 
@@ -278,7 +290,7 @@ const mintAndListInExistingCollectionAction = async (tokenAddress: string) => {
 
     //list
     spinner = new Spinner('Listing..')
-    await sdk.list(tokenAddress, tokenId, ethers.parseEther(tokenMetadataInput.price) )
+    await sdk.list(tokenAddress, tokenId, ethers.parseEther(priceInput.price) )
     spinner.stopSpinner();
     await infoMsg('Token is listed', true);
 

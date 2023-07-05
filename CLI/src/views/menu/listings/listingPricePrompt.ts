@@ -1,4 +1,5 @@
 import inquirer from "inquirer";
+import {isNumeric} from "../../../utils/common-utils";
 
 const questions = [
     {
@@ -10,13 +11,14 @@ const questions = [
                 return true;
             }
 
-            if(!isNaN(Number(price)) && !isNaN(parseFloat(price))) {
-
+            if(isNumeric(price)) {
                 if (parseFloat(price) < 0.0001) {
                     return 'Price should be more than listing fee';
                 } else {
                     return true;
                 }
+            } else {
+                return 'Enter a valid number'
             }
         }
     },
