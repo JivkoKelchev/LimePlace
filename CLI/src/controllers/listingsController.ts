@@ -126,7 +126,7 @@ const listingsQueryAction = async () => {
         }
         case BACK_MENU_ITEM: 
         default: {
-            
+            await listingsAction();
             break;
         }
 

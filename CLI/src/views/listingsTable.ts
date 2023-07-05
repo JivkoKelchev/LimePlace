@@ -12,6 +12,7 @@ export const renderActiveListingsTable = async (
     count: number, 
     queryState: ListingsQueryState
 ) => {
+    let collectionIndicator: HeaderIndicator = {};
     let ownerHeaderIndicator: HeaderIndicator = {};
     let priceHeaderIndicator: HeaderIndicator = {};
     if(queryState){
@@ -23,6 +24,9 @@ export const renderActiveListingsTable = async (
                 }
                 if(filter.price) {
                     priceHeaderIndicator.filterIndicator = true;
+                }
+                if(filter.collection) {
+                    collectionIndicator.filterIndicator = true;
                 }
             })
         }
@@ -42,7 +46,7 @@ export const renderActiveListingsTable = async (
     const listingsTable = new Table();
     listingsTable.addColumn(new Column('ID', 'TXT', 5, 'LEFT',  'id'));
     listingsTable.addColumn(new Column('Listing UID', 'TXT', 15, 'LEFT',  'listingUid'));
-    listingsTable.addColumn(new Column('Collection address', 'TXT', 44, 'LEFT', 'collection'));
+    listingsTable.addColumn(new Column('Collection address', 'TXT', 44, 'LEFT', 'collection', collectionIndicator));
     listingsTable.addColumn(new Column('Token ID', 'TXT', 8, 'LEFT',  'tokenId'));
     listingsTable.addColumn(new Column('Seller', 'TXT', 44, 'LEFT', 'owner', ownerHeaderIndicator));
     listingsTable.addColumn(new Column('Price', 'ETH', 10, "RIGHT", 'price', priceHeaderIndicator));
