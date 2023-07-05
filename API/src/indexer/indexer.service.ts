@@ -10,6 +10,7 @@ import {BlockInfoService} from "../blockInfo/blockInfo.service";
 import {ListingHistory} from "../listingsHistory/listingHistory.entity";
 import {CollectionsService} from "../collections/collections.service";
 import {Collection} from "../collections/collections.enitity";
+import * as nftAbi from'../artifacts/LimePlaceNFT.json';
 
 @Injectable()
 export class IndexerService {
@@ -200,6 +201,22 @@ export class IndexerService {
         listingEntity.collection = tokenContract;
         listingEntity.updated_at = block.timestamp;
         await this.listingService.addListing(listingEntity);
+        const collection = await this.collectionService.getCollectionByAddress(listingEntity.collection)
+        if(!collection){
+            const collectionEntity = new Collection();
+            const contract = new ethers.Contract(listingEntity.collection, nftAbi.abi, this.provider);
+            
+            const name = await contract.name();
+            const symbol = await contract.symbol();
+            
+            collectionEntity.address = listingEntity.collection;
+            collectionEntity.owner = listingEntity.owner;
+            collectionEntity.name = name;
+            collectionEntity.symbol = symbol;
+            collectionEntity.updated_at = block.timestamp;
+            
+            this.collectionService.addCollection(collectionEntity);
+        }
         //update block info
         await this.blockInfoService.updateBlockInfo(blockNumber);
         //add history

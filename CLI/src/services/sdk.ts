@@ -30,14 +30,19 @@ export class Sdk{
         const tx = await tokenContract.mint(tokenUri);
         const rc = await tx.wait(); // 0ms, as tx is already confirmed
         const tokenId = rc?.logs[0].args[2];
+        await this.approve(tokenAddress);
         
+        return tokenId ?? 0;
+    }
+    
+    async approve(tokenAddress: string) {
+        const tokenContract = new ethers.Contract(tokenAddress, limePlaceNftAbi.abi, this.signer);
         //check for approval
         const signerAddress = await this.signer.getAddress();
         const isApprovedForAll = await tokenContract.isApprovedForAll(signerAddress, this.limePlaceAddress);
         if(!isApprovedForAll) {
             await tokenContract.setApprovalForAll(this.limePlaceAddress, true)
         }
-        return tokenId ?? 0;
     }
     
     async getListing(listingId: string): Promise<any> {

@@ -315,6 +315,7 @@ const mintAndListInExistingCollectionAction = async (tokenAddress: string) => {
 
 export const listExistingTokenAction = async (tokenAddress: string, tokenId: number, price:number) => {
     const sdk = await getSdk();
+    await sdk.approve(tokenAddress);
     await sdk.list(tokenAddress, tokenId, ethers.parseEther(price.toString()))
 }
 
