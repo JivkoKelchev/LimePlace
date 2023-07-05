@@ -42,8 +42,8 @@ export const renderListingDetails = async (
     details += `    Price       : ${currentPriceFormatted} ${arrow} ${chalk.grey(prevPriceFormatted)}\n\n`;
     details += `    Expiration  : ${expirationFormatted}\n\n`;
     details += `    Status      : ${status}\n\n`;
-    details += `    Image URL   : ${imageUrl}\n\n`;
-    details += `    Listing UID : ${listing.listingUid}`;
+    details += `    Listing UID : ${listing.listingUid}\n\n`;
+    details += `    Image URL   : ${imageUrl}`;
     const paddedDetails = padArt(details, 20);
     console.log(combineArt(image, paddedDetails))
     console.log('')

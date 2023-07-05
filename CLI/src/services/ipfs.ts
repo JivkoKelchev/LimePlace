@@ -63,8 +63,13 @@ export const convertUrlToHttp = (ipfsUrl: string) => {
     const i = cid.lastIndexOf('/');
     const fileName = cid.substring(i + 1)
     cid = cid.replace('/' + fileName, '');
-    // console.log( 'cid ',cid)
-    // console.log( 'filename ', fileName)
-    // console.log( 'https://' + cid + '.ipfs.dweb.link' + '/' + fileName)
-    return 'https://' + cid + '.ipfs.dweb.link' + '/' + fileName
+
+    
+    // return 'https://' + cid + '.ipfs.dweb.link' + '/' + fileName
+    let url = 'https://ipfs.io/ipfs/' + cid  
+    if(fileName) {
+        url += '/' + fileName;
+    }
+    
+    return url;
 }
