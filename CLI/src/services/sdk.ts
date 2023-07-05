@@ -24,7 +24,7 @@ export class Sdk{
         return rc?.logs[0].args[0];
     }
 
-    async mintNftAndApprove(tokenAddress: string, tokenUri: string) : Promise<number> {
+    async mintNftAndApprove(tokenAddress: string, tokenUri: string) : Promise<BigInt> {
         const tokenContract = new ethers.Contract(tokenAddress, limePlaceNftAbi.abi, this.signer);
         //wait transaction to complete in order to get listingId
         const tx = await tokenContract.mint(tokenUri);
@@ -58,7 +58,7 @@ export class Sdk{
         return tokenContract.tokenURI(tokenId);
     }
     
-    async list(tokenAddress: string, tokenId: number, price: BigInt) {
+    async list(tokenAddress: string, tokenId: BigInt, price: BigInt) {
         const options = {value: ethers.parseEther(this.LISTING_FEE.toString())}
         await this.limePlace.list(tokenAddress, tokenId, price, options);
     }

@@ -12,7 +12,7 @@ export class ListingHistory {
     
     @ApiProperty()
     @Column()
-    tokenId: number
+    tokenId: string
     
     @ApiProperty()
     @Column()

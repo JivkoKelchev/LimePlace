@@ -244,7 +244,7 @@ export const createNewAction = async () => {
             }
             await listExistingTokenAction(
                 collectionAddress.address, 
-                parseInt(Number(tokenId.id).toString()), 
+                BigInt(tokenId.id), 
                 parseFloat(Number(price.price).toString())
             );
         }
@@ -313,7 +313,7 @@ const mintAndListInExistingCollectionAction = async (tokenAddress: string) => {
     await homeAction();
 }
 
-export const listExistingTokenAction = async (tokenAddress: string, tokenId: number, price:number) => {
+export const listExistingTokenAction = async (tokenAddress: string, tokenId: BigInt, price:number) => {
     const sdk = await getSdk();
     await sdk.approve(tokenAddress);
     await sdk.list(tokenAddress, tokenId, ethers.parseEther(price.toString()))

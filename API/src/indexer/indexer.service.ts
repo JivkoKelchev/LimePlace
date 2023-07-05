@@ -194,7 +194,7 @@ export class IndexerService {
         console.log('event LogListingAdded')
         const listingEntity = new Listing();
         listingEntity.listingUid = listingId;
-        listingEntity.tokenId = Number(tokenId);
+        listingEntity.tokenId = tokenId.toString();
         listingEntity.owner = seller;
         listingEntity.price = Number(ethers.formatEther(price));
         listingEntity.active = true;
@@ -220,7 +220,7 @@ export class IndexerService {
         //update block info
         await this.blockInfoService.updateBlockInfo(blockNumber);
         //add history
-        await this.addHistoryToDB(listingId, Number(tokenId), seller, price, block.timestamp, 'CREATE')
+        await this.addHistoryToDB(listingId, tokenId.toString(), seller, price, block.timestamp, 'CREATE')
     }
     
     private async handleListingUpdatedEvent(listingId:string, price: BigNumberish, blockNumber: number) {
@@ -231,7 +231,7 @@ export class IndexerService {
         await this.listingService.saveListing(listing);
         await this.blockInfoService.updateBlockInfo(blockNumber);
 
-        await this.addHistoryToDB(listingId, listing.tokenId, listing.owner, price, block.timestamp, 'EDIT')
+        await this.addHistoryToDB(listingId, listing.tokenId.toString(), listing.owner, price, block.timestamp, 'EDIT')
     }
     
     private async handleCollectionCreatedEvent(collectionAddress:string, collectionOwner:string,
@@ -275,7 +275,7 @@ export class IndexerService {
     
     
     
-    private async addHistoryToDB(listingId: string, tokenId:number, owner:string, 
+    private async addHistoryToDB(listingId: string, tokenId:string, owner:string, 
                              price: BigNumberish, updatedAt: number, historyEvent: 'CREATE' | 'EDIT' | 'SOLD' | 'CANCEL') {
         const listingHistory = new ListingHistory();
         listingHistory.listingUid = listingId;
