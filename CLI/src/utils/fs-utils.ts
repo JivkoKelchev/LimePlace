@@ -9,3 +9,7 @@ export function getFileNameFromPath(filepath: string) : string {
     const i = filepath.lastIndexOf(path.sep);
     return (i < 0) ? '' : filepath.substring(i+1);
 }
+
+export function getNoImageFilePath(): string {
+    return path.resolve(__dirname) + path.sep + '..' + path.sep + 'resources' + path.sep + 'no-image.png';
+}

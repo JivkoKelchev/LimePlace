@@ -1,10 +1,12 @@
 import fs from 'fs'
 import {File, NFTStorage} from "nft.storage";
 import mime from "mime";
-import {getFileNameFromPath} from "../utils/fs-utils";
+import {getFileNameFromPath, getNoImageFilePath} from "../utils/fs-utils";
 import ConfigurationError from "../errors/ConfigurationError";
 import axios from "axios";
 import tmp from "tmp";
+import {isIPFS} from "ipfs-core";
+import chalk from "chalk";
 
 export interface Metadata {
     name: string,
@@ -34,6 +36,9 @@ export const uploadToIpfs = async (filePath: string, tokenName: string, tokenDes
 
 export const getFileFromIpfs = async (ipfsUrl: string) : Promise<string> => {
     const httpUrl = convertUrlToHttp(ipfsUrl);
+    if(httpUrl === ''){
+        return getNoImageFilePath();
+    }
     const response = await axios.get(httpUrl, { responseType: 'arraybuffer' });
 
     // Generate a temporary file name and create the temporary file
@@ -45,8 +50,11 @@ export const getFileFromIpfs = async (ipfsUrl: string) : Promise<string> => {
     return tempFile.name;
 }
 
-export const getMetaDataFromIpfs = async (ipfsUrl: string) : Promise<Metadata> => {
+export const getMetaDataFromIpfs = async (ipfsUrl: string) : Promise<Metadata | null> => {
     const httpUrl = convertUrlToHttp(ipfsUrl);
+    if(httpUrl === '') {
+        return null;
+    }
     const response = await axios.get(httpUrl, {responseType: 'json'});
     return response.data;
 }
@@ -59,17 +67,15 @@ const fileFromPath = async (filePath: string) => {
 }
 
 export const convertUrlToHttp = (ipfsUrl: string) => {
-    let cid = ipfsUrl.replace('ipfs://', '');
-    const i = cid.lastIndexOf('/');
-    const fileName = cid.substring(i + 1)
-    cid = cid.replace('/' + fileName, '');
-
-    
-    // return 'https://' + cid + '.ipfs.dweb.link' + '/' + fileName
-    let url = 'https://ipfs.io/ipfs/' + cid  
-    if(fileName) {
-        url += '/' + fileName;
+    if(isIPFS.ipfsUrl(ipfsUrl)){
+        if (isIPFS.ipfsUrl(ipfsUrl)) {
+            const cid = ipfsUrl.replace(/^ipfs:\/\//, '');
+            return `https://ipfs.io/ipfs/${cid}`;
+        }
+        return ipfsUrl;
     }
-    
-    return url;
+     else {
+        console.log(chalk.redBright('This token has invalid IPFS URL'))
+        return ''
+    }
 }

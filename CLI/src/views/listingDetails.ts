@@ -7,10 +7,12 @@ import CollectionModel from "../models/Collection";
 import ListingModel from "../models/Listing";
 
 export const renderListingDetails = async (
-    imagePath: string, metadata: Metadata, listing: ListingModel, prevPrice?: number) => {
+    imagePath: string, metadata: Metadata | null, listing: ListingModel, prevPrice?: number) => {
     await clearScreen();
     const image = await getImage(imagePath);
-    const imageUrl = convertUrlToHttp(metadata.image);
+    const imageUrl = metadata ? convertUrlToHttp(metadata.image) : chalk.redBright('Invalid metadata');
+    const name = metadata ? metadata.name : chalk.red('Invalid metadata');
+    const description = metadata ? metadata.description :chalk.red('Invalid metadata');
     
     //check previous price
     const currentPrice = listing.price;
@@ -35,8 +37,8 @@ export const renderListingDetails = async (
     
     const expirationFormatted = ListingService.formatExpirationDate(updatedAt);
     const currentPriceFormatted = Number.parseFloat(currentPrice.toString()).toString() + ' ETH';
-    let details  = `    Name        : ${metadata.name}\n\n`;
-    details += `    Description : ${metadata.description}\n\n`;
+    let details  = `    Name        : ${name}\n\n`;
+    details += `    Description : ${description}\n\n`;
     details += `    Collection  : ${listing.collection}\n\n`;
     details += `    Seller      : ${listing.owner}\n\n`;
     details += `    Price       : ${currentPriceFormatted} ${arrow} ${chalk.grey(prevPriceFormatted)}\n\n`;

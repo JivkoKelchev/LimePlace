@@ -49,6 +49,7 @@ import {listingNamePrompt} from "../views/menu/listings/listingNamePrompt";
 import {listingDescriptionPrompt} from "../views/menu/listings/listingDescriptioinPrompt";
 import {transactionWarning} from "../utils/common-utils";
 import {collectionsAction} from "./collectionsController";
+import {getNoImageFilePath} from "../utils/fs-utils";
 
 let queryState: ListingsQueryState = {
     page: 1,
@@ -154,8 +155,13 @@ export const viewListingAction = async (listingId: number) => {
     } else if(priceEdits.data.length > 1) {
         previousPrice = priceEdits.data[1].price;
     }
+    let imagePath;
     const metadata = await getMetaDataFromIpfs(tokenUri);
-    const imagePath = await getFileFromIpfs(metadata.image);
+    if(!metadata) {
+        imagePath = getNoImageFilePath();
+    } else {
+        imagePath = await getFileFromIpfs(metadata.image);
+    }
     
     await renderListingDetails(imagePath, metadata, listing, previousPrice);
     const signerAddress = await sdk.getSignerAddress();
