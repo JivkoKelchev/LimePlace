@@ -214,13 +214,15 @@ const filterVolumeAction = async () => {
 }
 
 const clearQueryAction = async () => {
-    await confirmPrompt('Clear all filters, sorts and searches?')
+    const confirm = await confirmPrompt('Clear all filters, sorts and searches?')
 
-    queryState = {
-        page: 1,
-        search: null,
-        sort: [],
-        fileter: []
+    if(confirm) {
+        queryState = {
+            page: 1,
+            search: null,
+            sort: [],
+            fileter: []
+        }
     }
 
     await collectionsAction();

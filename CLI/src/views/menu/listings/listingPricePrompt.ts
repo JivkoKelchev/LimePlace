@@ -13,7 +13,7 @@ const questions = [
 
             if(isNumeric(price)) {
                 if (parseFloat(price) < 0.0001) {
-                    return 'Price should be more than listing fee';
+                    return 'Price should be more than listing fee ( 0.0001 ETH )';
                 } else {
                     return true;
                 }

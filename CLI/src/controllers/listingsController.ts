@@ -47,6 +47,8 @@ import {listingPricePrompt} from "../views/menu/listings/listingPricePrompt";
 import ListingModel from "../models/Listing";
 import {listingNamePrompt} from "../views/menu/listings/listingNamePrompt";
 import {listingDescriptionPrompt} from "../views/menu/listings/listingDescriptioinPrompt";
+import {transactionWarning} from "../utils/common-utils";
+import {collectionsAction} from "./collectionsController";
 
 let queryState: ListingsQueryState = {
     page: 1,
@@ -162,31 +164,35 @@ export const viewListingAction = async (listingId: number) => {
     // redirect to actions
     switch (actionInput.menu) {
         case EDIT_PRICE_MENU_ITEM: {
+            await transactionWarning();
             const newPriceInput = await editListingPrompt();
+            if(newPriceInput.price === '<') {
+                await viewListingAction(listingId);
+            }
             const newPrice = ethers.parseEther(newPriceInput.price.toString());
             await sdk.editListing(listingUID, newPrice)
             await viewListingAction(listingId);
             break;
         }
         case CANCEL_LISTING_MENU_ITEM: {
+            await transactionWarning();
             const confirm = await confirmPrompt('Do you want to cancel listing?');
             if(confirm) {
                 const spinner = new Spinner('Cancel listing...')
                 await sdk.cancelListing(listingUID);
                 spinner.stopSpinner();
-                await viewListingAction(listingId);
             }
-            break;
+            await viewListingAction(listingId);
         }
         case BUY_NFT_MENU_ITEM: {
+            await transactionWarning();
             const confirm = await confirmPrompt('Do you want to buy?');
             if(confirm) {
                 const spinner = new Spinner('Transfer NFT...')
                 await sdk.buy(listingUID);
                 spinner.stopSpinner();
-                await viewListingAction(listingId);
             }
-            break;
+            await viewListingAction(listingId);
         }
         case BACK_MENU_ITEM:
         default: {
@@ -236,7 +242,11 @@ export const createNewAction = async () => {
             if(price.price === '<') {
                 await homeAction();
             }
-            await listExistingTokenAction(collectionAddress.address, parseInt(tokenId.id), parseFloat(price.price));
+            await listExistingTokenAction(
+                collectionAddress.address, 
+                parseInt(Number(tokenId.id).toString()), 
+                parseFloat(Number(price.price).toString())
+            );
         }
         case BACK_MENU_ITEM: {
             await homeAction();
@@ -256,7 +266,7 @@ const mintAndListInExistingCollectionAction = async (tokenAddress: string) => {
         await homeAction();
     }
     await printImage(imagePathInput.filePath)
-    const confirm = await confirmPrompt('Do you want to proceed?');
+    let confirm = await confirmPrompt('Do you want to proceed?');
     if(!confirm) {
         await homeAction();
     }
@@ -273,24 +283,29 @@ const mintAndListInExistingCollectionAction = async (tokenAddress: string) => {
     if(priceInput.price === '<') {
         return await homeAction();
     }
+    const price = Number(priceInput.price);
 
     //upload image to ipfs
     let spinner = new Spinner('Image is uploading...');
     //todo: uncomment and remove test url
     // const url = await uploadToIpfs(imagePathInput.filePath, nameInput.name, descriptionInput.description);
-    const url = 'https://bafyreihkp6fmltozum33pjhohawd6chpevovxpbkuc7ftbvygvhyixtwfu.ipfs.dweb.link/metadata.json'
+    const url = 'ipfs://bafyreihkp6fmltozum33pjhohawd6chpevovxpbkuc7ftbvygvhyixtwfu/metadata.json'
     spinner.stopSpinner();
     await infoMsg(`Metadata url: ${convertUrlToHttp(url)}`);
 
+    await transactionWarning();
+    confirm = await confirmPrompt('Do you want to continue?')
+    if (!confirm) {
+        await collectionsAction();
+    }
     //mint
     spinner = new Spinner('Minting...');
-
     const tokenId = await sdk.mintNftAndApprove(tokenAddress, url);
     spinner.stopSpinner();
 
     //list
     spinner = new Spinner('Listing..')
-    await sdk.list(tokenAddress, tokenId, ethers.parseEther(priceInput.price) )
+    await sdk.list(tokenAddress, tokenId, ethers.parseEther(price.toString()) )
     spinner.stopSpinner();
     await infoMsg('Token is listed', true);
 
@@ -304,6 +319,11 @@ export const listExistingTokenAction = async (tokenAddress: string, tokenId: num
 }
 
 const mintAndListInNewCollectionAction = async (collectionName: string, collectionsSymbol: string) => {
+    await transactionWarning();
+    const confirm = await confirmPrompt('Do you want to continue?')
+    if(!confirm) {
+        await homeAction();
+    }
     const sdk = await getSdk();
     const spinner = new Spinner('Creating collection...')
     const tokenAddress = await sdk.createERC721Collection(collectionName, collectionsSymbol);
@@ -359,13 +379,15 @@ const sortPriceActions = async () => {
 }
 
 const clearQueryAction = async () => {
-    await confirmPrompt('Clear all filters, sorts and searches?')
+    const confirm = await confirmPrompt('Clear all filters, sorts and searches?')
 
-    queryState = {
-        page: 1,
-        search: null,
-        sort: [],
-        fileter: []
+    if(confirm) {
+        queryState = {
+            page: 1,
+            search: null,
+            sort: [],
+            fileter: []
+        }
     }
 
     await listingsAction();
