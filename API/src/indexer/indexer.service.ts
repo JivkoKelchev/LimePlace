@@ -1,4 +1,4 @@
-import {Inject, Injectable} from '@nestjs/common';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {ethers, BigNumberish, Contract} from 'ethers';
 import { getProvider } from '../ethers.provider';
 import {Listing} from "../listings/listing.entity";
@@ -11,12 +11,14 @@ import {ListingHistory} from "../listingsHistory/listingHistory.entity";
 import {CollectionsService} from "../collections/collections.service";
 import {Collection} from "../collections/collections.enitity";
 import * as nftAbi from'../artifacts/LimePlaceNFT.json';
+import {Cron, CronExpression} from "@nestjs/schedule";
 
 @Injectable()
 export class IndexerService {
     private readonly provider: ethers.JsonRpcProvider;
     private readonly contractAddress: string;
     private readonly contractABI: any;
+    private readonly logger = new Logger(IndexerService.name);
 
     constructor(@Inject(ListingsService) private readonly listingService: ListingsService,
                 @Inject(ListingsHistoryService) private readonly listingsHistoryService: ListingsHistoryService,
@@ -38,154 +40,65 @@ export class IndexerService {
             this.provider,
         );
         //parse any missed old events (from last processed block - to current block)
-        const lastBlockNumber = await this.blockInfoService.getLastBlock() + 1;
-        const currentBlockNumber = await this.provider.getBlockNumber() + 1;
+        let startBlock = await this.blockInfoService.getLastBlock();
+        const endBlock = await this.provider.getBlockNumber();
         
-        const logListingAddedFilter = contract.filters.LogListingAdded();
-        const logListingUpdatedFilter = contract.filters.LogListingUpdated();
-        const logListingCanceledFilter = contract.filters.LogListingCanceled();
-        const logListingSoldFilter = contract.filters.LogListingSold();
-        const logCollectionAddedFilter = contract.filters.LogCollectionCreated();
-        
-        const listingAddedEvents = await contract.queryFilter(logListingAddedFilter, lastBlockNumber, currentBlockNumber);
-        const listingUpdatedEvents = await contract.queryFilter(logListingUpdatedFilter, lastBlockNumber, currentBlockNumber);
-        const listingCanceledEvents = await contract.queryFilter(logListingCanceledFilter, lastBlockNumber, currentBlockNumber);
-        const listingSoldEvents = await contract.queryFilter(logListingSoldFilter, lastBlockNumber, currentBlockNumber);
-        const collectionAddedEvents = await contract.queryFilter(logCollectionAddedFilter, lastBlockNumber, currentBlockNumber);
-        
-        
-        const iface = new ethers.Interface(this.contractABI);
-
-        console.log('--------------------------------------')
-        console.log('Old events: ')
-        //index old events
-        for (const eventLog of collectionAddedEvents) {
-            const decodedArgs = iface.decodeEventLog('LogCollectionCreated', eventLog.data,);
-            console.log('LogCollectionCreated', eventLog.blockNumber, decodedArgs);
-            await this.handleCollectionCreatedEvent(decodedArgs[0], decodedArgs[1], decodedArgs[2], decodedArgs[3], eventLog.blockNumber);
+        if(startBlock === endBlock) {
+            return;
         }
 
-        for (const eventLog of listingAddedEvents) {
-            const decodedArgs = iface.decodeEventLog('LogListingAdded', eventLog.data,);
-            console.log('LogListingAdded', eventLog.blockNumber, decodedArgs)
-            await this.handleListingAddedEvent(decodedArgs[0], decodedArgs[1], decodedArgs[2], decodedArgs[3], decodedArgs[4], eventLog.blockNumber)
-        }
+        for(let i = startBlock; i < endBlock; i += 5000) {
+            const _startBlock = i;
+            const _endBlock = Math.min(endBlock, i + 4999);
 
-        for (const eventLog of listingUpdatedEvents) {
-            const decodedArgs = iface.decodeEventLog('LogListingUpdated', eventLog.data,);
-            console.log('LogListingUpdated', decodedArgs)
-            await this.handleListingUpdatedEvent(decodedArgs[0], decodedArgs[1], eventLog.blockNumber);
-        }
+            const logListingAddedFilter = contract.filters.LogListingAdded();
+            const logListingUpdatedFilter = contract.filters.LogListingUpdated();
+            const logListingCanceledFilter = contract.filters.LogListingCanceled();
+            const logListingSoldFilter = contract.filters.LogListingSold();
+            const logCollectionAddedFilter = contract.filters.LogCollectionCreated();
+
+            const listingAddedEvents = await contract.queryFilter(logListingAddedFilter, _startBlock, _endBlock);
+            const listingUpdatedEvents = await contract.queryFilter(logListingUpdatedFilter, _startBlock, _endBlock);
+            const listingCanceledEvents = await contract.queryFilter(logListingCanceledFilter, _startBlock, _endBlock);
+            const listingSoldEvents = await contract.queryFilter(logListingSoldFilter, _startBlock, _endBlock);
+            const collectionAddedEvents = await contract.queryFilter(logCollectionAddedFilter, _startBlock, _endBlock);
 
 
-        for (const eventLog of listingCanceledEvents) {
-            const decodedArgs = iface.decodeEventLog('LogListingCanceled', eventLog.data,);
-            console.log('LogListingCanceled',decodedArgs)
-            await this.handleListingCanceledEvent(decodedArgs[0], eventLog.blockNumber)
-        }
+            const iface = new ethers.Interface(this.contractABI);
 
-        //todo handle sold!!!
-        for (const eventLog of listingSoldEvents) {
-            const decodedArgs = iface.decodeEventLog('LogListingSold', eventLog.data,);
-            console.log('LogListingSold', decodedArgs)
-            await this.handleListingSoldEvent(decodedArgs[0], decodedArgs[1], decodedArgs[2], eventLog.blockNumber)
-        }
-        
-        console.log('--------------------------------------')
-        
-        //add listeners for all new events
-        await this.listenForLogListingAdded(contract);
-        
-        await this.listenForLogListingUpdated(contract);
-        
-        await this.listenForLogListingCanceled(contract);
-        
-        await this.listenForLogListingSold(contract);
-
-        await this.listenForLogCollectionCreated(contract);
-        
-        
-    }
-    
-    private listenForLogListingAdded = async (contract: Contract) => {
-        await contract.on(
-            'LogListingAdded',
-                async(listingId: string, tokenContract: string, tokenId: number, seller: string, price: BigNumberish) => {
-                const lastBlockNumber = await this.blockInfoService.getLastBlock();
-                const blockNumber = await this.provider.getBlockNumber();
-                if(blockNumber === lastBlockNumber) {
-                    //todo check if listing exist (we may have multiple listings in same block)
-                    return;
-                }
-                await this.handleListingAddedEvent(listingId, tokenContract, tokenId, seller, price, blockNumber)
-            },
-        );
-    }
-    
-    
-    
-    private listenForLogListingUpdated = async (contract: Contract) => {
-        //event LogListingUpdated(bytes32 listingId, uint256 price);
-        await contract.on(
-            'LogListingUpdated',
-            async (listingId: string, price:BigNumberish) => {
-                const lastBlockNumber = await this.blockInfoService.getLastBlock();
-                const blockNumber = await this.provider.getBlockNumber();
-                if(blockNumber === lastBlockNumber) {
-                    //todo check if listing exist (we may have multiple listings in same block)
-                    return;
-                }
-                await this.handleListingUpdatedEvent(listingId, price, blockNumber );
+            for (const eventLog of collectionAddedEvents) {
+                const decodedArgs = iface.decodeEventLog('LogCollectionCreated', eventLog.data,);
+                await this.handleCollectionCreatedEvent(decodedArgs[0], decodedArgs[1], decodedArgs[2], decodedArgs[3], eventLog.blockNumber);
             }
-        );
+
+            for (const eventLog of listingAddedEvents) {
+                const decodedArgs = iface.decodeEventLog('LogListingAdded', eventLog.data,);
+                await this.handleListingAddedEvent(decodedArgs[0], decodedArgs[1], decodedArgs[2], decodedArgs[3], decodedArgs[4], eventLog.blockNumber)
+            }
+
+            for (const eventLog of listingUpdatedEvents) {
+                const decodedArgs = iface.decodeEventLog('LogListingUpdated', eventLog.data,);
+                await this.handleListingUpdatedEvent(decodedArgs[0], decodedArgs[1], eventLog.blockNumber);
+            }
+
+
+            for (const eventLog of listingCanceledEvents) {
+                const decodedArgs = iface.decodeEventLog('LogListingCanceled', eventLog.data,);
+                await this.handleListingCanceledEvent(decodedArgs[0], eventLog.blockNumber)
+            }
+
+            //todo handle sold!!!
+            for (const eventLog of listingSoldEvents) {
+                const decodedArgs = iface.decodeEventLog('LogListingSold', eventLog.data,);
+                await this.handleListingSoldEvent(decodedArgs[0], decodedArgs[1], decodedArgs[2], eventLog.blockNumber)
+            }
+        }
     }
 
-    private listenForLogCollectionCreated = async (contract: Contract) => {
-        //event LogCollectionCreated(address collectionAddress, address collectionOwner, string name, string symbol);
-        await contract.on(
-            'LogCollectionCreated',
-            async (collectionAddress: string, collectionOwner:string, name: string, symbol: string) => {
-                const lastBlockNumber = await this.blockInfoService.getLastBlock();
-                const blockNumber = await this.provider.getBlockNumber();
-                if(blockNumber === lastBlockNumber) {
-                    //todo check if listing exist (we may have multiple listings in same block)
-                    return;
-                }
-                await this.handleCollectionCreatedEvent(collectionAddress, collectionOwner, name, symbol, blockNumber)
-            }
-        );
-    }
-    
-    private listenForLogListingCanceled = async (contract: Contract) => {
-        //event LogListingCanceled(bytes32 listingId, bool active);
-        await contract.on(
-            'LogListingCanceled',
-            async (listingId: string) => {
-                const lastBlockNumber = await this.blockInfoService.getLastBlock();
-                const blockNumber = await this.provider.getBlockNumber();
-                if(blockNumber === lastBlockNumber) {
-                    //todo check if listing exist (we may have multiple listings in same block)
-                    return;
-                }
-                await this.handleListingCanceledEvent(listingId, blockNumber);
-            }
-        );
-    }
-    
-    private listenForLogListingSold = async (contract: Contract) => {
-        //event LogListingSold(bytes32 listingId, address buyer, uint256 price);
-        await contract.on(
-            'LogListingSold',
-            async (listingId: string, buyer: string, price: BigNumberish) => {
-                const lastBlockNumber = await this.blockInfoService.getLastBlock();
-                const blockNumber = await this.provider.getBlockNumber();
-                if(blockNumber === lastBlockNumber) {
-                    //todo check if listing exist (we may have multiple listings in same block)
-                    return;
-                }
-                await this.handleListingSoldEvent(listingId, buyer, price, blockNumber);
-            }
-        );
+    @Cron(CronExpression.EVERY_10_SECONDS)
+    async handleCron() {
+        await this.listenToEvents();
+        this.logger.debug('Listening for events...');
     }
     
     private async handleListingAddedEvent( listingId: string, tokenContract: string, tokenId: BigNumberish, seller: string, 

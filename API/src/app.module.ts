@@ -11,6 +11,7 @@ import {BlockInfo} from "./blockInfo/blockInfo.enitity";
 import {BlockInfoModule} from "./blockInfo/blockInfo.module";
 import {Collection} from "./collections/collections.enitity";
 import {CollectionsModule} from "./collections/collections.module";
+import {ScheduleModule} from "@nestjs/schedule";
 
 @Module({
     imports: [
@@ -19,6 +20,7 @@ import {CollectionsModule} from "./collections/collections.module";
         ListingsHistoryModule,
         BlockInfoModule,
         CollectionsModule,
+        ScheduleModule.forRoot(),
         ConfigModule.forRoot({
             isGlobal: true,
         }),

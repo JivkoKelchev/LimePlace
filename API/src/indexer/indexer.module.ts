@@ -7,6 +7,5 @@ import {CollectionsModule} from "../collections/collections.module";
 
 @Module({
     imports: [ListingsModule, ListingsHistoryModule, BlockInfoModule, CollectionsModule],
-    providers: [IndexerService]
 })
 export class IndexerModule {}
