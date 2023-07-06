@@ -1,18 +1,20 @@
 import {clearScreen, combineArt, getImage, padArt} from "../utils/view-utils";
-import {convertUrlToHttp, Metadata} from "../services/ipfs";
+import {convertIpfsToHttps, Metadata} from "../services/ipfs";
 import chalk from "chalk";
 import {ethers} from "ethers";
 import {ListingService} from "../services/listingService";
 import CollectionModel from "../models/Collection";
 import ListingModel from "../models/Listing";
+import {Api} from "../services/api";
 
 export const renderListingDetails = async (
     imagePath: string, metadata: Metadata | null, listing: ListingModel, prevPrice?: number) => {
     await clearScreen();
     const image = await getImage(imagePath);
-    const imageUrl = metadata ? convertUrlToHttp(metadata.image) : chalk.redBright('Invalid metadata');
+    const imageUrl = metadata ? convertIpfsToHttps(metadata.image) : chalk.redBright('Invalid metadata');
     const name = metadata ? metadata.name : chalk.red('Invalid metadata');
     const description = metadata ? metadata.description :chalk.red('Invalid metadata');
+    const collection = await Api.getCollection(listing.collection);
     
     //check previous price
     const currentPrice = listing.price;
@@ -39,11 +41,12 @@ export const renderListingDetails = async (
     const currentPriceFormatted = Number.parseFloat(currentPrice.toString()).toString() + ' ETH';
     let details  = `    Name        : ${name}\n\n`;
     details += `    Description : ${description}\n\n`;
-    details += `    Collection  : ${listing.collection}\n\n`;
-    details += `    Seller      : ${listing.owner}\n\n`;
+    details += `    Collection  : ${collection.name} (${collection.symbol})\n\n`;
     details += `    Price       : ${currentPriceFormatted} ${arrow} ${chalk.grey(prevPriceFormatted)}\n\n`;
     details += `    Expiration  : ${expirationFormatted}\n\n`;
     details += `    Status      : ${status}\n\n`;
+    details += `    Seller      : ${listing.owner}\n\n`;
+    details += `    Token ID    : ${listing.tokenId}\n\n`;
     details += `    Listing UID : ${listing.listingUid}\n\n`;
     details += `    Image URL   : ${imageUrl}`;
     const paddedDetails = padArt(details, 20);

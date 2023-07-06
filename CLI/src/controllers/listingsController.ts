@@ -3,7 +3,7 @@ import {homeAction} from "./homeController";
 import {getSdk} from "./connectionController";
 import {printImage} from "../utils/view-utils";
 import {confirmPrompt} from "../views/genericUI/confirmationPrompt";
-import {convertUrlToHttp, getFileFromIpfs, getMetaDataFromIpfs, uploadToIpfs} from "../services/ipfs";
+import {convertIpfsToHttps, getFileFromIpfs, getMetaDataFromIpfs, uploadToIpfs} from "../services/ipfs";
 import Spinner from "../views/genericUI/spinner";
 import {infoMsg} from "../views/genericUI/infoMsg";
 import {Api} from "../services/api";
@@ -189,6 +189,7 @@ export const viewListingAction = async (listingId: number) => {
                 spinner.stopSpinner();
             }
             await viewListingAction(listingId);
+            break;
         }
         case BUY_NFT_MENU_ITEM: {
             await transactionWarning();
@@ -199,6 +200,7 @@ export const viewListingAction = async (listingId: number) => {
                 spinner.stopSpinner();
             }
             await viewListingAction(listingId);
+            break;
         }
         case BACK_MENU_ITEM:
         default: {
@@ -253,6 +255,7 @@ export const createNewAction = async () => {
                 BigInt(tokenId.id), 
                 parseFloat(Number(price.price).toString())
             );
+            break;
         }
         case BACK_MENU_ITEM: {
             await homeAction();
@@ -297,7 +300,7 @@ const mintAndListInExistingCollectionAction = async (tokenAddress: string) => {
     // const url = await uploadToIpfs(imagePathInput.filePath, nameInput.name, descriptionInput.description);
     const url = 'ipfs://bafyreihkp6fmltozum33pjhohawd6chpevovxpbkuc7ftbvygvhyixtwfu/metadata.json'
     spinner.stopSpinner();
-    await infoMsg(`Metadata url: ${convertUrlToHttp(url)}`);
+    await infoMsg(`Metadata url: ${convertIpfsToHttps(url)}`);
 
     await transactionWarning();
     confirm = await confirmPrompt('Do you want to continue?')
