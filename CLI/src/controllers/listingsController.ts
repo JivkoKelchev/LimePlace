@@ -16,6 +16,7 @@ import {editListingPrompt} from "../views/menu/listings/editListingPricePrompt";
 import {ListingService} from "../services/listingService";
 import {ethers} from "ethers";
 import {
+    ADD_LISTING_MENU_ITEM,
     BACK_MENU_ITEM,
     BUY_NFT_MENU_ITEM,
     CANCEL_LISTING_MENU_ITEM,
@@ -35,7 +36,7 @@ import {
     USE_EXISTING_COLLECTION_MENU_ITEM,
     VIEW_LISTING_MENU_ITEM
 } from "../views/menu/menuItemsConstants";
-import {selectCollectionMenu} from "../views/menu/collections/selectCollectionMenu";
+import {createNewMenu} from "../views/menu/createNewMenu";
 import {collectionNamePrompt, collectionSymbolPrompt} from "../views/menu/collections/collectionNamePrompt";
 import {useCollectionPrompt} from "../views/menu/collections/useCollectionPrompt";
 import {listingsQueryMenu} from "../views/menu/listings/listingsQueryMenu";
@@ -91,6 +92,10 @@ export const listingsAction = async () => {
         }
         case SEARCH_MENU_ITEM: {
             await listingsQueryAction();
+            break;
+        }
+        case ADD_LISTING_MENU_ITEM: {
+            await createNewAction();
             break;
         }
         case MAIN_MENU_ITEM: 
@@ -210,7 +215,7 @@ export const viewListingAction = async (listingId: number) => {
 }
 
 export const createNewAction = async () => {
-    const collectionSelectionInput = await selectCollectionMenu();
+    const collectionSelectionInput = await createNewMenu();
     switch (collectionSelectionInput.menu) {
         case CREATE_NEW_COLLECTION_MENU_ITEM: {
             const collectionName = await collectionNamePrompt();
