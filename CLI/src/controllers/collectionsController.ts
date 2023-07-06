@@ -28,7 +28,7 @@ import {ListingService} from "../services/listingService";
 let queryState: CollectionsQueryState = {
     page: 1,
     search: null,
-    sort: [],
+    sort: [{listings: 'DESC'}],
     fileter: []
 }
 

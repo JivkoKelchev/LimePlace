@@ -60,7 +60,6 @@ export class CollectionsService {
                 .select('listing.collection', 'collection')
                 .addSelect('MIN(listing.price) as floor')
                 .from(Listing, "listing")
-                //join listing to map: history->listing->collection
                 .where("listing.active=1")
                 .groupBy('listing.collection')
         }, 'floor', 'floor.collection = coll.address');
@@ -71,6 +70,7 @@ export class CollectionsService {
                 .addSelect('MAX(listing.active) as active')
                 .addSelect('COUNT(*) as count')
                 .from(Listing, "listing")
+                .where("listing.active=1")
                 .groupBy('listing.collection')
         }, 'activeCollections', 'activeCollections.collection = coll.address');
 
