@@ -3,7 +3,7 @@ import {ethers, Signer} from "ethers";
 import {Sdk} from "../services/sdk";
 // @ts-ignore
 import {MetaMaskSDK} from "@metamask/sdk";
-import {LOCAL_MENU_ITEM, TESTNETS_MENU_ITEM} from "../views/menu/menuItemsConstants";
+import {LOCAL_MENU_ITEM, SEPOLIA_MENU_ITEM} from "../views/menu/menuItemsConstants";
 import {localSignerAddressPrompt} from "../views/menu/connection/localSignerAddressPrompt";
 
 let sdkInstance: Sdk | null = null;
@@ -25,9 +25,9 @@ const connect = async (network: string) : Promise<Sdk> => {
             //const data = await localNetworkPrompts();
             return await initSdkForLocalNetwork();
         }
-        case TESTNETS_MENU_ITEM: 
+        case SEPOLIA_MENU_ITEM: 
         default: {
-            return await initSdk();
+            return await initSdkSepolia();
         }
     }
     
@@ -47,20 +47,20 @@ const initSdkForLocalNetwork = async  () : Promise<Sdk> => {
         const addressInput = await localSignerAddressPrompt();
         signer = await provider.getSigner(addressInput.address);
     }
-    sdkInstance = new Sdk(provider, `${process.env.LOC_LIME_PLACE_ADR}`, `${process.env.LOC_LIME_PLACE_NFT_ADR}`, signer);
+    sdkInstance = new Sdk(provider, `${process.env.LOC_LIME_PLACE_ADR}`, signer);
     instanceCreated = true;
     return sdkInstance;
 }
 
-const initSdk = async () : Promise<Sdk> => {
+const initSdkSepolia = async () : Promise<Sdk> => {
     const MMSDK = new MetaMaskSDK({dappMetadata : {name: "LimePlace"}});
     const ethereum = await MMSDK.getProvider();
     // @ts-ignore
     await ethereum.request({ method: 'eth_requestAccounts', params: [] });
 
-    const provider = new ethers.JsonRpcProvider(ethereum);
+    const provider = new ethers.BrowserProvider(ethereum);
     const signer = await provider.getSigner();
-    sdkInstance = new Sdk(provider, `${process.env.LOC_LIME_PLACE_ADR}`, `${process.env.LOC_LIME_PLACE_NFT_ADR}`, signer);
+    sdkInstance = new Sdk(provider, `${process.env.SEP_LIME_PLACE_ADR}`, signer);
     instanceCreated = true;
     return sdkInstance;
 }

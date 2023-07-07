@@ -8,7 +8,7 @@ async function bootstrap() {
    
     //start indexer
     const indexerService = app.get(IndexerService);
-    await indexerService.listenToEvents();
+    await indexerService.indexOldEvents();
     
     await app.startAllMicroservices();
 

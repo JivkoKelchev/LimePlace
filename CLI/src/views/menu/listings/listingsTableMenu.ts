@@ -3,7 +3,7 @@ import {
     ADD_LISTING_MENU_ITEM,
     MAIN_MENU_ITEM, MY_LISTINGS_MENU_ITEM,
     NEXT_PAGE_MENU_ITEM,
-    PREV_PAGE_MENU_ITEM, SEARCH_MENU_ITEM,
+    PREV_PAGE_MENU_ITEM, REFRESH_MENU_ITEM, SEARCH_MENU_ITEM,
     VIEW_LISTING_MENU_ITEM
 } from "../menuItemsConstants";
 
@@ -21,6 +21,7 @@ const mainPrompt = {
 
 export const activeListingsMenu = async (hasNext: boolean, hasPrev: boolean) => {
     let activeListingsMenuList = [
+        REFRESH_MENU_ITEM,
         SEARCH_MENU_ITEM,
         MY_LISTINGS_MENU_ITEM,
         VIEW_LISTING_MENU_ITEM,

@@ -18,6 +18,7 @@ export class IndexerService {
     private readonly provider: ethers.JsonRpcProvider;
     private readonly contractAddress: string;
     private readonly contractABI: any;
+    private indexing:boolean = true;
     private readonly logger = new Logger(IndexerService.name);
 
     constructor(@Inject(ListingsService) private readonly listingService: ListingsService,
@@ -33,16 +34,21 @@ export class IndexerService {
         this.contractABI = limePlaceAbi.abi;
    }
 
-    async listenToEvents() {
-        const contract = new ethers.Contract(
-            this.contractAddress,
-            this.contractABI,
-            this.provider,
-        );
+    async indexOldEvents() {
         //parse any missed old events (from last processed block - to current block)
+        this.logger.debug('------------------------------------');
+        this.logger.debug('Indexing is started');
         let startBlock = await this.blockInfoService.getLastBlock();
-        const endBlock = await this.provider.getBlockNumber();
         
+        //todo set contract block in .env
+        //For start indexing use contract block number or last processed block
+        startBlock = startBlock < 3840910 ? 3840910 : startBlock;
+        const endBlock = await this.provider.getBlockNumber();
+        this.logger.debug('------------------------------------');
+        this.logger.debug('Latest block number   : ' + endBlock);
+        this.logger.debug('Last processed block  : ' + startBlock);
+        this.logger.debug('Total Blocks to index : ' + (endBlock - startBlock))
+        this.logger.debug('------------------------------------');
         if(startBlock === endBlock) {
             return;
         }
@@ -50,55 +56,89 @@ export class IndexerService {
         for(let i = startBlock; i < endBlock; i += 5000) {
             const _startBlock = i;
             const _endBlock = Math.min(endBlock, i + 4999);
+            this.logger.debug('Chunk  : ' + _startBlock + '-' + _endBlock);
+            await this.listenForEvents(_startBlock, _endBlock)
 
-            const logListingAddedFilter = contract.filters.LogListingAdded();
-            const logListingUpdatedFilter = contract.filters.LogListingUpdated();
-            const logListingCanceledFilter = contract.filters.LogListingCanceled();
-            const logListingSoldFilter = contract.filters.LogListingSold();
-            const logCollectionAddedFilter = contract.filters.LogCollectionCreated();
-
-            const listingAddedEvents = await contract.queryFilter(logListingAddedFilter, _startBlock, _endBlock);
-            const listingUpdatedEvents = await contract.queryFilter(logListingUpdatedFilter, _startBlock, _endBlock);
-            const listingCanceledEvents = await contract.queryFilter(logListingCanceledFilter, _startBlock, _endBlock);
-            const listingSoldEvents = await contract.queryFilter(logListingSoldFilter, _startBlock, _endBlock);
-            const collectionAddedEvents = await contract.queryFilter(logCollectionAddedFilter, _startBlock, _endBlock);
-
-
-            const iface = new ethers.Interface(this.contractABI);
-
-            for (const eventLog of collectionAddedEvents) {
-                const decodedArgs = iface.decodeEventLog('LogCollectionCreated', eventLog.data,);
-                await this.handleCollectionCreatedEvent(decodedArgs[0], decodedArgs[1], decodedArgs[2], decodedArgs[3], eventLog.blockNumber);
-            }
-
-            for (const eventLog of listingAddedEvents) {
-                const decodedArgs = iface.decodeEventLog('LogListingAdded', eventLog.data,);
-                await this.handleListingAddedEvent(decodedArgs[0], decodedArgs[1], decodedArgs[2], decodedArgs[3], decodedArgs[4], eventLog.blockNumber)
-            }
-
-            for (const eventLog of listingUpdatedEvents) {
-                const decodedArgs = iface.decodeEventLog('LogListingUpdated', eventLog.data,);
-                await this.handleListingUpdatedEvent(decodedArgs[0], decodedArgs[1], eventLog.blockNumber);
-            }
-
-
-            for (const eventLog of listingCanceledEvents) {
-                const decodedArgs = iface.decodeEventLog('LogListingCanceled', eventLog.data,);
-                await this.handleListingCanceledEvent(decodedArgs[0], eventLog.blockNumber)
-            }
-
-            //todo handle sold!!!
-            for (const eventLog of listingSoldEvents) {
-                const decodedArgs = iface.decodeEventLog('LogListingSold', eventLog.data,);
-                await this.handleListingSoldEvent(decodedArgs[0], decodedArgs[1], decodedArgs[2], eventLog.blockNumber)
-            }
+            await this.blockInfoService.updateBlockInfo(_endBlock);
         }
+        this.logger.debug('------------------------------------');
+        this.logger.debug('Indexing is done');
+        this.logger.debug('------------------------------------');
+        this.indexing = false;
+    }
+    
+    async listenForEvents(_startBlock?:number, _endBlock?:number) {
+        if(!_startBlock) {
+            _startBlock = await this.blockInfoService.getLastBlock();
+        }
+        
+        if(!_endBlock) {
+            _endBlock = await this.provider.getBlockNumber();
+        }
+
+        if(_startBlock === _endBlock) {
+            return;
+        }
+
+        _startBlock++; //get next block to proccess
+        
+        this.logger.debug('Polling blocks: ' + _startBlock + '-' + _endBlock);
+        const contract = new ethers.Contract(
+            this.contractAddress,
+            this.contractABI,
+            this.provider,
+        );
+        
+        const logListingAddedFilter = contract.filters.LogListingAdded();
+        const logListingUpdatedFilter = contract.filters.LogListingUpdated();
+        const logListingCanceledFilter = contract.filters.LogListingCanceled();
+        const logListingSoldFilter = contract.filters.LogListingSold();
+        const logCollectionAddedFilter = contract.filters.LogCollectionCreated();
+
+        const listingAddedEvents = await contract.queryFilter(logListingAddedFilter, _startBlock, _endBlock);
+        const listingUpdatedEvents = await contract.queryFilter(logListingUpdatedFilter, _startBlock, _endBlock);
+        const listingCanceledEvents = await contract.queryFilter(logListingCanceledFilter, _startBlock, _endBlock);
+        const listingSoldEvents = await contract.queryFilter(logListingSoldFilter, _startBlock, _endBlock);
+        const collectionAddedEvents = await contract.queryFilter(logCollectionAddedFilter, _startBlock, _endBlock);
+
+
+        const iface = new ethers.Interface(this.contractABI);
+
+        for (const eventLog of collectionAddedEvents) {
+            const decodedArgs = iface.decodeEventLog('LogCollectionCreated', eventLog.data,);
+            await this.handleCollectionCreatedEvent(decodedArgs[0], decodedArgs[1], decodedArgs[2], decodedArgs[3], eventLog.blockNumber);
+        }
+
+        for (const eventLog of listingAddedEvents) {
+            const decodedArgs = iface.decodeEventLog('LogListingAdded', eventLog.data,);
+            await this.handleListingAddedEvent(decodedArgs[0], decodedArgs[1], decodedArgs[2], decodedArgs[3], decodedArgs[4], eventLog.blockNumber)
+        }
+
+        for (const eventLog of listingUpdatedEvents) {
+            const decodedArgs = iface.decodeEventLog('LogListingUpdated', eventLog.data,);
+            await this.handleListingUpdatedEvent(decodedArgs[0], decodedArgs[1], eventLog.blockNumber);
+        }
+
+
+        for (const eventLog of listingCanceledEvents) {
+            const decodedArgs = iface.decodeEventLog('LogListingCanceled', eventLog.data,);
+            await this.handleListingCanceledEvent(decodedArgs[0], eventLog.blockNumber)
+        }
+
+        for (const eventLog of listingSoldEvents) {
+            const decodedArgs = iface.decodeEventLog('LogListingSold', eventLog.data,);
+            await this.handleListingSoldEvent(decodedArgs[0], decodedArgs[1], decodedArgs[2], eventLog.blockNumber)
+        }
+
+        await this.blockInfoService.updateBlockInfo(_endBlock);
     }
 
     @Cron(CronExpression.EVERY_10_SECONDS)
     async handleCron() {
-        await this.listenToEvents();
-        this.logger.debug('Listening for events...');
+        //start listening after initial indexing is finish
+        if(!this.indexing) {
+            await this.listenForEvents();
+        }
     }
     
     private async handleListingAddedEvent( listingId: string, tokenContract: string, tokenId: BigNumberish, seller: string, 

@@ -1,6 +1,6 @@
 //connection
 export const LOCAL_MENU_ITEM = 'Local';
-export const TESTNETS_MENU_ITEM = 'Testnets';
+export const SEPOLIA_MENU_ITEM = 'Sepolia';
 
 //main menu items
 export const COLLECTIONS_MENU_ITEM = 'Collections';
@@ -11,7 +11,7 @@ export const EXIT_MENU_ITEM = 'Exit'
 //Collections menu items
 export const MY_COLLECTIONS_MENU_ITEM = 'My collections';
 export const USE_EXISTING_COLLECTION_MENU_ITEM = 'List new token in existing collection';
-export const CREATE_NEW_COLLECTION_MENU_ITEM = 'List new token in new collection'
+export const CREATE_NEW_COLLECTION_MENU_ITEM = 'New collection'
 export const LIST_EXISTING_TOKEN_MENU_ITEM = 'List existing token';
 //collections query
 export const SEARCH_BY_COL_NAME_MENU_ITEM = 'Search by NAME'
@@ -39,6 +39,7 @@ export const FILTER_BY_PRICE_MENU_ITEM = 'Fileter by price';
 export const FILTER_BY_COLLECTION_MENU_ITEM = 'Filter by collections';
 
 //Common menu item
+export const REFRESH_MENU_ITEM = 'Refresh'
 export const SEARCH_MENU_ITEM = 'Search | Filter | Sort';
 export const NEXT_PAGE_MENU_ITEM = 'Next page';
 export const PREV_PAGE_MENU_ITEM = 'Previous page';

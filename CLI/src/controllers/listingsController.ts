@@ -30,7 +30,7 @@ import {
     MAIN_MENU_ITEM,
     MY_LISTINGS_MENU_ITEM,
     NEXT_PAGE_MENU_ITEM,
-    PREV_PAGE_MENU_ITEM,
+    PREV_PAGE_MENU_ITEM, REFRESH_MENU_ITEM,
     SEARCH_MENU_ITEM,
     SORT_BY_PRICE_MENU_ITEM,
     USE_EXISTING_COLLECTION_MENU_ITEM,
@@ -69,6 +69,10 @@ export const listingsAction = async () => {
     
     //redirect to actions
     switch (actionInput.menu) {
+        case REFRESH_MENU_ITEM: {
+            await listingsAction();
+            break;
+        }
         case NEXT_PAGE_MENU_ITEM: {
             queryState.page = currentPage + 1;
             await listingsAction();
@@ -180,8 +184,12 @@ export const viewListingAction = async (listingId: number) => {
             if(newPriceInput.price === '<') {
                 await viewListingAction(listingId);
             }
+            const spinner = new Spinner('Changing price')
             const newPrice = ethers.parseEther(newPriceInput.price.toString());
             await sdk.editListing(listingUID, newPrice)
+            spinner.stopSpinner();
+
+            await infoMsg('The price is changed. Updates will be available soon...', true);
             await viewListingAction(listingId);
             break;
         }
@@ -189,10 +197,12 @@ export const viewListingAction = async (listingId: number) => {
             await transactionWarning();
             const confirm = await confirmPrompt('Do you want to cancel listing?');
             if(confirm) {
-                const spinner = new Spinner('Cancel listing...')
+                const spinner = new Spinner('Cancel listing')
                 await sdk.cancelListing(listingUID);
                 spinner.stopSpinner();
             }
+
+            await infoMsg('Your listing is canceled. Updates will be available soon...', true);
             await viewListingAction(listingId);
             break;
         }
@@ -200,10 +210,12 @@ export const viewListingAction = async (listingId: number) => {
             await transactionWarning();
             const confirm = await confirmPrompt('Do you want to buy?');
             if(confirm) {
-                const spinner = new Spinner('Transfer NFT...')
+                const spinner = new Spinner('Transfer NFT')
                 await sdk.buy(listingUID);
                 spinner.stopSpinner();
             }
+
+            await infoMsg('Token has been transferred. Updates will be available soon...', true);
             await viewListingAction(listingId);
             break;
         }
@@ -226,7 +238,7 @@ export const createNewAction = async () => {
             if(collectionSymbol.symbol === '<') {
                 await homeAction();
             }
-            await mintAndListInNewCollectionAction(collectionName.name, collectionSymbol.symbol);
+            await newCollectionAction(collectionName.name, collectionSymbol.symbol);
             break;
         }
         case USE_EXISTING_COLLECTION_MENU_ITEM: {
@@ -302,7 +314,7 @@ const mintAndListInExistingCollectionAction = async (tokenAddress: string) => {
     //upload image to ipfs
     let spinner = new Spinner('Image is uploading...');
     //todo: uncomment and remove test url
-    // const url = await uploadToIpfs(imagePathInput.filePath, nameInput.name, descriptionInput.description);
+    //const url = await uploadToIpfs(imagePathInput.filePath, nameInput.name, descriptionInput.description);
     const url = 'ipfs://bafyreihkp6fmltozum33pjhohawd6chpevovxpbkuc7ftbvygvhyixtwfu/metadata.json'
     spinner.stopSpinner();
     await infoMsg(`Metadata url: ${convertIpfsToHttps(url)}`);
@@ -313,37 +325,49 @@ const mintAndListInExistingCollectionAction = async (tokenAddress: string) => {
         await collectionsAction();
     }
     //mint
-    spinner = new Spinner('Minting...');
-    const tokenId = await sdk.mintNftAndApprove(tokenAddress, url);
+    spinner = new Spinner('Minting');
+    const tokenId = await sdk.mintNft(tokenAddress, url);
+    spinner.stopSpinner();
+    
+    //approve
+    spinner = new Spinner('Approve');
+    await sdk.approve(tokenAddress);
     spinner.stopSpinner();
 
     //list
-    spinner = new Spinner('Listing..')
+    spinner = new Spinner('Listing')
     await sdk.list(tokenAddress, tokenId, ethers.parseEther(price.toString()) )
     spinner.stopSpinner();
-    await infoMsg('Token is listed', true);
-
-    //render view listing view --- or home menu
-    await homeAction();
+    
+    await infoMsg('Token is listed. Your listing should be available soon...', true);
+    await listingsAction();
 }
 
 export const listExistingTokenAction = async (tokenAddress: string, tokenId: BigInt, price:number) => {
+    const spinner = new Spinner('Listing')
     const sdk = await getSdk();
     await sdk.approve(tokenAddress);
     await sdk.list(tokenAddress, tokenId, ethers.parseEther(price.toString()))
+    spinner.stopSpinner();
+    
+    await infoMsg('Token is listed. Your listing should be available soon...', true);
+    await listingsAction();
 }
 
-const mintAndListInNewCollectionAction = async (collectionName: string, collectionsSymbol: string) => {
+const newCollectionAction = async (collectionName: string, collectionsSymbol: string) => {
     await transactionWarning();
     const confirm = await confirmPrompt('Do you want to continue?')
     if(!confirm) {
         await homeAction();
     }
     const sdk = await getSdk();
-    const spinner = new Spinner('Creating collection...')
+    const spinner = new Spinner('Creating collection')
     const tokenAddress = await sdk.createERC721Collection(collectionName, collectionsSymbol);
     spinner.stopSpinner();
-    await mintAndListInExistingCollectionAction(tokenAddress);
+
+    await infoMsg('New collection is created! Adr: ' + tokenAddress, true);
+    //render view listing view --- or home menu
+    await collectionsAction();
 }
 
 

@@ -8,10 +8,12 @@ export class Sdk{
     limePlace: Contract;
     limePlaceAddress: string;
     signer: Signer;
+    signerAddress: string = '';
+    signerBalance: BigInt = BigInt(0);
 
     LISTING_FEE = 0.0001; //fee in eth
 
-    constructor(provider : Provider, limePlaceAddress: string, limePlaceNFTAddress: string, signer: Signer) {
+    constructor(provider : Provider, limePlaceAddress: string, signer: Signer) {
         this.provider = provider;
         this.limePlace  = new ethers.Contract(limePlaceAddress, limePlaceAbi.abi, signer);
         this.limePlaceAddress = limePlaceAddress;
@@ -24,13 +26,12 @@ export class Sdk{
         return rc?.logs[0].args[0];
     }
 
-    async mintNftAndApprove(tokenAddress: string, tokenUri: string) : Promise<BigInt> {
+    async mintNft(tokenAddress: string, tokenUri: string) : Promise<BigInt> {
         const tokenContract = new ethers.Contract(tokenAddress, limePlaceNftAbi.abi, this.signer);
         //wait transaction to complete in order to get listingId
         const tx = await tokenContract.mint(tokenUri);
-        const rc = await tx.wait(); // 0ms, as tx is already confirmed
+        const rc = await tx.wait();
         const tokenId = rc?.logs[0].args[2];
-        await this.approve(tokenAddress);
         
         return tokenId ?? 0;
     }
@@ -38,10 +39,10 @@ export class Sdk{
     async approve(tokenAddress: string) {
         const tokenContract = new ethers.Contract(tokenAddress, limePlaceNftAbi.abi, this.signer);
         //check for approval
-        const signerAddress = await this.signer.getAddress();
-        const isApprovedForAll = await tokenContract.isApprovedForAll(signerAddress, this.limePlaceAddress);
+        const isApprovedForAll = await tokenContract.isApprovedForAll(this.signerAddress, this.limePlaceAddress);
         if(!isApprovedForAll) {
-            await tokenContract.setApprovalForAll(this.limePlaceAddress, true)
+            const tx = await tokenContract.setApprovalForAll(this.limePlaceAddress, true);
+            await tx.wait();
         }
     }
     
@@ -77,12 +78,19 @@ export class Sdk{
         await this.limePlace.buy(listingId, options);
     }
     
-    async getSignerAddress(): Promise<string> {
-        return await this.signer.getAddress();
+    //todo refresh values after transactions!!!
+    async getSignerAddress(sync?: boolean): Promise<string> {
+        if(this.signerAddress === '' || sync) {
+            this.signerAddress = await this.signer.getAddress();
+        }
+        return this.signerAddress;
     }
     
-    async getBalance(): Promise<BigInt> {
-        const signerAddress = await this.signer.getAddress();
-        return await this.provider.getBalance(signerAddress)
+    async getBalance(sync?: boolean): Promise<BigInt> {
+        if(this.signerBalance === BigInt(0) || sync) {
+            const signerAddress = await this.getSignerAddress();
+            this.signerBalance = await this.provider.getBalance(signerAddress)
+        }
+        return this.signerBalance;
     }
 } 
