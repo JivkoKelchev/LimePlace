@@ -4,6 +4,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {Listing} from "../listings/listing.entity";
 import {ListingHistory} from "../listingsHistory/listingHistory.entity";
+import {CollectionsQuery} from "./collections.query";
 
 @Injectable()
 export class CollectionsService {
@@ -17,21 +18,7 @@ export class CollectionsService {
         await this.collectionRepository.save(collection);
     }
     
-    async getCollections(
-        page?: number,
-        active?: boolean, 
-        name?: string, 
-        floor?: number,
-        floorGt?: number,
-        floorLt?: number,
-        volume?: number,
-        volumeGt?: number,
-        volumeLt?: number,
-        owner?: string,
-        sortFloor?: string,
-        sortVolume?: string,
-        sortListing?: string
-    ) {
+    async getCollections(query: CollectionsQuery) {
         const qb = this.collectionRepository.
         createQueryBuilder('coll');
         
@@ -74,61 +61,61 @@ export class CollectionsService {
                 .groupBy('listing.collection')
         }, 'activeCollections', 'activeCollections.collection = coll.address');
 
-        if(active) {
-            qb.where('activeCollections.active = :active', {active: active});
+        if(query.active) {
+            qb.where('activeCollections.active = :active', {active: query.active});
         }
 
-        if(name) {
-            qb.andWhere('coll.name like :name', {name: `%${name}%`});
+        if(query.name) {
+            qb.andWhere('coll.name like :name', {name: `%${query.name}%`});
         }
         
-        if(floor) {
-            qb.andWhere('floor.floor = :floor', {floor: floor})
+        if(query.floor) {
+            qb.andWhere('floor.floor = :floor', {floor: query.floor})
         }
 
-        if(floorGt) {
-            qb.andWhere('floor.floor >= :floorGt', {floorGt: floorGt})
+        if(query.floorGt) {
+            qb.andWhere('floor.floor >= :floorGt', {floorGt: query.floorGt})
         }
 
-        if(floorLt) {
-            qb.andWhere('floor.floor <= :floorLt', {floorLt: floorLt})
+        if(query.floorLt) {
+            qb.andWhere('floor.floor <= :floorLt', {floorLt: query.floorLt})
         }
 
-        if(volume) {
-            qb.andWhere('volume.amount = :volume', {volume: volume})
+        if(query.volume) {
+            qb.andWhere('volume.amount = :volume', {volume: query.volume})
         }
 
-        if(volumeGt) {
-            qb.andWhere('volume.amount >= :volumeGt', {volumeGt: volumeGt})
+        if(query.volumeGt) {
+            qb.andWhere('volume.amount >= :volumeGt', {volumeGt: query.volumeGt})
         }
 
-        if(volumeLt) {
-            qb.andWhere('volume.amount <= :volumeLt', {volumeLt: volumeLt})
+        if(query.volumeLt) {
+            qb.andWhere('volume.amount <= :volumeLt', {volumeLt: query.volumeLt})
         }
         
-        if(owner) {
-            qb.andWhere('coll.owner = :owner', {owner: owner})
+        if(query.owner) {
+            qb.andWhere('coll.owner = :owner', {owner: query.owner})
         }
         
-        if(sortFloor === 'ASC' || sortFloor === 'DESC') {
-            qb.addOrderBy('floor.floor', sortFloor)
+        if(query.sortFloor === 'ASC' || query.sortFloor === 'DESC') {
+            qb.addOrderBy('floor.floor', query.sortFloor)
         }
 
-        if(sortVolume === 'ASC' || sortVolume === 'DESC') {
-            qb.addOrderBy('floor.floor', sortVolume)
+        if(query.sortVolume === 'ASC' || query.sortVolume === 'DESC') {
+            qb.addOrderBy('floor.floor', query.sortVolume)
         }
 
-        if(sortListing === 'ASC' || sortListing === 'DESC') {
-            qb.addOrderBy('activeCollections.count', sortListing)
+        if(query.sortListings === 'ASC' || query.sortListings === 'DESC') {
+            qb.addOrderBy('activeCollections.count', query.sortListings)
         }
 
         const count = await qb.getCount();
         
         //pagination
-        page = page || 1;
+        query.page = query.page || 1;
         const take = 10;
         
-        const skip = (page - 1) * take;
+        const skip = (query.page - 1) * take;
         const data = await qb.offset(skip).limit(take).getRawMany();
         
         return {data: data, count: count}

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {Listing} from "./listing.entity";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
+import {ListingsQuery} from "./listings.query";
 
 @Injectable()
 export class ListingsService {
@@ -27,54 +28,46 @@ export class ListingsService {
         return await this.listingRepository.findOneBy({id: listingId})
     }
 
-    async findAllActive(page?: number,
-                        active?: boolean,
-                        price?: number,
-                        priceGt?: number,
-                        priceLt?: number,
-                        owner?: string,
-                        sortPrice?: string,
-                        collection?: string
-    ): Promise<{data:Listing[], count:number}> {
+    async findAllActive(query: ListingsQuery): Promise<{data:Listing[], count:number}> {
         
         //BuildQuery
         const qb = this.listingRepository.createQueryBuilder('listing').select('*');
 
-        if(active || active === undefined) {
+        if(query.active || query.active === undefined) {
             qb.where('listing.active = :active', {active: true});
         }
 
-        if(price) {
-            qb.andWhere('listing.price = :price', {price: price})
+        if(query.price) {
+            qb.andWhere('listing.price = :price', {price: query.price})
         }
 
-        if(priceGt) {
-            qb.andWhere('listing.price >= :priceGt', {priceGt: priceGt})
+        if(query.priceGt) {
+            qb.andWhere('listing.price >= :priceGt', {priceGt: query.priceGt})
         }
 
-        if(priceLt) {
-            qb.andWhere('listing.price <= :priceLt', {priceLt: priceLt})
+        if(query.priceLt) {
+            qb.andWhere('listing.price <= :priceLt', {priceLt: query.priceLt})
         }
 
-        if(owner) {
-            qb.andWhere('listing.owner = :owner', {owner: owner})
+        if(query.owner) {
+            qb.andWhere('listing.owner = :owner', {owner: query.owner})
         }
 
-        if(collection) {
-            qb.andWhere('listing.collection = :collection', {collection: collection})
+        if(query.collection) {
+            qb.andWhere('listing.collection = :collection', {collection: query.collection})
         }
 
-        if(sortPrice === 'ASC' || sortPrice === 'DESC') {
-            qb.addOrderBy('listing.price', sortPrice)
+        if(query.sortPrice === 'ASC' || query.sortPrice === 'DESC') {
+            qb.addOrderBy('listing.price', query.sortPrice)
         }
 
         const count = await qb.getCount();
 
         //pagination
-        page = page || 1;
+        query.page = query.page || 1;
         const take = 10;
 
-        const skip = (page - 1) * take;
+        const skip = (query.page - 1) * take;
         const data = await qb.skip(skip).take(take).getRawMany();
 
         return {data: data, count: count}
