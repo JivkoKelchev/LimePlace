@@ -1,5 +1,5 @@
 import {clearScreen, combineArt, getImage, padArt} from "../utils/view-utils";
-import {convertIpfsToHttps, getFileFromIpfs, getMetaDataFromIpfs, Metadata} from "../services/ipfs";
+import {convertIpfsToHttps, getFileFromIpfs, Metadata} from "../services/ipfs";
 import chalk from "chalk";
 import {ListingService} from "../services/listingService";
 import ListingModel from "../models/Listing";
@@ -21,6 +21,9 @@ export const renderListingDetails = async (metadata: Metadata | null, listing: L
     const name = metadata ? metadata.name : chalk.red('Invalid metadata');
     const description = metadata ? metadata.description :chalk.red('Invalid metadata');
     const collection = await Api.getCollection(listing.collection);
+    if(!collection) {
+        throw new Error('COLLECTION NOT FOUND! ' + listing.collection)
+    }
     
     //check previous price
     const currentPrice = listing.price;

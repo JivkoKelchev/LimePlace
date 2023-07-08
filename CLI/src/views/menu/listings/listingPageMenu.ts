@@ -1,6 +1,7 @@
 import inquirer from "inquirer";
 import {BACK_MENU_ITEM, BUY_NFT_MENU_ITEM, CANCEL_LISTING_MENU_ITEM, EDIT_PRICE_MENU_ITEM} from "../menuItemsConstants";
 import ListingModel from "../../../models/Listing";
+import {ListingService} from "../../../services/listingService";
 
 
 let viewListingMenu = {
@@ -15,8 +16,8 @@ let viewListingMenu = {
 export const listingPageMenu = async (listing: ListingModel, signerAddress: string) => {
     
     //listing is canceled or expired
-    //todo add check for expired
-    if(!listing.active) {
+    const expired = ListingService.isListingExpired(listing.updated_at)
+    if(!listing.active || expired) {
         viewListingMenu.choices = [BACK_MENU_ITEM];
     }else if (listing.owner === signerAddress) {
         viewListingMenu.choices = [EDIT_PRICE_MENU_ITEM, CANCEL_LISTING_MENU_ITEM, BACK_MENU_ITEM];

@@ -1,4 +1,5 @@
 import inquirer from "inquirer";
+import {isNumeric} from "../../../utils/common-utils";
 
 const questions = [
     {
@@ -9,10 +10,10 @@ const questions = [
             if(id === '<') {
                 return true;
             }
-            if (parseInt(id) < 0) {
-                return 'Token id should be positive';
-            } else {
+            if(isNumeric(id)) {
                 return true;
+            } else {
+                return 'Enter a valid number'
             }
         }
     }

@@ -12,7 +12,7 @@ let confirmQuestion = {
 };
 
 export const infoMsg = async (msg: string, confirm?: boolean) => {
-    console.log(chalk.greenBright(`INFO: ${msg}`));
+    console.log(chalk.greenBright(`\nINFO: ${msg}`));
     if(confirm) {
         await inquirer.prompt([confirmQuestion]);
     }

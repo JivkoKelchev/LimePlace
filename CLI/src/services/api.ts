@@ -146,9 +146,13 @@ export class Api {
         return (await axios.get(apiUrl, {params: queryParams})).data;
     }
 
-    public static getCollection = async (collectionAddress: string): Promise<CollectionModel>=> {
+    public static getCollection = async (collectionAddress: string): Promise<CollectionModel | null>=> {
         const apiUrl = process.env.BACKEND_HOST+'/collections/' + collectionAddress;
-        return (await axios.get(apiUrl)).data;
+        try {
+            return (await axios.get(apiUrl)).data;            
+        } catch (err) {
+            return null;
+        }
     }
     
     public static getListingHistory = async (listingId: string, historyEvent?: 'CREATE' | 'EDIT' | 'SOLD' | 'CANCEL')

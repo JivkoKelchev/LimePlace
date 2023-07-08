@@ -51,6 +51,7 @@ import {listingDescriptionPrompt} from "../views/menu/listings/listingDescriptio
 import {transactionWarning} from "../utils/common-utils";
 import {collectionsAction} from "./collectionsController";
 import {getNoImageFilePath} from "../utils/fs-utils";
+import chalk from "chalk";
 
 let queryState: ListingsQueryState = {
     page: 1,
@@ -145,13 +146,21 @@ const listingsQueryAction = async () => {
 
 export const loadViewListingPrompt = async () => {
     const listingIdInput = await openListingPrompt();
-    //todo validate prompt
-    await viewListingAction(Number(listingIdInput.id));
+    if(listingIdInput.id === '<') {
+        await listingsAction();
+    }
+    //check if listing exist 
+    const listing = await Api.getListing(Number(listingIdInput.id));
+    if(listing) {
+        await viewListingAction(listing);
+    } else {
+        await infoMsg(chalk.yellow(`Listing with id: ${listingIdInput.id} is not found`), true);
+        await listingsAction();
+    }
 }
 
-export const viewListingAction = async (listingId: number) => {
+export const viewListingAction = async (listing: ListingModel) => {
     //render page
-    const listing: ListingModel = await Api.getListing(listingId)
     const listingUID = listing.listingUid;
     const sdk = await getSdk();
     const tokenUri = await sdk.getLimePlaceNFTTokenUri(listing.collection,BigInt(listing.tokenId));
@@ -175,15 +184,16 @@ export const viewListingAction = async (listingId: number) => {
             await transactionWarning();
             const newPriceInput = await editListingPrompt();
             if(newPriceInput.price === '<') {
-                await viewListingAction(listingId);
+                await viewListingAction(listing);
             }
             const spinner = new Spinner('Changing price')
             const newPrice = ethers.parseEther(newPriceInput.price.toString());
             await sdk.editListing(listingUID, newPrice)
+            await sdk.getBalance(true);
             spinner.stopSpinner();
 
             await infoMsg('The price is changed. Updates will be available soon...', true);
-            await viewListingAction(listingId);
+            await viewListingAction(listing);
             break;
         }
         case CANCEL_LISTING_MENU_ITEM: {
@@ -192,11 +202,11 @@ export const viewListingAction = async (listingId: number) => {
             if(confirm) {
                 const spinner = new Spinner('Cancel listing')
                 await sdk.cancelListing(listingUID);
+                await sdk.getBalance(true)
                 spinner.stopSpinner();
+                await infoMsg('Your listing is canceled. Updates will be available soon...', true);
             }
-
-            await infoMsg('Your listing is canceled. Updates will be available soon...', true);
-            await viewListingAction(listingId);
+            await viewListingAction(listing);
             break;
         }
         case BUY_NFT_MENU_ITEM: {
@@ -205,11 +215,12 @@ export const viewListingAction = async (listingId: number) => {
             if(confirm) {
                 const spinner = new Spinner('Transfer NFT')
                 await sdk.buy(listingUID);
+                await sdk.getBalance();
                 spinner.stopSpinner();
             }
 
             await infoMsg('Token has been transferred. Updates will be available soon...', true);
-            await viewListingAction(listingId);
+            await viewListingAction(listing);
             break;
         }
         case BACK_MENU_ITEM:
@@ -237,12 +248,15 @@ export const createNewAction = async () => {
         case USE_EXISTING_COLLECTION_MENU_ITEM: {
             const collectionAddress = await useCollectionPrompt();
             if(collectionAddress.address === '<') {
-                await homeAction();
+                await collectionsAction();
             }
             //check if collection exist
             collectionAddress.address = collectionAddress.address.trim();
             const collectionData = await Api.getCollection(collectionAddress.address);
-            //todo check collection data if we have result or not
+            if(!collectionData) {
+                await infoMsg(chalk.yellow(`Collection with address: ${collectionAddress.address} is not found`), true);
+                await collectionsAction();
+            }
             
             await mintAndListInExistingCollectionAction(collectionAddress.address);
             break;
@@ -330,6 +344,7 @@ const mintAndListInExistingCollectionAction = async (tokenAddress: string) => {
     //list
     spinner = new Spinner('Listing')
     await sdk.list(tokenAddress, tokenId, ethers.parseEther(price.toString()) )
+    await sdk.getBalance(true);
     spinner.stopSpinner();
     
     await infoMsg('Token is listed. Your listing should be available soon...', true);
@@ -356,6 +371,7 @@ const newCollectionAction = async (collectionName: string, collectionsSymbol: st
     const sdk = await getSdk();
     const spinner = new Spinner('Creating collection')
     const tokenAddress = await sdk.createERC721Collection(collectionName, collectionsSymbol);
+    await sdk.getBalance(true);
     spinner.stopSpinner();
 
     await infoMsg('New collection is created! Adr: ' + tokenAddress, true);

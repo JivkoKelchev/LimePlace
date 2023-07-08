@@ -87,7 +87,6 @@ export class Table {
     }
     
     private buildHeader() : number {
-        //todo include filters
         let header = '';
         for (let i = 0; i < this.columns.length; i++) {
             let col = this.columns[i];

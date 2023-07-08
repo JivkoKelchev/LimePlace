@@ -42,8 +42,7 @@ export const printImage = async (imagePath: string) => {
         fit:    fit,
         width:  20,
     }
-
-    //todo handle errors
+    
     const asciified = await asciifyImage(imagePath, options);
     
     console.log('');

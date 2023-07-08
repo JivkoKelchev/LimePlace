@@ -31,10 +31,10 @@ import {ScheduleModule} from "@nestjs/schedule";
                 //todo move config into .env
                 type: 'mysql',
                 host: configService.get('DATABASE_HOST'),
-                port: 3306,
-                username: 'root',
-                password: 'your_mysql_root_password',
-                database: 'lime_place',
+                port: configService.get('DATABASE_PORT'),
+                username: configService.get('DATABASE_USER'),
+                password: configService.get('DATABASE_PASSWORD'),
+                database: configService.get('DATABASE_NAME'),
                 entities: [Listing, ListingHistory, BlockInfo, Collection],
                 synchronize: true,
                 // logging: true

@@ -78,7 +78,6 @@ export class Sdk{
         await this.limePlace.buy(listingId, options);
     }
     
-    //todo refresh values after transactions!!!
     async getSignerAddress(sync?: boolean): Promise<string> {
         if(this.signerAddress === '' || sync) {
             this.signerAddress = await this.signer.getAddress();

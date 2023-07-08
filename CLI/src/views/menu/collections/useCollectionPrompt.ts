@@ -1,4 +1,5 @@
 import inquirer from "inquirer";
+import {ethers} from "ethers";
 
 const questions = [
     {
@@ -9,8 +10,8 @@ const questions = [
             if(address === '<') {
                 return true;
             }
-            if (address.length < 3) {
-                return 'Name should be at least 3 characters!';
+            if (!ethers.isAddress(address)) {
+                return 'Invalid address!';
             } else {
                 return true;
             }
