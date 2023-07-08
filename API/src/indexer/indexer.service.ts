@@ -28,9 +28,7 @@ export class IndexerService {
                 private configService: ConfigService ) {
         console.log('Make sure hardhat local node is started!')
         this.provider = getProvider(configService);
-        //todo use real contract address
         this.contractAddress = configService.get<string>('LIMEPLACE_ADDRESS');
-        //todo don't forget to update the abi
         this.contractABI = limePlaceAbi.abi;
    }
 
@@ -40,9 +38,9 @@ export class IndexerService {
         this.logger.debug('Indexing is started');
         let startBlock = await this.blockInfoService.getLastBlock();
         
-        //todo set contract block in .env
         //For start indexing use contract block number or last processed block
-        startBlock = startBlock < 3840910 ? 3840910 : startBlock;
+        const contractBlock = this.configService.get<number>('LIMEPLACE_BLOCK');
+        startBlock = startBlock < contractBlock ? contractBlock : startBlock;
         const endBlock = await this.provider.getBlockNumber();
         this.logger.debug('------------------------------------');
         this.logger.debug('Latest block number   : ' + endBlock);
@@ -53,6 +51,7 @@ export class IndexerService {
             return;
         }
 
+        //use chunks of 5000 blocks
         for(let i = startBlock; i < endBlock; i += 5000) {
             const _startBlock = i;
             const _endBlock = Math.min(endBlock, i + 4999);

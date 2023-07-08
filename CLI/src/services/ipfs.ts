@@ -69,17 +69,20 @@ const fileFromPath = async (filePath: string) => {
 }
 
 export const convertIpfsToHttps = (ipfsUrl: string) => {
-    let cid = ipfsUrl.replace('ipfs://', '');
-    const i = cid.lastIndexOf('/');
-    const fileName = cid.substring(i + 1)
-    cid = cid.replace('/' + fileName, '');
-
-
-    // return 'https://' + cid + '.ipfs.dweb.link' + '/' + fileName
-    let url = 'https://ipfs.io/ipfs/' + cid
-    if(fileName) {
-        url += '/' + fileName;
+    //try to extract cid from url
+    let cidArr = ipfsUrl.match(/(Qm[1-9A-HJ-NP-Za-km-z]{44,}|b[A-Za-z2-7]{58,}|B[A-Z2-7]{58,}|z[1-9A-HJ-NP-Za-km-z]{48,}|F[0-9A-F]{50,})/)
+    if( cidArr && cidArr.length > 0) {
+        const cid = cidArr[0];
+        const i = ipfsUrl.lastIndexOf('/');
+        const fileNameArr = ipfsUrl.match(/([^/]+(\.json$)|[^/]+(\.png$)|[^/]+(\.jpg$)|[^/]+(\.gif$))/)
+        
+        let url = 'https://ipfs.io/ipfs/' + cid
+        if(fileNameArr && fileNameArr.length > 0) {
+            url += '/' + fileNameArr[0];
+        }
+        return url;
+        //subdomain gateway
+        //return 'https://' + cid + '.ipfs.dweb.link' + '/' + fileName
     }
-
-    return url;
+    return '';
 }

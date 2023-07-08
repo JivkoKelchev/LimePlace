@@ -15,6 +15,7 @@ const run = async () => {
     }catch (err) {
         //todo: implement uncached errors
         console.log(err);
+        process.exit(69)
     }
 };
 

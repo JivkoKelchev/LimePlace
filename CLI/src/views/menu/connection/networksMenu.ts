@@ -1,13 +1,13 @@
 import inquirer from "inquirer";
 import {
     EXIT_MENU_ITEM,
-    LOCAL_MENU_ITEM,
-    SEPOLIA_MENU_ITEM
+    LOCAL_NETWORK,
+    SEPOLIA_NETWORK
 } from "../menuItemsConstants";
 
 export const networkList = [
-    LOCAL_MENU_ITEM,
-    SEPOLIA_MENU_ITEM,
+    LOCAL_NETWORK,
+    SEPOLIA_NETWORK,
     EXIT_MENU_ITEM]
 
 const selectNetwork = [

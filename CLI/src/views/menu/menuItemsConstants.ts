@@ -1,6 +1,7 @@
 //connection
-export const LOCAL_MENU_ITEM = 'Local';
-export const SEPOLIA_MENU_ITEM = 'Sepolia';
+export const LOCAL_NETWORK = 'Local';
+export const SEPOLIA_NETWORK = 'Sepolia';
+export const GOERLI_NETWORK = 'Goerli';
 
 //main menu items
 export const COLLECTIONS_MENU_ITEM = 'Collections';

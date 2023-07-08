@@ -3,8 +3,10 @@ import {ethers, Signer} from "ethers";
 import {Sdk} from "../services/sdk";
 // @ts-ignore
 import {MetaMaskSDK} from "@metamask/sdk";
-import {LOCAL_MENU_ITEM, SEPOLIA_MENU_ITEM} from "../views/menu/menuItemsConstants";
+import {GOERLI_NETWORK, LOCAL_NETWORK, SEPOLIA_NETWORK} from "../views/menu/menuItemsConstants";
 import {localSignerAddressPrompt} from "../views/menu/connection/localSignerAddressPrompt";
+import {Api} from "../services/api";
+import chalk from "chalk";
 
 let sdkInstance: Sdk | null = null;
 let instanceCreated = false;
@@ -15,19 +17,21 @@ export const getSdk = async () : Promise<Sdk> => {
             return sdkInstance;
         }
     }
-    const network = await selectNetwork();
+    const network = await Api.getNetwork();
     return await connect(network);
 }
 
 const connect = async (network: string) : Promise<Sdk> => {
-    switch (network) {
-        case LOCAL_MENU_ITEM: {
-            //const data = await localNetworkPrompts();
+    switch (network.toUpperCase()) {
+        case LOCAL_NETWORK.toUpperCase(): 
+        default:{
             return await initSdkForLocalNetwork();
         }
-        case SEPOLIA_MENU_ITEM: 
-        default: {
+        case SEPOLIA_NETWORK.toUpperCase(): {
             return await initSdkSepolia();
+        }
+        case GOERLI_NETWORK.toUpperCase(): {
+            return await initSdkGoerli();
         }
     }
     
@@ -53,14 +57,44 @@ const initSdkForLocalNetwork = async  () : Promise<Sdk> => {
 }
 
 const initSdkSepolia = async () : Promise<Sdk> => {
+    console.log(chalk.greenBright('Select sepolia testnet in your metamask wallet.'))
     const MMSDK = new MetaMaskSDK({dappMetadata : {name: "LimePlace"}});
     const ethereum = await MMSDK.getProvider();
     // @ts-ignore
     await ethereum.request({ method: 'eth_requestAccounts', params: [] });
 
     const provider = new ethers.BrowserProvider(ethereum);
+
+    //check selected network and load proper contract address
+    const network = await provider.getNetwork();
+    if(network.name.toUpperCase() != 'SEPOLIA') {
+        console.log(chalk.redBright('Change network in your metamask wallet to sepolia!'))
+        throw new Error('CONNECTED WITH WRONG NETWORK')
+    }
     const signer = await provider.getSigner();
     sdkInstance = new Sdk(provider, `${process.env.SEP_LIME_PLACE_ADR}`, signer);
+    instanceCreated = true;
+    return sdkInstance;
+}
+
+
+const initSdkGoerli = async () : Promise<Sdk> => {
+    console.log(chalk.greenBright('Select goerli testnet in your metamask wallet.'))
+    const MMSDK = new MetaMaskSDK({dappMetadata : {name: "LimePlace"}});
+    const ethereum = await MMSDK.getProvider();
+    // @ts-ignore
+    await ethereum.request({ method: 'eth_requestAccounts', params: [] });
+
+    const provider = new ethers.BrowserProvider(ethereum);
+    
+    //check selected network and load proper contract address
+    const network = await provider.getNetwork();
+    if(network.name.toUpperCase() != 'GOERLI') {
+        console.log(chalk.redBright('Change network in your metamask wallet to goerli!'))
+        throw new Error('CONNECTED WITH WRONG NETWORK')
+    }
+    const signer = await provider.getSigner();
+    sdkInstance = new Sdk(provider, `${process.env.GOR_LIME_PLACE_ADR}`, signer);
     instanceCreated = true;
     return sdkInstance;
 }

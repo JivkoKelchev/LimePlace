@@ -164,15 +164,8 @@ export const viewListingAction = async (listingId: number) => {
     } else if(priceEdits.data.length > 1) {
         previousPrice = priceEdits.data[1].price;
     }
-    let imagePath;
     const metadata = await getMetaDataFromIpfs(tokenUri);
-    if(!metadata) {
-        imagePath = getNoImageFilePath();
-    } else {
-        imagePath = await getFileFromIpfs(metadata.image);
-    }
-    
-    await renderListingDetails(imagePath, metadata, listing, previousPrice);
+    await renderListingDetails(metadata, listing, previousPrice);
     const signerAddress = await sdk.getSignerAddress();
     const actionInput = await listingPageMenu(listing, signerAddress);
     

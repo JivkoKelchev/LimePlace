@@ -1,16 +1,22 @@
 import {clearScreen, combineArt, getImage, padArt} from "../utils/view-utils";
-import {convertIpfsToHttps, Metadata} from "../services/ipfs";
+import {convertIpfsToHttps, getFileFromIpfs, getMetaDataFromIpfs, Metadata} from "../services/ipfs";
 import chalk from "chalk";
-import {ethers} from "ethers";
 import {ListingService} from "../services/listingService";
-import CollectionModel from "../models/Collection";
 import ListingModel from "../models/Listing";
 import {Api} from "../services/api";
+import {getNoImageFilePath} from "../utils/fs-utils";
 
-export const renderListingDetails = async (
-    imagePath: string, metadata: Metadata | null, listing: ListingModel, prevPrice?: number) => {
-    await clearScreen();
-    const image = await getImage(imagePath);
+export const renderListingDetails = async (metadata: Metadata | null, listing: ListingModel, prevPrice?: number) => {
+    await clearScreen()
+    let imagePath;
+    let image;
+    (!metadata) ? imagePath = getNoImageFilePath() : imagePath = await getFileFromIpfs(metadata.image);
+    try{
+        image = await getImage(imagePath);    
+    } catch (err) {
+        image = await getImage(getNoImageFilePath());
+    }
+    
     const imageUrl = metadata ? convertIpfsToHttps(metadata.image) : chalk.redBright('Invalid metadata');
     const name = metadata ? metadata.name : chalk.red('Invalid metadata');
     const description = metadata ? metadata.description :chalk.red('Invalid metadata');
