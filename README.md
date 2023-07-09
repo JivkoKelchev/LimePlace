@@ -4,7 +4,7 @@ CLI tool to interact with LimePlace contract.
 
 API (backend server) for collecting emitted events form LimePlace contract.
 
-See LimePlaceContracts repo [repo](https://github.com/JivkoKelchev/LimePlaceContracts/tree/main/#readme)
+See [LimePlaceContracts repo](https://github.com/JivkoKelchev/LimePlaceContracts/tree/main/#readme)
 
 ## Table of Contents
 
