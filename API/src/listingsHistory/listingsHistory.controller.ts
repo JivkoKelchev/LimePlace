@@ -1,6 +1,7 @@
-import {Controller, Get, Inject, Param, Query} from '@nestjs/common';
+import {BadRequestException, Controller, Get, Inject, Param, Query} from '@nestjs/common';
 import {ListingsHistoryService} from "./listingsHistory.service";
 import {ApiParam} from "@nestjs/swagger";
+import {ethers} from "ethers";
 
 @Controller('listings-history')
 export class ListingsHistoryController {
@@ -21,9 +22,10 @@ export class ListingsHistoryController {
 
     @Get('purchase/:userAddress')
     @ApiParam({name: 'userAddress', required: true, description: 'user address'})
-    getListingsByUser(
-        @Param() params: any,
-    ) {
+    getListingsByUser( @Param() params: any ) {
+        if(!ethers.isAddress(params.userAddress)){
+            throw new BadRequestException('Invalid address');
+        }
         return this.listingServise.getHistoryPurchases(params.userAddress);
     }
 }

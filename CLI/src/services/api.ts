@@ -46,9 +46,13 @@ export class Api {
         return (await axios.get(apiUrl)).data.network;
     }
     
-    public static getListing = async (listingId: number): Promise<ListingModel> => {
-        const apiUrl = process.env.BACKEND_HOST+'/listings/'+listingId;
-        return (await axios.get(apiUrl)).data;
+    public static getListing = async (listingId: number): Promise<ListingModel | null> => {
+        try{
+            const apiUrl = process.env.BACKEND_HOST+'/listings/'+listingId;
+            return (await axios.get(apiUrl)).data;
+        } catch (err) {
+            return null;
+        }
     }
     
     public static getListings = async (query: ListingsQueryState):  Promise<{ data: ListingModel[], count: number }> => {
