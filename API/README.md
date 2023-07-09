@@ -35,7 +35,7 @@ It's endpoints is used by CLI to gather information about listings and collectio
 
 * Parse LimePlace contract events.
 * Serve data to CLI
-* All endpoints are documented in Swagger and can be tested on [Link localhost:3000](URL "localhost")
+* All endpoints are documented in Swagger and can be tested on [localhost:3000]("http://localhost:3000")
 
 ## License
 
