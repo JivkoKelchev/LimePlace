@@ -15,8 +15,12 @@ export const loadHeader = async (sdk?: Sdk) => {
 const printHeader = async (sdk?: Sdk) => {
     let statusBar = chalk.bgRed('                                                            connect your wallet ')
     if(sdk) {
-      const address = await sdk.getSignerAddress();
+      let address = await sdk.getSignerAddress();
       const balance = await sdk.getBalance();
+      const isOwner = await sdk.checkIsOwner();
+      if(isOwner) {
+          address = '(Owner) ' + address;
+      }
       const balanceFormatted = Number(ethers.formatEther(balance.toString())).toFixed(5);
       statusBar = chalk.bgGreen(' Connected: ' + address + '         Balance: ' + balanceFormatted + ' ETH ')
     }

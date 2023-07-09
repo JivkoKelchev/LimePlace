@@ -10,6 +10,7 @@ export class Sdk{
     signer: Signer;
     signerAddress: string = '';
     signerBalance: BigInt = BigInt(0);
+    isOwner: boolean | null = null;
 
     LISTING_FEE = 0.0001; //fee in eth
 
@@ -76,6 +77,27 @@ export class Sdk{
         const listing = await this.limePlace.getListing(listingId);
         const options = {'value': listing[3]};
         await this.limePlace.buy(listingId, options);
+    }
+    
+    async checkIsOwner(): Promise<boolean> {
+        if(this.isOwner === null) {
+            const signerAddress = await this.getSignerAddress(true);
+            const ownerAddress = await this.limePlace.owner();
+            this.isOwner = signerAddress === ownerAddress;
+        }
+        return this.isOwner;
+    }
+    
+    async getPendingFees(): Promise<BigInt> {
+        return await this.limePlace.getPendingFees();
+    }
+    
+    async getFees(): Promise<BigInt> {
+        return await this.limePlace.getFees();
+    }
+    
+    async withdraw() {
+        await this.limePlace.withdrawFees();
     }
     
     async getSignerAddress(sync?: boolean): Promise<string> {

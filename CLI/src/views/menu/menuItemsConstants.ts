@@ -46,3 +46,7 @@ export const NEXT_PAGE_MENU_ITEM = 'Next page';
 export const PREV_PAGE_MENU_ITEM = 'Previous page';
 export const MAIN_MENU_ITEM = 'Back to main menu';
 export const BACK_MENU_ITEM = 'Back'; //to previous page
+
+//Owner items
+export const FEES_MENU_ITEM = 'Fees'
+export const WITHDRAW_MENU_ITEM = 'Withdraw fees'
