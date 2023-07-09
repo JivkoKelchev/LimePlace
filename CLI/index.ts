@@ -13,7 +13,6 @@ const run = async () => {
         //load main menu
         await homeAction();
     }catch (err) {
-        //todo: implement uncached errors
         console.log(err);
         process.exit(69)
     }

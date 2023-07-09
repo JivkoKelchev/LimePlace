@@ -322,9 +322,9 @@ const mintAndListInExistingCollectionAction = async (tokenAddress: string) => {
 
     //upload image to ipfs
     let spinner = new Spinner('Image is uploading...');
-    //todo: uncomment and remove test url
-    //const url = await uploadToIpfs(imagePathInput.filePath, nameInput.name, descriptionInput.description);
-    const url = 'ipfs://bafyreihkp6fmltozum33pjhohawd6chpevovxpbkuc7ftbvygvhyixtwfu/metadata.json'
+    //test url
+    //const url = 'ipfs://bafyreihkp6fmltozum33pjhohawd6chpevovxpbkuc7ftbvygvhyixtwfu/metadata.json'
+    const url = await uploadToIpfs(imagePathInput.filePath, nameInput.name, descriptionInput.description);
     spinner.stopSpinner();
     await infoMsg(`Metadata url: ${convertIpfsToHttps(url)}`);
 
