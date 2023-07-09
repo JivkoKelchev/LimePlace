@@ -17,6 +17,7 @@ async function bootstrap() {
         .setTitle('LimePlaceAPI')
         .setDescription('LimePlace api description')
         .setVersion('1.0')
+        .setExternalDoc('Postman Collection', '/-json')
         .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('/', app, document);
