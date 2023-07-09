@@ -17,7 +17,7 @@ All events will be parsed and inserted into database.
 ## Installation
 
 * clone the repository
-* create .env form .env.example (just rename it, it has default config for sepolia network)
+* create .env form .env.example (rename it and set your Infura key. By default it is set to use Sepolia test net)
 * navigate to /API folder and install node modules `npm install`
 * navigate to /API/docker and run `docker-compose up -d`
 * if you want to change network: 
