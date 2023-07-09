@@ -1,0 +1,4 @@
+/.idea/
+/CLI/node_modules/
+/API/node_modules/
+/CLI/.env

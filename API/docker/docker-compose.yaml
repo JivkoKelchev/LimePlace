@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  lime_place_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../:/lime_place/
+    networks:
+      - lime_place_network
+    depends_on:
+      - lime_place_db
+
+  #MySQL Service
+  lime_place_db:
+    image: mysql:5.7.22
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: lime_place
+      MYSQL_ROOT_PASSWORD: your_mysql_root_password
+    volumes:
+      - dbdata:/var/lib/mysql/
+    networks:
+      - lime_place_network
+
+networks:
+  lime_place_network:
+    driver: bridge
+#Volumes
+volumes:
+  dbdata:
+    driver: local
