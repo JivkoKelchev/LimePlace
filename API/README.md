@@ -20,6 +20,9 @@ All events will be parsed and inserted into database.
 * create .env form .env.example (just rename it, it has default config for sepolia network)
 * navigate to /API folder and install node modules `npm install`
 * navigate to /API/docker and run `docker-compose up -d`
+* if you want to change network: 
+
+update .env file and restart docker containers with detaching of volumes `docker-compose down -v`
 * wait server to start, and parse old events
 * open `localhost:3000`
 
