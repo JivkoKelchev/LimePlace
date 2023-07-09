@@ -17,7 +17,7 @@ export class CollectionsController {
     @Get(':address')
     @ApiParam({name: 'address', required: true, description: 'collection address'})
     async getCollection(@Param() params: any) {
-        if(ethers.isAddress(params.address)){
+        if(!ethers.isAddress(params.address)){
             throw new BadRequestException('Invalid address');
         }
         const collection = await this.collectionsService.getCollectionByAddress(params.address);
