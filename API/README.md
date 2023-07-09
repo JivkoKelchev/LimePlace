@@ -12,7 +12,6 @@ All events will be parsed and inserted into database.
 - [Installation](#installation)
 - [Usage](#usage)
 - [Features](#features)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## Installation
