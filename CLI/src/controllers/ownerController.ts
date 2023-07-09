@@ -3,6 +3,7 @@ import {BACK_MENU_ITEM, FEES_MENU_ITEM, WITHDRAW_MENU_ITEM} from "../views/menu/
 import {ownerMenu} from "../views/menu/ownerMenu";
 import {infoMsg} from "../views/genericUI/infoMsg";
 import {homeAction} from "./homeController";
+import {ethers} from "ethers";
 
 export const ownerAction = async () => {
     //render page
@@ -10,8 +11,8 @@ export const ownerAction = async () => {
     const pendingFees = await sdk.getPendingFees();
     const fees = await sdk.getFees();
 
-    console.log('Pending fees :', pendingFees.toString());
-    console.log('Fees         :', fees.toString());
+    console.log('Pending fees :', Number(ethers.formatEther(pendingFees.toString())).toFixed(5) + ' ETH');
+    console.log('Fees         :', Number(ethers.formatEther(fees.toString())).toFixed(5) + ' ETH');
     //render menu
     const selected = await ownerMenu();
 
@@ -21,6 +22,7 @@ export const ownerAction = async () => {
             await sdk.withdraw();
             await sdk.getBalance(true);
             await infoMsg('Withdraw is done.', true)
+            await homeAction();
             break;
         }
         case BACK_MENU_ITEM: 

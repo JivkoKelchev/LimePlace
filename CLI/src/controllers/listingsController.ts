@@ -50,7 +50,6 @@ import {listingNamePrompt} from "../views/menu/listings/listingNamePrompt";
 import {listingDescriptionPrompt} from "../views/menu/listings/listingDescriptioinPrompt";
 import {transactionWarning} from "../utils/common-utils";
 import {collectionsAction} from "./collectionsController";
-import {getNoImageFilePath} from "../utils/fs-utils";
 import chalk from "chalk";
 
 let queryState: ListingsQueryState = {
@@ -71,6 +70,9 @@ export const listingsAction = async () => {
     //redirect to actions
     switch (actionInput.menu) {
         case REFRESH_MENU_ITEM: {
+            //refresh users balance
+            const sdk = await getSdk();
+            await sdk.getBalance(true);
             await listingsAction();
             break;
         }
@@ -220,7 +222,7 @@ export const viewListingAction = async (listing: ListingModel) => {
             }
 
             await infoMsg('Token has been transferred. Updates will be available soon...', true);
-            await viewListingAction(listing);
+            await listingsAction();
             break;
         }
         case BACK_MENU_ITEM:

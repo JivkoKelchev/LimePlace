@@ -45,6 +45,8 @@ export const collectionsAction = async () => {
     const selected = await collectionsTableMenu(hasNext, hasPrev);
     switch (selected.menu) {
         case REFRESH_MENU_ITEM: {
+            //refresh users balance
+            await sdk.getBalance(true);
             await collectionsAction();
             break;
         }
