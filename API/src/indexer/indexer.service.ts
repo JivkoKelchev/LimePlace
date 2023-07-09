@@ -48,6 +48,7 @@ export class IndexerService {
         this.logger.debug('Total Blocks to index : ' + (endBlock - startBlock))
         this.logger.debug('------------------------------------');
         if(startBlock === endBlock) {
+            this.indexing = false;
             return;
         }
 
